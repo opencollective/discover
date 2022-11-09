@@ -81,7 +81,6 @@ export default function Dashboard({ categories, startYear, locale }) {
         </div>
       </Grid>
 
-      <Story stories={currentCategory.stories} />
       <H4 px={'24px'} fontWeight="300" mt={4} mb={2}>
         Chart
       </H4>
@@ -96,6 +95,8 @@ export default function Dashboard({ categories, startYear, locale }) {
             color: category.color,
           }))}
       />
+      <Story stories={currentCategory.stories} />
+
       <H4 px={'24px'} fontWeight="300" mt={4} mb={2}>
         Collectives
       </H4>
