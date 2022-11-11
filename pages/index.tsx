@@ -69,7 +69,7 @@ export const categories = [
   { label: 'mutual aid', tag: 'mutual aid', color: '#F94892' },
   { label: 'civic tech', tag: 'civic tech', color: '#FF7F3F' },
   { label: 'arts & culture', tag: 'arts and culture', color: '#FBDF07' },
-  { label: 'climate', tag: 'climate', color: '#89CFFD' },
+  { label: 'climate', tag: 'climate', extraTags: ['climate change', 'climate justice'], color: '#89CFFD' },
 ];
 
 export const simpleDateToISOString = (date, isEndOfDay, timezoneType) => {
@@ -112,9 +112,9 @@ const getTimeVariables = (
   }
 };
 
-const getDataForTagAndPeriod = async ({ apollo, hostSlug, tag, period }) => {
+const getDataForTagAndPeriod = async ({ apollo, hostSlug, category, period }) => {
   const { dateFrom, dateTo, timeUnit } = getTimeVariables(period);
-
+  const { tag, extraTags } = category;
   let data = getDumpByTagAndPeriod(tag, period);
 
   if (!data) {
@@ -125,7 +125,7 @@ const getDataForTagAndPeriod = async ({ apollo, hostSlug, tag, period }) => {
         dateFrom,
         dateTo,
         timeUnit,
-        ...(tag !== 'ALL' && { tag: [tag] }),
+        ...(tag !== 'ALL' && { tag: [tag, ...extraTags] }),
       },
     }));
 
@@ -182,9 +182,9 @@ export const getStaticProps: GetStaticProps = async () => {
     categories.map(async category => ({
       ...category,
       data: {
-        ALL: await getDataForTagAndPeriod({ apollo, hostSlug, tag: category.tag, period: 'ALL' }),
-        PAST_YEAR: await getDataForTagAndPeriod({ apollo, hostSlug, tag: category.tag, period: 'PAST_YEAR' }),
-        PAST_QUARTER: await getDataForTagAndPeriod({ apollo, hostSlug, tag: category.tag, period: 'PAST_QUARTER' }),
+        ALL: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'ALL' }),
+        PAST_YEAR: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'PAST_YEAR' }),
+        PAST_QUARTER: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'PAST_QUARTER' }),
       },
     })),
   );
