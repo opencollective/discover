@@ -7,96 +7,151 @@ import { formatCurrency } from '@opencollective/frontend-components/lib/currency
 import CategorySelect from '../components/CategorySelect';
 import Chart from '../components/Chart';
 import Collectives from '../components/Collectives';
+import MetricSelect from '../components/MetricSelect';
 import { H1, H4 } from '@opencollective/frontend-components/components/Text';
 
-const Grid = styled.div`
-  display: grid;
-  flex: 1;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  @media (max-width: 640px) {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-    div {
-      text-align: center;
-      &:not(:last-child) {
-        border-bottom: 1px solid #e6e8eb;
-        border-right: 0 !important;
-      }
-    }
-  }
-  background: white;
-  padding: 24px;
-  border-radius: 8px;
-  div {
-    text-align: center;
-    &:not(:last-child) {
-      border-right: 1px solid #e6e8eb;
-    }
-    padding: 16px;
-    p {
-      font-weight: 500;
-      font-size: 32px;
-      margin: 0 0 12px 0;
-    }
-    span {
-      font-size: 18px;
+import DropdownSelector from './Dropdown';
 
-      margin: 0;
-      display: block;
-    }
+const Metric = styled.div`
+  text-align: center;
+  &:not(:last-child) {
+    border-right: 1px solid #e6e8eb;
+  }
+  p {
+    font-weight: 500;
+    font-size: 28px;
+    margin: 0 0 12px 0;
+  }
+  span {
+    font-size: 20px;
+
+    margin: 0;
+    display: block;
   }
 `;
 
-export default function Dashboard({ categories, startYear, locale }) {
+const Flex = styled.div`
+  display: flex;
+  gap: 32px;
+  flex-direction: column;
+`;
+
+const getParam = param => (Array.isArray(param) ? param[0] : param);
+
+export default function Dashboard({ categories, locale }) {
   const router = useRouter();
-  const currentTag = router.query?.tag;
+  const currentTag = getParam(router.query?.tag) ?? 'ALL';
+  const currentTimePeriod = getParam(router.query?.time) ?? 'ALL';
+  const currentMetric = getParam(router.query?.metric) ?? 'TOTAL_RAISED';
+
   const currentCategory = categories.find(category => (currentTag ? category.tag === currentTag : !category.tag));
-  const { collectiveCount, totalRaised, numberOfContributions, collectives } = currentCategory?.data || {};
+  const { collectiveCount, totalRaised, numberOfContributions, collectives } =
+    currentCategory?.data[currentTimePeriod] || {};
 
   return (
     <Fragment>
-      <H1 px={'24px'} fontSize="30px" mt={4} mb={2}>
-        Horizons
+      <H1 fontSize="28px" lineHeight="1.5" fontWeight={500} mt={4} mb={3} px={'12px'}>
+        Discover {collectiveCount} collectives in{' '}
+        {currentTag !== 'ALL' ? (
+          <React.Fragment>
+            <span style={{ color: currentCategory.color }}>{currentTag}</span>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            {categories
+              .filter(c => c.tag !== 'ALL')
+              .map(category => (
+                <span key={category.tag} style={{ color: category.color }}>
+                  {category.label}
+                </span>
+              ))
+
+              .reduce((prev, curr) => [prev, ', ', curr])}{' '}
+            and more
+          </React.Fragment>
+        )}
       </H1>
-      <H4 px={'24px'} fontWeight="300" mb={2}>
-        Trends
+
+      <Flex>
+        <CategorySelect
+          currentTimePeriod={currentTimePeriod}
+          selectedTag={currentTag}
+          categories={categories}
+          onSelect={category => {
+            router.push({ pathname: '/', query: { ...router.query, ...{ tag: category.tag } } }, null, {
+              shallow: true,
+            });
+          }}
+        />
+
+        <MetricSelect
+          selectedTag={currentMetric}
+          options={[
+            {
+              tag: 'TOTAL_RAISED',
+              label: (
+                <Metric>
+                  <p>
+                    {formatCurrency(totalRaised.valueInCents, totalRaised.currency, { locale, precision: 0 })}{' '}
+                    {totalRaised.currency}
+                  </p>
+                  <span>total raised</span>
+                </Metric>
+              ),
+              color: '#333333',
+            },
+            {
+              tag: 'CONTRIBUTIONS',
+              label: (
+                <Metric>
+                  <p>{numberOfContributions.toLocaleString(locale)}</p>
+                  <span>contributions</span>
+                </Metric>
+              ),
+              color: '#333333',
+            },
+          ]}
+          onSelect={category => {
+            router.push({ pathname: '/', query: { ...router.query, ...{ metric: category.tag } } }, null, {
+              shallow: true,
+            });
+          }}
+        >
+          <DropdownSelector
+            options={[
+              { tag: 'ALL', label: 'all time' },
+              { tag: 'PAST_YEAR', label: 'past 12 months' },
+              { tag: 'PAST_QUARTER', label: 'past 12 weeks' },
+            ]}
+            currentTag={currentTimePeriod}
+            onChange={time => {
+              router.push({ pathname: '/', query: { ...router.query, ...{ time: time.tag } } }, null, {
+                shallow: true,
+              });
+            }}
+          />
+        </MetricSelect>
+
+        <Chart
+          startYear={2018}
+          currentTag={currentTag}
+          currentTimePeriod={currentTimePeriod}
+          type={currentMetric === 'TOTAL_RAISED' ? 'amount' : 'count'}
+          timeSeriesArray={categories
+            .filter(category => (currentTag === 'ALL' ? true : category.tag === currentTag))
+            .map(category => ({
+              ...(currentMetric === 'TOTAL_RAISED'
+                ? category.data[currentTimePeriod].totalReceivedTimeSeries
+                : category.data[currentTimePeriod].contributionsCountTimeSeries),
+              label: category.label,
+              color: category.color,
+            }))}
+        />
+      </Flex>
+      <H4 px={'24px'} fontWeight="500" mt={4} mb={2}>
+        {collectiveCount.toLocaleString(locale)} collectives
       </H4>
-      <CategorySelect selectedTag={currentTag} categories={categories} />
-      <H4 px={'24px'} fontWeight="300" mt={4} mb={2}>
-        Stats
-      </H4>
-      <Grid>
-        <div>
-          <p>{collectiveCount.toLocaleString(locale)}</p> <span>collectives</span>
-        </div>
-        <div>
-          <p>
-            {formatCurrency(totalRaised.valueInCents, totalRaised.currency, { locale, precision: 0 })}{' '}
-            {totalRaised.currency}
-          </p>
-          <span>total raised</span>
-        </div>
-        <div>
-          <p>{numberOfContributions.toLocaleString(locale)}</p> <span>contributions</span>
-        </div>
-      </Grid>
-      <H4 px={'24px'} fontWeight="300" mt={4} mb={2}>
-        Chart
-      </H4>
-      <Chart
-        startYear={startYear}
-        currentTag={currentTag}
-        timeSeriesArray={categories
-          .filter(category => (currentTag ? category.tag === currentTag : true))
-          .map(category => ({
-            ...category.data.totalReceivedTimeSeries,
-            label: category.label,
-            color: category.color,
-          }))}
-      />
-      <H4 px={'24px'} fontWeight="300" mt={4} mb={2}>
-        Collectives
-      </H4>
-      <Collectives collectives={collectives} />
+      <Collectives collectives={collectives} selectedMetric={currentMetric} />
     </Fragment>
   );
 }

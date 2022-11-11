@@ -1,10 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-// import { Avatar } from '@opencollective/frontend-components/components/Avatar';
 import { formatCurrency } from '@opencollective/frontend-components/lib/currency-utils';
-// import Footer from './Footer';
-// import Header from './Header';
 
 const List = styled.ul`
   list-style: none;
@@ -12,6 +9,7 @@ const List = styled.ul`
   background: white;
   padding: 16px;
   border-radius: 16px;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 `;
 
 const Avatar = styled.img`
@@ -61,33 +59,46 @@ const Collective = styled.a`
 
 interface Props {
   collectives: [any];
-  //   children: React.ReactNode;
+  selectedMetric: string;
 }
 
-export default function Collectives({ collectives }: Props) {
+export default function Collectives({ collectives, selectedMetric }: Props) {
   // sort on totalAmountReceived
-  const sortedCollectives = [...collectives].sort(
-    (a, b) => b.stats.totalAmountReceived.valueInCents - a.stats.totalAmountReceived.valueInCents,
-  );
+  const sortedCollectives = [...collectives].sort((a, b) => {
+    return selectedMetric === 'TOTAL_RAISED'
+      ? b.stats.totalAmountReceived.valueInCents - a.stats.totalAmountReceived.valueInCents
+      : b.stats.contributionsCount - a.stats.contributionsCount;
+  });
   return (
     <List>
       {sortedCollectives.map(collective => (
         <Collective key={collective.id} href={`https://opencollective.com/${collective.slug}`}>
           <div className="first">
             <div className="name">
-              <Avatar alt={collective.name} src={collective.imageUrl} height={'50px'} width={'50px'} />{' '}
+              <Avatar
+                alt={collective.name}
+                src={collective.imageUrl.replace('-staging', '')}
+                height={'50px'}
+                width={'50px'}
+              />{' '}
               {collective.name}{' '}
             </div>
             <span>{collective.description}</span>
           </div>
 
           <div className="amount">
-            {formatCurrency(
-              collective.stats.totalAmountReceived.valueInCents,
-              collective.stats.totalAmountReceived.currency,
-              { locale: 'en-US', precision: 0 },
-            )}{' '}
-            {collective.stats.totalAmountReceived.currency}
+            {selectedMetric === 'TOTAL_RAISED' ? (
+              <React.Fragment>
+                {formatCurrency(
+                  collective.stats.totalAmountReceived.valueInCents,
+                  collective.stats.totalAmountReceived.currency,
+                  { locale: 'en-US', precision: 0 },
+                )}{' '}
+                {collective.stats.totalAmountReceived.currency}
+              </React.Fragment>
+            ) : (
+              <React.Fragment>{collective.stats.contributionsCount}</React.Fragment>
+            )}
           </div>
         </Collective>
       ))}

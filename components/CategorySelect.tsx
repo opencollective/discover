@@ -1,10 +1,5 @@
 import React from 'react';
-import { useRouter } from 'next/router';
 import styled from 'styled-components';
-
-type StyledCategoryButtonProps = React.HTMLProps<HTMLButtonElement> & {
-  selected?: boolean;
-};
 
 // Hex to Hexa
 const hexToHexa = (hex: string, alpha: number) => {
@@ -15,11 +10,16 @@ const hexToHexa = (hex: string, alpha: number) => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
+type StyledCategoryButtonProps = React.HTMLProps<HTMLButtonElement> & {
+  selected?: boolean;
+  color?: string;
+};
+
 const StyledCategoryButton = styled.button<StyledCategoryButtonProps>`
   flex: 1;
+  padding: 20px 20px;
   background: white;
-  padding: 32px 20px;
-  border: ${({ selected, color }) => (selected ? `${color} solid 3px` : 'white solid 3px')};
+  border: ${({ selected, color }) => (selected ? `${color} solid 3px` : 'transparent solid 3px')};
   cursor: pointer;
   font-weight: 500;
   border-radius: 12px;
@@ -27,9 +27,11 @@ const StyledCategoryButton = styled.button<StyledCategoryButtonProps>`
   font-weight: 500;
   white-space: nowrap;
 
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+
   :hover {
     border: ${({ color }) => `${color} solid 3px`};
-    box-shadow: 0px 4px 8px ${({ color }) => hexToHexa(color, 0.2)};
+    box-shadow: 0px 0px 16px ${({ color }) => hexToHexa(color, 0.2)};
   }
   transition: all 0.2s ease-in-out;
 `;
@@ -37,28 +39,25 @@ const StyledCategoryButton = styled.button<StyledCategoryButtonProps>`
 const StyledCategorySelector = styled.div`
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 24px;
   width: 100%;
   flex-wrap: wrap;
 `;
 
-const CategorySelect = ({ categories, selectedTag }) => {
-  const router = useRouter();
+const CategorySelect = ({ categories, selectedTag, onSelect, currentTimePeriod }) => {
   return (
     <StyledCategorySelector>
       {categories.map(category => (
         <StyledCategoryButton
           type="button"
           key={category.label}
-          selected={(!selectedTag && !category.tag) || category.tag === selectedTag}
+          selected={category.tag === selectedTag}
           color={category.color}
           onClick={() => {
-            router.push({ pathname: '/', ...(category.tag && { query: { tag: category.tag } }) }, null, {
-              shallow: true,
-            });
+            onSelect(category);
           }}
         >
-          {category.label}
+          {category.label} ({category.data[currentTimePeriod].collectiveCount})
         </StyledCategoryButton>
       ))}
     </StyledCategorySelector>

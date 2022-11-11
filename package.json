@@ -32,6 +32,7 @@
   ],
   "dependencies": {
     "@apollo/client": "3.6.5",
+    "@headlessui/react": "^1.7.4",
     "@opencollective/frontend-components": "0.3.8",
     "@styled-system/prop-types": "^5.1.5",
     "apexcharts": "^3.36.3",

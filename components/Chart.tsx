@@ -1,18 +1,15 @@
 import React, { useMemo } from 'react';
 import { ApexOptions } from 'apexcharts';
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 import { get, max, min } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useIntl } from 'react-intl';
 import styled from 'styled-components';
 
-dayjs.extend(utc);
-
-export const formatAmountForLegend = (value, currency, locale, isCompactNotation = true) => {
+export const formatAmountForLegend = (value, type, currency, locale, isCompactNotation = true) => {
   return new Intl.NumberFormat(locale, {
     currency,
-    style: 'currency',
+    style: type === 'amount' ? 'currency' : 'decimal',
     notation: isCompactNotation ? 'compact' : 'standard',
   }).format(value);
 };
@@ -30,7 +27,9 @@ export const ChartWrapper = styled.div`
   position: relative;
   background: white;
   padding: 16px;
-  height: 332px;
+  height: 382px;
+  z-index: 1;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   border-radius: 16px;
   .loading {
     position: absolute;
@@ -52,7 +51,7 @@ export const ChartWrapper = styled.div`
   }
 `;
 
-const getChartOptions = (intl, timeUnit, hostCurrency, isCompactNotation, colors): ApexOptions => ({
+const getChartOptions = (intl, timeUnit, hostCurrency, isCompactNotation, colors, type): ApexOptions => ({
   chart: {
     id: 'chart-total-received',
     toolbar: { show: false },
@@ -61,7 +60,7 @@ const getChartOptions = (intl, timeUnit, hostCurrency, isCompactNotation, colors
   },
   stroke: {
     curve: 'straight',
-    width: 2,
+    width: 3,
   },
   markers: {
     size: 6,
@@ -89,14 +88,16 @@ const getChartOptions = (intl, timeUnit, hostCurrency, isCompactNotation, colors
         fontSize: '14px',
       },
       formatter: function (value) {
-        // Show data aggregated yearly
         if (timeUnit === 'YEAR') {
           return dayjs(value).utc().year().toString();
-          // Show data aggregated monthly
         } else if (timeUnit === 'MONTH') {
-          return dayjs(value).utc().format('MMM-YYYY');
-          // Show data aggregated by week or day
-        } else if (timeUnit === 'WEEK' || timeUnit === 'DAY') {
+          if (dayjs(value).utc().month() === 0) {
+            return dayjs(value).utc().format('MMM YYYY');
+          }
+          return dayjs(value).utc().format('MMM');
+        } else if (timeUnit === 'WEEK') {
+          return `W${dayjs(value).utc().isoWeek()}`;
+        } else if (timeUnit === 'DAY') {
           return dayjs(value).utc().format('DD-MMM-YYYY');
         }
       },
@@ -108,7 +109,7 @@ const getChartOptions = (intl, timeUnit, hostCurrency, isCompactNotation, colors
         fontSize: '14px',
       },
       minWidth: 38,
-      formatter: value => formatAmountForLegend(value, hostCurrency, intl.locale, isCompactNotation),
+      formatter: value => formatAmountForLegend(value, type, hostCurrency, intl.locale, isCompactNotation),
     },
   },
   tooltip: {
@@ -116,37 +117,41 @@ const getChartOptions = (intl, timeUnit, hostCurrency, isCompactNotation, colors
       fontSize: '14px',
     },
     y: {
-      formatter: value => formatAmountForLegend(value, hostCurrency, intl.locale, false), // Never use compact notation in tooltip
+      formatter: value => formatAmountForLegend(value, type, hostCurrency, intl.locale, false),
     },
   },
 });
 
-const getSeriesDataFromTotalReceivedNodes = (nodes, startYear) => {
+const getSeriesDataFromNodes = (nodes, startYear, currentTimePeriod) => {
   const keyedData = {};
   const currentYear = new Date().getUTCFullYear();
 
-  // create empty data for each year
-  for (let year = startYear; year <= currentYear; year++) {
-    const date = new Date(Date.UTC(year, 0, 1, 0, 0, 0)).toISOString();
+  if (currentTimePeriod === 'ALL') {
+    for (let year = startYear; year <= currentYear; year++) {
+      const date = new Date(Date.UTC(year, 0, 1, 0, 0, 0)).toISOString();
 
-    keyedData[date] = {
-      x: date,
-      y: 0,
-      kinds: {},
-    };
+      keyedData[date] = {
+        x: date,
+        y: 0,
+        kinds: {},
+      };
+    }
   }
 
-  nodes.forEach(({ date, amount }) => {
-    keyedData[date].y += amount.value;
+  nodes.forEach(({ date, amount, count }) => {
+    if (!keyedData[date]) {
+      keyedData[date] = { x: date, y: 0, kinds: {} };
+    }
+    keyedData[date].y += count || amount.value;
   });
 
   return Object.values(keyedData);
 };
 
-const getSeriesFromData = (intl, timeSeriesArray, startYear) => {
+const getSeriesFromData = (intl, timeSeriesArray, startYear, currentTimePeriod) => {
   const series = timeSeriesArray?.map(timeSeries => {
     const totalReceivedNodes = get(timeSeries, 'nodes', []);
-    const totalReceivedData = getSeriesDataFromTotalReceivedNodes(totalReceivedNodes, startYear);
+    const totalReceivedData = getSeriesDataFromNodes(totalReceivedNodes, startYear, currentTimePeriod);
 
     return {
       name: timeSeries.label,
@@ -157,20 +162,25 @@ const getSeriesFromData = (intl, timeSeriesArray, startYear) => {
   return series;
 };
 
-export default function Chart({ timeSeriesArray, startYear, currentTag }) {
+export default function Chart({ timeSeriesArray, startYear, currentTag, type, currentTimePeriod }) {
   const currency = 'USD';
   const intl = useIntl();
+  const series = useMemo(
+    () => getSeriesFromData(intl, timeSeriesArray, startYear, currentTimePeriod),
+    [currentTag, type, currentTimePeriod],
+  );
 
-  const series = useMemo(() => getSeriesFromData(intl, timeSeriesArray, startYear), [currentTag]);
-
-  const isCompactNotation = getMinMaxDifference(series[0].data) >= 10000;
+  const isCompactNotation = true; // getMinMaxDifference(series[0].data) >= 10000;
   const colors = timeSeriesArray.map(s => s.color);
-  const chartOptions = useMemo(() => getChartOptions(intl, 'YEAR', currency, isCompactNotation, colors), [currentTag]);
+  const chartOptions = useMemo(
+    () => getChartOptions(intl, timeSeriesArray[0].timeUnit, currency, isCompactNotation, colors, type),
+    [currentTag, type, currentTimePeriod],
+  );
 
   return (
     <ChartWrapper>
       <div className="loading">Loading...</div>
-      <ApexChart type="area" width="100%" height="300px" options={chartOptions} series={series} />
+      <ApexChart type="area" width="100%" height="350px" options={chartOptions} series={series} />
     </ChartWrapper>
   );
 }
