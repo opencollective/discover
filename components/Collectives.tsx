@@ -145,7 +145,7 @@ export default function Collectives({ collectives, currentMetric, currentTimePer
         Header: 'Contributions',
         accessor: 'contributionsCount',
         sortDescFirst: true,
-        Cell: tableProps => <div className="">{tableProps.row.original.contributionsCount}</div>,
+        Cell: tableProps => <div className="">{tableProps.row.original.contributionsCount.toLocaleString(locale)}</div>,
         className: 'right',
       },
 
