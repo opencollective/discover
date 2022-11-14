@@ -165,7 +165,7 @@ export default function Collectives({ collectives, currentMetric, currentTimePer
         className: 'right last',
       },
     ],
-    [],
+    [currentTag, currentTimePeriod],
   );
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, toggleSortBy } = useTable(
     { columns, data, disableSortRemove: true },
