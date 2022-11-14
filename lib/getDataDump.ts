@@ -14,7 +14,6 @@ export function getDumpByTagAndPeriod(tag: string, period: string) {
   if (file) {
     const fullPath = join(dataDirectory, `${tag}-${period}.json`);
     const json = fs.readFileSync(fullPath, 'utf8');
-    console.log('gotten file');
     const data = JSON.parse(json);
     return data;
   }

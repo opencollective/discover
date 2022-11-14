@@ -148,10 +148,14 @@ export default function Dashboard({ categories, locale }) {
             }))}
         />
       </Flex>
-      <H4 px={'24px'} fontWeight="500" mt={4} mb={2}>
-        {collectiveCount.toLocaleString(locale)} collectives
-      </H4>
-      <Collectives collectives={collectives} selectedMetric={currentMetric} />
+
+      <Collectives
+        collectives={collectives}
+        currentMetric={currentMetric}
+        currentTimePeriod={currentTimePeriod}
+        currentTag={currentTag}
+        locale={locale}
+      />
     </Fragment>
   );
 }

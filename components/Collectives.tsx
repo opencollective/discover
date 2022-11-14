@@ -1,15 +1,87 @@
-import React from 'react';
+/* eslint-disable react/jsx-key */
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
-
+import { useTable, useSortBy } from 'react-table';
 import { formatCurrency } from '@opencollective/frontend-components/lib/currency-utils';
+import { H4 } from '@opencollective/frontend-components/components/Text';
 
-const List = styled.ul`
-  list-style: none;
+const Table = styled.table`
+  margin-top: 16px;
   padding: 0;
-  background: white;
-  padding: 16px;
-  border-radius: 16px;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  thead {
+    tr {
+      th {
+        padding: 16px 8px;
+        height: 60px;
+      }
+    }
+  }
+  tr {
+  }
+  tbody tr:first-child th:first-child,
+  tbody tr:first-child td:first-child {
+    border-top-left-radius: 15px;
+  }
+
+  tbody tr:first-child th:last-child,
+  tbody tr:first-child td:last-child {
+    border-top-right-radius: 15px;
+  }
+
+  tbody tr:last-child th:first-child,
+  tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 15px;
+  }
+
+  tbody tr:last-child th:last-child,
+  tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 15px;
+  }
+  .container {
+    background: white;
+    border-radius: 16px;
+    width: 100%;
+  }
+  tbody {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    border-radius: 16px;
+    tr {
+      background: white;
+      border-bottom: 1px solid #f1f5f9;
+      :hover {
+        background: #f7f8fa;
+      }
+      td {
+        padding: 16px;
+      }
+    }
+  }
+  .collective {
+    display: flex;
+    align-items: center;
+    grid-gap: 16px;
+    color: #333;
+    font-weight: 500;
+    text-decoration: none;
+    :hover {
+      text-decoration: underline;
+    }
+  }
+  .last {
+    padding-right: 20px;
+  }
+  .first {
+    padding-left: 16px;
+  }
+  .right {
+    text-align: right;
+  }
+  .left {
+    text-align: left;
+  }
 `;
 
 const Avatar = styled.img`
@@ -17,91 +89,123 @@ const Avatar = styled.img`
   object-fit: cover;
 `;
 
-const Collective = styled.a`
-  margin-bottom: 8px;
-  display: flex !important;
-  align-items: center;
-  justify-content: space-between;
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-  padding: 8px;
-  padding-right: 16px;
-  border-radius: 8px;
-  :hover {
-    background: #f7f8fa;
-    div.name {
-      text-decoration: underline;
-    }
-  }
-  gap: 20px;
-  div {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  div.name,
-  div.amount {
-    flex-shrink: 0;
-  }
-  span {
-    font-weight: 400;
-    text-decoration: none !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: #999;
-  }
-`;
-
 interface Props {
   collectives: [any];
-  selectedMetric: string;
+  currentMetric: string;
+  currentTimePeriod: string;
+  currentTag: string;
+  locale: string;
 }
 
-export default function Collectives({ collectives, selectedMetric }: Props) {
-  // sort on totalAmountReceived
-  const sortedCollectives = [...collectives].sort((a, b) => {
-    return selectedMetric === 'TOTAL_RAISED'
-      ? b.stats.totalAmountReceived.valueInCents - a.stats.totalAmountReceived.valueInCents
-      : b.stats.contributionsCount - a.stats.contributionsCount;
-  });
-  return (
-    <List>
-      {sortedCollectives.map(collective => (
-        <Collective key={collective.id} href={`https://opencollective.com/${collective.slug}`}>
-          <div className="first">
-            <div className="name">
-              <Avatar
-                alt={collective.name}
-                src={collective.imageUrl.replace('-staging', '')}
-                height={'50px'}
-                width={'50px'}
-              />{' '}
-              {collective.name}{' '}
-            </div>
-            <span>{collective.description}</span>
-          </div>
+export default function Collectives({ collectives, currentMetric, currentTimePeriod, currentTag, locale }: Props) {
+  const data = React.useMemo(
+    () =>
+      collectives.map(collective => ({
+        id: collective.id,
+        name: collective.name,
+        slug: collective.slug,
+        description: collective.description,
+        imageUrl: collective.imageUrl,
+        totalRaised: collective.stats.totalAmountReceived.valueInCents,
+        currency: collective.stats.totalAmountReceived.currency,
+        contributionsCount: collective.stats.contributionsCount,
+      })),
+    [currentTimePeriod, currentTag],
+  );
 
-          <div className="amount">
-            {selectedMetric === 'TOTAL_RAISED' ? (
-              <React.Fragment>
-                {formatCurrency(
-                  collective.stats.totalAmountReceived.valueInCents,
-                  collective.stats.totalAmountReceived.currency,
-                  { locale: 'en-US', precision: 0 },
-                )}{' '}
-                {collective.stats.totalAmountReceived.currency}
-              </React.Fragment>
-            ) : (
-              <React.Fragment>{collective.stats.contributionsCount}</React.Fragment>
-            )}
+  const columns = React.useMemo(
+    () => [
+      {
+        Header: 'Collective',
+        accessor: 'name',
+        Cell: tableProps => (
+          <a href={`https://opencollective.com/${tableProps.row.original.slug}`} target="_blank" className="collective">
+            <Avatar
+              alt={tableProps.row.original.name}
+              src={tableProps.row.original.imageUrl.replace('-staging', '')}
+              height={'40px'}
+              width={'40px'}
+            />
+            <span>{tableProps.row.original.name}</span>
+          </a>
+        ),
+        Header: () => (
+          <H4 px={''} fontWeight="500" mt={0} mb={0}>
+            {data.length.toLocaleString(locale)} collectives
+          </H4>
+        ),
+        disableSortBy: true,
+        className: 'left first',
+      },
+      // {
+      //   Header: 'Description',
+      //   accessor: 'description',
+      // },
+      {
+        Header: 'Contributions',
+        accessor: 'contributionsCount',
+        sortDescFirst: true,
+        Cell: tableProps => <div className="">{tableProps.row.original.contributionsCount}</div>,
+        className: 'right',
+      },
+
+      {
+        Header: 'Total raised',
+        accessor: 'totalRaised',
+        Cell: tableProps => (
+          <div className="">
+            {formatCurrency(tableProps.row.original.totalRaised, tableProps.row.original.currency, {
+              locale: 'en-US',
+              precision: 0,
+            })}{' '}
+            {tableProps.row.original.currency}
           </div>
-        </Collective>
-      ))}
-    </List>
+        ),
+        sortDescFirst: true,
+        className: 'right last',
+      },
+    ],
+    [],
+  );
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, toggleSortBy } = useTable(
+    { columns, data, disableSortRemove: true },
+    useSortBy,
+  );
+
+  useEffect(() => {
+    if (currentMetric === 'TOTAL_RAISED') {
+      toggleSortBy('totalRaised', true, false);
+    } else if (currentMetric === 'CONTRIBUTIONS') {
+      toggleSortBy('contributionsCount', true, false);
+    }
+  }, [currentMetric, currentTimePeriod, currentTag]);
+
+  return (
+    <Table {...getTableProps()} className="">
+      <thead>
+        {headerGroups.map(headerGroup => (
+          <tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map(column => (
+              <th {...column.getHeaderProps([{ className: column.className }, column.getSortByToggleProps()])}>
+                {column.render('Header')}
+                <span>{column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}</span>
+              </th>
+            ))}
+          </tr>
+        ))}
+      </thead>
+      <tbody {...getTableBodyProps()}>
+        {rows.map(row => {
+          prepareRow(row);
+          return (
+            <tr {...row.getRowProps()}>
+              {row.cells.map(cell => {
+                return <td {...cell.getCellProps([{ className: cell.column.className }])}>{cell.render('Cell')}</td>;
+              })}
+            </tr>
+          );
+        })}
+      </tbody>
+    </Table>
   );
 }
