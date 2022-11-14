@@ -116,7 +116,6 @@ export default function Collectives({ collectives, currentMetric, currentTimePer
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Collective',
         accessor: 'name',
         Cell: tableProps => (
           <a href={`https://opencollective.com/${tableProps.row.original.slug}`} target="_blank" className="collective">
