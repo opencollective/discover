@@ -121,7 +121,7 @@ export default function Dashboard({ categories, locale }) {
             options={[
               { tag: 'ALL', label: 'all time' },
               { tag: 'PAST_YEAR', label: 'past 12 months' },
-              { tag: 'PAST_QUARTER', label: 'past 12 weeks' },
+              { tag: 'PAST_QUARTER', label: 'past 3 months' },
             ]}
             currentTag={currentTimePeriod}
             onChange={time => {
