@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Dialog, Transition } from '@headlessui/react';
 import { Xmark } from '@styled-icons/fa-solid/Xmark';
-import AnimateHeight from 'react-animate-height';
+import AnimateHeight, { Height } from 'react-animate-height';
 import { FormattedDate } from 'react-intl';
 import sanitizeHtml from 'sanitize-html';
 
@@ -36,7 +36,7 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
     variables: { id: collective?.id },
     skip: !collective,
   });
-  const [height, setHeight] = useState<number | string>(0);
+  const [height, setHeight] = useState<Height>(0);
 
   useEffect(() => {
     if (data?.account?.updates?.nodes.length > 0) {
@@ -124,51 +124,44 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                       <FormattedDate dateStyle={'medium'} value={collective.createdAt} />
                     </div>
                   </div>
-                  <AnimateHeight
-                    id="example-panel"
-                    duration={500}
-                    height={height} // see props documentation below
-                  >
-                    {
-                      !data && loading ? null : data?.account?.updates?.nodes?.length ? (
-                        <React.Fragment>
-                          <h4 className="text-sm text-gray-500 mt-4 mb-1">Latest updates</h4>
-                          <div className="flex flex-col gap-2">
-                            {data.account?.updates?.nodes?.map(update => (
-                              <a
-                                key={update.slug}
-                                href={`https://opencollective.com/${collective.slug}/updates/${update.slug}`}
-                                className="flex items-center gap-3 hover:bg-gray-50 rounded-md p-2 transition-colors duration-100"
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                <img
-                                  src={update.fromAccount.imageUrl.replace('-staging', '')}
-                                  alt={update.fromAccount.name}
-                                  className="rounded-full h-8 w-8 object-cover flex-shrink-0"
-                                  width="32px"
-                                  height="32px"
-                                />
-                                <div className=" overflow-hidden relative">
-                                  <div className="flex items-center justify-between gap-4">
-                                    <h2 className="text-sm text-gray-900 text-ellipsis overflow-hidden whitespace-nowrap flex-shrink group-hover:underline">
-                                      {update.title}
-                                    </h2>
-                                    <p className="text-sm text-gray-500 flex-shrink-0">
-                                      <FormattedDate dateStyle={'medium'} value={update.createdAt} />
-                                    </p>
-                                  </div>
-                                  <p className="text-sm text-gray-500 text-ellipsis overflow-hidden whitespace-nowrap">
-                                    {sanitizeHtml(update.summary, { allowedTags: [], allowedAttributes: {} })}
+                  <AnimateHeight id="updates" duration={500} height={height}>
+                    {data?.account?.updates?.nodes?.length > 0 && (
+                      <React.Fragment>
+                        <h4 className="text-sm text-gray-500 mt-4 mb-1">Latest updates</h4>
+                        <div className="flex flex-col gap-2">
+                          {data.account?.updates?.nodes?.map(update => (
+                            <a
+                              key={update.slug}
+                              href={`https://opencollective.com/${collective.slug}/updates/${update.slug}`}
+                              className="flex items-center gap-3 hover:bg-gray-50 rounded-md p-2 transition-colors duration-100"
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              <img
+                                src={update.fromAccount.imageUrl.replace('-staging', '')}
+                                alt={update.fromAccount.name}
+                                className="rounded-full h-8 w-8 object-cover flex-shrink-0"
+                                width="32px"
+                                height="32px"
+                              />
+                              <div className=" overflow-hidden relative">
+                                <div className="flex items-center justify-between gap-4">
+                                  <h2 className="text-sm text-gray-900 text-ellipsis overflow-hidden whitespace-nowrap flex-shrink group-hover:underline">
+                                    {update.title}
+                                  </h2>
+                                  <p className="text-sm text-gray-500 flex-shrink-0">
+                                    <FormattedDate dateStyle={'medium'} value={update.createdAt} />
                                   </p>
                                 </div>
-                              </a>
-                            ))}
-                          </div>
-                        </React.Fragment>
-                      ) : null
-                      // <div className="text-sm text-gray-500 mt-4">No updates</div>
-                    }
+                                <p className="text-sm text-gray-500 text-ellipsis overflow-hidden whitespace-nowrap">
+                                  {sanitizeHtml(update.summary, { allowedTags: [], allowedAttributes: {} })}
+                                </p>
+                              </div>
+                            </a>
+                          ))}
+                        </div>
+                      </React.Fragment>
+                    )}
                   </AnimateHeight>
                   <div className="mt-4">
                     <a
