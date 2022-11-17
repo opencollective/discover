@@ -64,7 +64,7 @@ export default function Dashboard({ categories, collectivesData, locale }) {
     <Fragment>
       <div>
         <Top>
-          <H1 fontSize="28px" lineHeight="1.5" fontWeight={500} px={'12px'}>
+          <H1 fontSize="24px" lineHeight="1.5" fontWeight={500}>
             Discover {collectiveCount} collectives in{' '}
             {currentTag !== 'ALL' ? (
               <React.Fragment>

@@ -6,7 +6,7 @@ const StyledListBoxButton = styled(Listbox.Button)`
   background: transparent;
   width: 100%;
 
-  font-size: 28px;
+  font-size: 24px;
   outline: none;
   border: none;
   padding: 10px 14px;

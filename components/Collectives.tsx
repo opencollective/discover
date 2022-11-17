@@ -137,7 +137,7 @@ export default function Collectives({
 }: Props) {
   const [collectiveInModal, setCollectiveInModal] = React.useState(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const data = collectives;
+  const data = React.useMemo(() => collectives, [currentTag, currentTimePeriod]);
 
   const columns = React.useMemo(
     () => [
@@ -221,7 +221,19 @@ export default function Collectives({
     [currentTag, currentTimePeriod],
   );
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, toggleSortBy } = useTable(
-    { columns, data, disableSortRemove: true },
+    {
+      columns,
+      data,
+      disableSortRemove: true,
+      initialState: {
+        sortBy: [
+          {
+            id: 'totalRaised',
+            desc: true,
+          },
+        ],
+      },
+    },
     useSortBy,
     // useExpanded,
   );
