@@ -11,9 +11,10 @@ import { formatCurrency } from '@opencollective/frontend-components/lib/currency
 import { Avatar } from './Collectives';
 
 export const collectiveQuery = gql`
-  query Account($id: String!) {
-    account(id: $id) {
+  query Account($slug: String!) {
+    account(slug: $slug) {
       id
+      slug
       updates(limit: 3) {
         totalCount
         nodes {
@@ -32,8 +33,8 @@ export const collectiveQuery = gql`
   }
 `;
 export default function CollectiveModal({ isOpen, onClose, collective, locale = 'en' }) {
-  const { data, loading } = useQuery(collectiveQuery, {
-    variables: { id: collective?.id },
+  const { data } = useQuery(collectiveQuery, {
+    variables: { slug: collective?.slug },
     skip: !collective,
   });
   const [height, setHeight] = useState<Height>(0);
