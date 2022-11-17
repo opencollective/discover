@@ -84,7 +84,7 @@ const Table = styled.table`
     color: #333;
     font-weight: 500;
     text-decoration: none;
-    max-width: 400px;
+    max-width: 350px;
     span {
       white-space: nowrap;
       overflow: hidden;

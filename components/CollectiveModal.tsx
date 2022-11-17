@@ -36,7 +36,7 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
     variables: { id: collective?.id },
     skip: !collective,
   });
-  const [height, setHeight] = useState(0);
+  const [height, setHeight] = useState<number | string>(0);
 
   useEffect(() => {
     if (data?.account?.updates?.nodes.length > 0) {

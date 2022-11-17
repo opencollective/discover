@@ -30,8 +30,6 @@ const Metric = styled.div`
 `;
 
 const Flex = styled.div`
-  max-width: 1400px;
-  margin: 35px auto;
   display: flex;
   gap: 32px;
   flex-direction: column;
@@ -40,7 +38,8 @@ const Top = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  //margin-bottom: 32px;
+  margin-top: 24px;
+  margin-bottom: 16px;
 `;
 const Grid = styled.div`
   display: grid;
@@ -64,44 +63,43 @@ export default function Dashboard({ categories, collectivesData, locale }) {
   return (
     <Fragment>
       <div>
+        <Top>
+          <H1 fontSize="28px" lineHeight="1.5" fontWeight={500} px={'12px'}>
+            Discover {collectiveCount} collectives in{' '}
+            {currentTag !== 'ALL' ? (
+              <React.Fragment>
+                <span style={{ color: currentCategory.color }}>{currentTag}</span>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                {categories
+                  .filter(c => c.tag !== 'ALL')
+                  .map(category => (
+                    <span key={category.tag} style={{ color: category.color }}>
+                      {category.label}
+                    </span>
+                  ))
+
+                  .reduce((prev, curr) => [prev, ', ', curr])}{' '}
+                and more
+              </React.Fragment>
+            )}
+          </H1>
+          <DropdownSelector
+            options={[
+              { tag: 'ALL', label: 'all time' },
+              { tag: 'PAST_YEAR', label: 'past 12 months' },
+              { tag: 'PAST_QUARTER', label: 'past 3 months' },
+            ]}
+            currentTag={currentTimePeriod}
+            onChange={time => {
+              router.push({ pathname: '/', query: { ...router.query, ...{ time: time.tag } } }, null, {
+                shallow: true,
+              });
+            }}
+          />
+        </Top>
         <Flex>
-          <Top>
-            <H1 fontSize="28px" lineHeight="1.5" fontWeight={500} px={'12px'}>
-              Discover {collectiveCount} collectives in{' '}
-              {currentTag !== 'ALL' ? (
-                <React.Fragment>
-                  <span style={{ color: currentCategory.color }}>{currentTag}</span>
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  {categories
-                    .filter(c => c.tag !== 'ALL')
-                    .map(category => (
-                      <span key={category.tag} style={{ color: category.color }}>
-                        {category.label}
-                      </span>
-                    ))
-
-                    .reduce((prev, curr) => [prev, ', ', curr])}{' '}
-                  and more
-                </React.Fragment>
-              )}
-            </H1>
-            <DropdownSelector
-              options={[
-                { tag: 'ALL', label: 'all time' },
-                { tag: 'PAST_YEAR', label: 'past 12 months' },
-                { tag: 'PAST_QUARTER', label: 'past 3 months' },
-              ]}
-              currentTag={currentTimePeriod}
-              onChange={time => {
-                router.push({ pathname: '/', query: { ...router.query, ...{ time: time.tag } } }, null, {
-                  shallow: true,
-                });
-              }}
-            />
-          </Top>
-
           <CategorySelect
             currentTimePeriod={currentTimePeriod}
             selectedTag={currentTag}
