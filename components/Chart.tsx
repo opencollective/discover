@@ -6,6 +6,8 @@ import dynamic from 'next/dynamic';
 import { useIntl } from 'react-intl';
 import styled from 'styled-components';
 
+const ApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
+
 export const formatAmountForLegend = (value, type, currency, locale, isCompactNotation = true) => {
   return new Intl.NumberFormat(locale, {
     currency,
@@ -21,16 +23,18 @@ export const getMinMaxDifference = data => {
   return maxVal - minVal;
 };
 
-const ApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
-
-export const ChartWrapper = styled.div`
-  position: relative;
+export const Card = styled.div`
   background: white;
   padding: 16px;
-  height: 382px;
-  z-index: 1;
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   border-radius: 16px;
+`;
+
+export const ChartWrapper = styled.div`
+  margin-top: 16px;
+  position: relative;
+  height: 350px;
+  z-index: 1;
   .loading {
     position: absolute;
     top: 50%;
@@ -53,10 +57,11 @@ export const ChartWrapper = styled.div`
 
 const getChartOptions = (intl, timeUnit, hostCurrency, isCompactNotation, colors, type): ApexOptions => ({
   chart: {
-    id: 'chart-total-received',
+    id: 'totalRaised',
     toolbar: { show: false },
     fontFamily: "'Inter', sans-serif",
     background: '#FFFFFF',
+    zoom: { enabled: false },
   },
   stroke: {
     curve: 'straight',
@@ -77,9 +82,12 @@ const getChartOptions = (intl, timeUnit, hostCurrency, isCompactNotation, colors
     showForSingleSeries: false,
     fontSize: '14px',
     position: 'top',
-    offsetY: 0,
+    offsetY: 10,
     floating: true,
     horizontalAlign: 'center',
+    onItemClick: {
+      toggleDataSeries: true,
+    },
   },
   colors,
   xaxis: {
@@ -122,7 +130,7 @@ const getChartOptions = (intl, timeUnit, hostCurrency, isCompactNotation, colors
   },
 });
 
-const getSeriesDataFromNodes = (nodes, startYear, currentTimePeriod) => {
+const getSeriesDataFromNodes = (nodes, startYear, currentTimePeriod, type) => {
   const keyedData = {};
   const currentYear = new Date().getUTCFullYear();
 
@@ -142,16 +150,16 @@ const getSeriesDataFromNodes = (nodes, startYear, currentTimePeriod) => {
     if (!keyedData[date]) {
       keyedData[date] = { x: date, y: 0, kinds: {} };
     }
-    keyedData[date].y += count || amount.value;
+    keyedData[date].y += type === 'amount' ? amount.value : count;
   });
 
   return Object.values(keyedData);
 };
 
-const getSeriesFromData = (intl, timeSeriesArray, startYear, currentTimePeriod) => {
+const getSeriesFromData = (intl, timeSeriesArray, startYear, currentTimePeriod, type) => {
   const series = timeSeriesArray?.map(timeSeries => {
     const totalReceivedNodes = get(timeSeries, 'nodes', []);
-    const totalReceivedData = getSeriesDataFromNodes(totalReceivedNodes, startYear, currentTimePeriod);
+    const totalReceivedData = getSeriesDataFromNodes(totalReceivedNodes, startYear, currentTimePeriod, type);
 
     return {
       name: timeSeries.label,
@@ -162,14 +170,16 @@ const getSeriesFromData = (intl, timeSeriesArray, startYear, currentTimePeriod) 
   return series;
 };
 
-export default function Chart({ timeSeriesArray, startYear, currentTag, type, currentTimePeriod }) {
+export default function Chart({ timeSeriesArray, startYear, currentTag, type, currentTimePeriod, children }) {
   const currency = 'USD';
   const intl = useIntl();
   const series = useMemo(
-    () => getSeriesFromData(intl, timeSeriesArray, startYear, currentTimePeriod),
+    () => getSeriesFromData(intl, timeSeriesArray, startYear, currentTimePeriod, type),
     [currentTag, type, currentTimePeriod],
   );
-
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined') window.ApexCharts = Apppex;
+  // });
   const isCompactNotation = true; // getMinMaxDifference(series[0].data) >= 10000;
   const colors = timeSeriesArray.map(s => s.color);
   const chartOptions = useMemo(
@@ -178,9 +188,12 @@ export default function Chart({ timeSeriesArray, startYear, currentTag, type, cu
   );
 
   return (
-    <ChartWrapper>
-      <div className="loading">Loading...</div>
-      <ApexChart type="area" width="100%" height="350px" options={chartOptions} series={series} />
-    </ChartWrapper>
+    <Card>
+      {children}
+      <ChartWrapper>
+        <div className="loading">Loading...</div>
+        <ApexChart type="area" width="100%" height="350px" options={chartOptions} series={series} />
+      </ChartWrapper>
+    </Card>
   );
 }

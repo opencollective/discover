@@ -23,7 +23,7 @@ const StyledCategoryButton = styled.button<StyledCategoryButtonProps>`
   cursor: pointer;
   font-weight: 500;
   border-radius: 12px;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 500;
   white-space: nowrap;
 

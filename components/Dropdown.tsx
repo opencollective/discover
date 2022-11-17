@@ -9,17 +9,16 @@ const StyledListBoxButton = styled(Listbox.Button)`
   font-size: 28px;
   outline: none;
   border: none;
-  padding: 20px 14px;
+  padding: 10px 14px;
   border: 3px solid transparent;
   font-weight: 500;
   cursor: pointer;
   height: 100%;
   color: #333;
-  border-radius: 16px;
+  border-radius: 8px;
   transition: all 0.2s ease-in-out;
   p {
     margin: 0;
-    margin-bottom: 12px;
   }
   span.period {
     font-size: 20px;
@@ -52,7 +51,7 @@ const DropdownOptions = styled(Listbox.Options)`
   font-weight: 500;
   z-index: 99999;
 
-  font-size: 28px;
+  font-size: 24px;
   padding: 0;
   right: 0;
   white-space: nowrap;
@@ -93,7 +92,6 @@ export default function DropdownSelector({ options, currentTag, onChange }) {
           {options.map(option => (
             <Listbox.Option key={option.tag} value={option} as={Fragment}>
               <li>{option.label}</li>
-              {/* {({ active, selected }) => <li>{option.label}</li>} */}
             </Listbox.Option>
           ))}
         </DropdownOptions>

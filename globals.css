@@ -1,4 +1,8 @@
-  @font-face {
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
     font-family: 'Inter';
     font-style:  normal;
     font-weight: 400;
@@ -98,7 +102,7 @@
   body {
     font-family: 'Inter', sans-serif;
     padding: 0 1rem 1rem 1rem;
-    max-width: 1200px;
+    //max-width: 1200px;
     margin: 0 auto;
     background: #f9fafb;
     color: #333;

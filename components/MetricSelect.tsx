@@ -11,19 +11,19 @@ const StyledCategoryButton = styled.button<StyledCategoryButtonProps>`
   padding: 24px 20px;
   background: none;
   border: 0;
-  background: ${({ selected }) => (selected ? 'white' : `transparent`)};
-  border-radius: 16px;
-  box-shadow: ${({ selected }) => (selected ? '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)' : `0`)};
+  //background: ${({ selected }) => (selected ? 'white' : `transparent`)};
+  //border-radius: 16px;
+  //box-shadow: ${({ selected }) => (selected ? '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)' : `0`)};
 
-  cursor: pointer;
+  //cursor: pointer;
   font-weight: 500;
   font-size: 20px;
   font-weight: 500;
   white-space: nowrap;
   border: 3px transparent solid;
-  :hover {
-    border: ${({ color }) => `3px ${color} solid`};
-  }
+  // :hover {
+  //   border: ${({ color }) => `3px ${color} solid`};
+  // }
   transition: all 0.2s ease-in-out;
 `;
 

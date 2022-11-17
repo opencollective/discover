@@ -20,38 +20,47 @@ export const accountsQuery = gql`
         id
         name
         slug
+        createdAt
         description
         imageUrl(height: 100, format: png)
         tags
+        childrenAccounts {
+          totalCount
+        }
+        admins: members(role: ADMIN) {
+          totalCount
+        }
+        contributors: members(role: BACKER) {
+          totalCount
+        }
+        expenses: transactions(limit: 0, type: DEBIT, dateFrom: $dateFrom, dateTo: $dateTo, hasExpense: true) {
+          totalCount
+        }
         stats {
           id
-          contributionsAmount(dateFrom: $dateFrom, dateTo: $dateTo) {
-            count
-            label
-            amount {
-              valueInCents
-              currency
-            }
+
+          balance(dateFrom: $dateFrom, dateTo: $dateTo) {
+            valueInCents
+            currency
           }
-          totalAmountReceived(dateFrom: $dateFrom, dateTo: $dateTo) {
+          totalNetAmountReceived(dateFrom: $dateFrom, dateTo: $dateTo) {
             valueInCents
             currency
           }
         }
       }
-      stats(dateFrom: $dateFrom, dateTo: $dateTo, timeUnit: $timeUnit, includeChildren: true) {
-        timeUnit
-        contributionsCountTimeSeries {
+      stats {
+        transactionsTimeSeries(
+          dateFrom: $dateFrom
+          dateTo: $dateTo
+          timeUnit: $timeUnit
+          type: CREDIT
+          kind: [CONTRIBUTION, ADDED_FUNDS]
+        ) {
           timeUnit
           nodes {
             date
             count
-          }
-        }
-        totalReceivedTimeSeries {
-          timeUnit
-          nodes {
-            date
             amount {
               value
               valueInCents
@@ -114,7 +123,7 @@ const getTimeVariables = (
 
 const getDataForTagAndPeriod = async ({ apollo, hostSlug, category, period }) => {
   const { dateFrom, dateTo, timeUnit } = getTimeVariables(period);
-  const { tag, extraTags } = category;
+  const { tag, extraTags = [] } = category;
   let data = getDumpByTagAndPeriod(tag, period);
 
   if (!data) {
@@ -139,7 +148,7 @@ const getDataForTagAndPeriod = async ({ apollo, hostSlug, category, period }) =>
     }
   }
 
-  const totalRaisedAmount = data.accounts.stats.totalReceivedTimeSeries.nodes.reduce(
+  const totalRaisedAmount = data.accounts.stats.transactionsTimeSeries.nodes.reduce(
     (acc, node) => {
       if (acc.currency && acc.currency !== node.amount.currency) {
         throw new Error('Mismatch in currency!');
@@ -152,7 +161,7 @@ const getDataForTagAndPeriod = async ({ apollo, hostSlug, category, period }) =>
     { valueInCents: 0, currency: null },
   );
 
-  const totalContributionsCount = data.accounts.stats.contributionsCountTimeSeries.nodes.reduce((acc, node) => {
+  const totalContributionsCount = data.accounts.stats.transactionsTimeSeries.nodes.reduce((acc, node) => {
     return acc + node.count;
   }, 0);
 
@@ -160,17 +169,26 @@ const getDataForTagAndPeriod = async ({ apollo, hostSlug, category, period }) =>
     collectiveCount: data.accounts.totalCount,
     totalRaised: totalRaisedAmount,
     numberOfContributions: totalContributionsCount,
-    collectives: data.accounts.nodes.map(collective => ({
-      ...collective,
-      stats: {
-        ...collective.stats,
-        contributionsCount: collective.stats.contributionsAmount.reduce((acc, node) => acc + node.count, 0),
-      },
-    })),
-    totalReceivedTimeSeries: data.accounts.stats.totalReceivedTimeSeries,
-    contributionsCountTimeSeries: data.accounts.stats.contributionsCountTimeSeries,
+    totalReceivedTimeSeries: data.accounts.stats.transactionsTimeSeries,
+    contributionsCountTimeSeries: data.accounts.stats.transactionsTimeSeries,
     dateFrom,
     dateTo,
+    collectives: data.accounts.nodes.map(collective => ({
+      id: collective.id,
+      name: collective.name,
+      slug: collective.slug,
+      description: collective.description,
+      imageUrl: collective.imageUrl.replace('-staging', ''),
+      totalRaised: collective.stats.totalNetAmountReceived.valueInCents,
+      totalDisbursed: collective.stats.totalNetAmountReceived.valueInCents - collective.stats.balance.valueInCents,
+      currency: collective.stats.totalNetAmountReceived.currency,
+      subCollectivesCount: collective.childrenAccounts.totalCount,
+      adminCount: collective.admins.totalCount,
+      contributorsCount: collective.contributors.totalCount,
+      expensesCount: collective.expenses.totalCount,
+      createdAt: collective.createdAt,
+      tags: collective.tags,
+    })),
   };
 };
 
@@ -189,22 +207,30 @@ export const getStaticProps: GetStaticProps = async () => {
     })),
   );
 
+  const collectivesAllData = categoriesWithData.find(c => c.tag === 'ALL').data.ALL.collectives;
+
+  const collectivesData = collectivesAllData.reduce((acc, collective) => {
+    acc[collective.id] = collective;
+    return acc;
+  }, {});
+
   return {
     props: {
       categories: categoriesWithData,
+      collectivesData,
     },
     revalidate: 60 * 60 * 24, // Revalidate the static page at most once every 24 hours to not overload the API
   };
 };
 
-export default function Page({ categories }) {
+export default function Page({ categories, collectivesData }) {
   const locale = 'en';
   return (
     <Layout>
       <Head>
         <title>Horizons</title>
       </Head>
-      <Dashboard categories={categories} locale={locale} />
+      <Dashboard categories={categories} collectivesData={collectivesData} locale={locale} />
     </Layout>
   );
 }
