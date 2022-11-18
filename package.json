@@ -43,6 +43,7 @@
     "dayjs": "^1.11.6",
     "deepmerge": "4.2.2",
     "graphql": "16.6.0",
+    "gray-matter": "^4.0.3",
     "lodash": "4.17.21",
     "next": "12.3.1",
     "next-auth": "4.15.0",
@@ -59,6 +60,8 @@
     "react-intl": "^6.2.1",
     "react-table": "^7.8.0",
     "sanitize-html": "^2.7.3",
+    "remark": "^14.0.2",
+    "remark-html": "^15.0.1",
     "styled-components": "^5.3.6",
     "styled-system": "^5.1.5"
   },

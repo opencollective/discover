@@ -7,7 +7,7 @@ import { formatCurrency } from '@opencollective/frontend-components/lib/currency
 import CategorySelect from '../components/CategorySelect';
 import Chart from '../components/Chart';
 import Collectives from '../components/Collectives';
-import { H1 } from '@opencollective/frontend-components/components/Text';
+import Story from '../components/Story';
 
 import DropdownSelector from './Dropdown';
 
@@ -219,6 +219,7 @@ export default function Dashboard({ categories, collectivesData, locale }) {
               collectivesData={collectivesData}
             />
           </div>
+          <Story stories={currentCategory.stories} />
         </Flex>
       </div>
     </Fragment>

@@ -12,6 +12,8 @@ import { getDumpByTagAndPeriod } from '../lib/getDataDump';
 import Dashboard from '../components/Dashboard';
 import Layout from '../components/Layout';
 
+import { getAllPosts, markdownToHtml } from '../lib/markdown';
+
 export const accountsQuery = gql`
   query SearchAccounts($hostSlug: String, $tag: [String], $dateFrom: DateTime, $dateTo: DateTime, $timeUnit: TimeUnit) {
     accounts(type: [COLLECTIVE], tag: $tag, limit: 500, host: { slug: $hostSlug }) {
@@ -214,9 +216,29 @@ export const getStaticProps: GetStaticProps = async () => {
     return acc;
   }, {});
 
+  const allStories = getAllPosts(['title', 'content', 'tags', 'location', 'slug', 'video']);
+  // run markdownToHtml on content in stories
+
+  const storiesWithContent = await Promise.all(
+    allStories.map(async story => {
+      return {
+        ...story,
+        tags: story.tags.map(tag => ({ color: categories.find(c => c.tag === tag)?.color ?? null, tag: tag })),
+        content: await markdownToHtml(story.content),
+      };
+    }),
+  );
+  const categoriesWithDataAndStories = categoriesWithData.map(category => {
+    const stories = storiesWithContent.filter(story => {
+      return story.tags.some(tag => tag.tag === category.tag) || category.tag === 'ALL';
+    });
+
+    return { ...category, stories };
+  });
+
   return {
     props: {
-      categories: categoriesWithData,
+      categories: categoriesWithDataAndStories,
       collectivesData,
     },
     revalidate: 60 * 60 * 24, // Revalidate the static page at most once every 24 hours to not overload the API
