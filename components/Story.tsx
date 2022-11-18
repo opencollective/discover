@@ -4,16 +4,17 @@ import styled from 'styled-components';
 import { H4 } from '@opencollective/frontend-components/components/Text';
 
 const StoryWrapper = styled.div`
+  margin-top: 32px;
   .video {
     aspect-ratio: 16 / 9;
     width: 100%;
     border-radius: 8px;
-    grid-column: span 2 / span 2;
+    //grid-column: span 2 / span 2;
   }
   border-radius: 12px;
   overflow: hidden;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 32px;
   background: white;
   padding: 32px;
@@ -86,7 +87,7 @@ export default function Stories({ stories }) {
     <React.Fragment>
       <StoryWrapper>
         {story.video && <Video src={story.video.src} title={story.video.title} />}
-        <div className="col-span-3">
+        <div className="">
           {/* <h1>{story.title}</h1>
         <h2>{story.subtitle}</h2> */}
           <Markdown dangerouslySetInnerHTML={{ __html: story.content }} />
@@ -98,7 +99,7 @@ export default function Stories({ stories }) {
                 </Tag>
               ))}
             </div>
-            <div>{story.location}</div>
+            {/* <div>{story.location}</div> */}
           </div>
         </div>
       </StoryWrapper>

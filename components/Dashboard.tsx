@@ -219,7 +219,7 @@ export default function Dashboard({ categories, collectivesData, locale }) {
               collectivesData={collectivesData}
             />
           </div>
-          <Story stories={currentCategory.stories} />
+          {/* <Story stories={currentCategory.stories} /> */}
         </Flex>
       </div>
     </Fragment>
