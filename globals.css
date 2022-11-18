@@ -100,10 +100,8 @@
   }
 
   body {
+    @apply antialiased;
     font-family: 'Inter', sans-serif;
-    padding: 0 1rem 1rem 1rem;
-    max-width: 1260px;
-    margin: 0 auto;
     background: #f9fafb;
     color: #333;
   }

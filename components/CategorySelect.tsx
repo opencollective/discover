@@ -27,7 +27,7 @@ const StyledCategoryButton = styled.button<StyledCategoryButtonProps>`
   font-weight: 500;
   white-space: nowrap;
 
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  // box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 
   :hover {
     border: ${({ color }) => `${color} solid 3px`};

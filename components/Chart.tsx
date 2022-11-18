@@ -23,17 +23,9 @@ export const getMinMaxDifference = data => {
   return maxVal - minVal;
 };
 
-export const Card = styled.div`
-  background: white;
-  padding: 16px;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  border-radius: 16px;
-`;
-
 export const ChartWrapper = styled.div`
-  margin-top: 16px;
   position: relative;
-  height: 350px;
+  height: 300px;
   z-index: 1;
   .loading {
     position: absolute;
@@ -78,7 +70,7 @@ const getChartOptions = (intl, timeUnit, hostCurrency, isCompactNotation, colors
     enabled: false,
   },
   legend: {
-    show: true,
+    show: false,
     showForSingleSeries: false,
     fontSize: '14px',
     position: 'top',
@@ -170,7 +162,7 @@ const getSeriesFromData = (intl, timeSeriesArray, startYear, currentTimePeriod, 
   return series;
 };
 
-export default function Chart({ timeSeriesArray, startYear, currentTag, type, currentTimePeriod, children }) {
+export default function Chart({ timeSeriesArray, startYear, currentTag, type, currentTimePeriod }) {
   const currency = 'USD';
   const intl = useIntl();
   const series = useMemo(
@@ -188,12 +180,9 @@ export default function Chart({ timeSeriesArray, startYear, currentTag, type, cu
   );
 
   return (
-    <Card>
-      {children}
-      <ChartWrapper>
-        <div className="loading">Loading...</div>
-        <ApexChart type="area" width="100%" height="350px" options={chartOptions} series={series} />
-      </ChartWrapper>
-    </Card>
+    <ChartWrapper>
+      <div className="loading">Loading...</div>
+      <ApexChart type="area" width="100%" height="300px" options={chartOptions} series={series} />
+    </ChartWrapper>
   );
 }

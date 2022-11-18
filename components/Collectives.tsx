@@ -3,8 +3,10 @@ import React, { useEffect } from 'react';
 import { Sort } from '@styled-icons/fa-solid/Sort';
 import { SortDown } from '@styled-icons/fa-solid/SortDown';
 import { FormattedDate } from 'react-intl';
-import { useSortBy, useTable } from 'react-table';
+import { useSortBy, useTable, usePagination } from 'react-table';
 import styled from 'styled-components';
+import { ChevronRight } from '@styled-icons/fa-solid/ChevronRight';
+import { ChevronLeft } from '@styled-icons/fa-solid/ChevronLeft';
 
 import { formatCurrency } from '@opencollective/frontend-components/lib/currency-utils';
 
@@ -18,56 +20,26 @@ const Table = styled.table`
   thead {
     tr {
       th {
-        font-weight: 500;
-        color: #333;
+        font-weight: 700;
+        color: #374151;
         padding: 16px 8px;
         height: 60px;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        padding-bottom: 16px;
       }
     }
   }
-  tr {
-  }
-  tbody tr:first-child th:first-child,
-  tbody tr:first-child td:first-child {
-    border-top-left-radius: 15px;
-  }
 
-  tbody tr:first-child th:last-child,
-  tbody tr:first-child td:last-child {
-    border-top-right-radius: 15px;
-  }
-
-  tbody tr:last-child th:first-child,
-  tbody tr:last-child td:first-child {
-    border-bottom-left-radius: 15px;
-  }
-
-  tbody tr:last-child th:last-child,
-  tbody tr:last-child td:last-child {
-    border-bottom-right-radius: 15px;
-  }
   .container {
-    background: white;
-    border-radius: 16px;
     width: 100%;
   }
   tbody {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    border-radius: 16px;
-    tr.sub {
-      border-top: 0 !important;
-      background: #f8fafc;
-      //color: #666;
-      // //font-size: 12px;
-      // font-style: italic;
-    }
     tr {
       cursor: pointer;
-      background: white;
-      // not first
-      &:not(:first-child) {
-        border-top: 1px solid #f1f5f9;
-      }
+      border-top: 1px solid #f1f5f9;
+
       transition: background 0.1s ease-in-out;
       :hover {
         background: #fbfcfd;
@@ -89,9 +61,6 @@ const Table = styled.table`
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-    :hover {
-      //text-decoration: underline;
     }
   }
   .last {
@@ -193,7 +162,7 @@ export default function Collectives({
         className: 'center',
       },
       {
-        Header: 'Total disbursed',
+        Header: 'T. disbursed',
         accessor: 'totalDisbursed',
         sortDescFirst: true,
         Cell: tableProps =>
@@ -204,7 +173,7 @@ export default function Collectives({
         className: 'right',
       },
       {
-        Header: 'Total raised',
+        Header: 'T. raised',
         accessor: 'totalRaised',
         Cell: tableProps => (
           <div className="">
@@ -220,7 +189,24 @@ export default function Collectives({
     ],
     [currentTag, currentTimePeriod],
   );
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, toggleSortBy } = useTable(
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    toggleSortBy,
+    page,
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
+    pageCount,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
+    state: { pageIndex, pageSize },
+  } = useTable(
     {
       columns,
       data,
@@ -235,7 +221,7 @@ export default function Collectives({
       },
     },
     useSortBy,
-    // useExpanded,
+    usePagination,
   );
 
   useEffect(() => {
@@ -255,7 +241,7 @@ export default function Collectives({
                 <th
                   {...column.getHeaderProps([{ className: column.className }, column.getSortByToggleProps()])}
                   style={{
-                    color: column.isSorted ? 'black' : '#333',
+                    color: column.isSorted ? 'black' : '#374151',
                     cursor: 'pointer',
                   }}
                 >
@@ -282,7 +268,7 @@ export default function Collectives({
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {rows.map(row => {
+          {page.map((row, i) => {
             prepareRow(row);
             return (
               <tr
@@ -301,6 +287,38 @@ export default function Collectives({
           })}
         </tbody>
       </Table>
+      <div className="px-6 pt-4 pb-4 flex items-center gap-4 text-sm text-gray-700">
+        <span>
+          Page{' '}
+          <input
+            type="number"
+            className="border rounded w-10 inline-block text-center"
+            value={pageIndex + 1}
+            onChange={e => {
+              const page = e.target.value ? Number(e.target.value) - 1 : 0;
+              gotoPage(page);
+            }}
+          />{' '}
+          of {pageOptions.length}
+        </span>
+
+        <div>
+          <button
+            onClick={() => previousPage()}
+            disabled={!canPreviousPage}
+            className="hover:text-black p-2 hover:bg-gray-100 rounded-full w-10 h-10"
+          >
+            <ChevronLeft size="12" />
+          </button>{' '}
+          <button
+            onClick={() => nextPage()}
+            disabled={!canNextPage}
+            className="hover:text-black p-2 hover:bg-gray-100 rounded-full w-10 h-10"
+          >
+            <ChevronRight size="12" />
+          </button>
+        </div>
+      </div>
     </React.Fragment>
   );
 }
