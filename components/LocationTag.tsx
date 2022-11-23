@@ -13,7 +13,7 @@ const LocationPin = () => (
 
 export default function LocationTag({ children }) {
   return (
-    <span className="text-sm bg-gray-50 rounded-full py-1 px-2 whitespace-nowrap border flex items-center gap-1">
+    <span className="text-sm bg-gray-50 rounded-full py-1 px-2 whitespace-nowrap border flex items-center gap-2">
       <LocationPin />
       {children}
     </span>

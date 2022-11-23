@@ -1,16 +1,18 @@
-import locationTags from '../../locationTags.json';
-import fs from 'fs';
+import cities from './cities.json';
 import countries from './countries.json';
 import usStates from './us_states.json';
 
-const cities = [
-  { name: 'Boston', stateCode: 'MA', countryCode: 'US' },
-  { name: 'Austin', stateCode: 'TX', countryCode: 'US' },
-  { name: 'New York City', alternativeSpelling: ['nyc'], stateCode: 'NY', countryCode: 'US' },
-  { name: 'Brooklyn', stateCode: 'NY', countryCode: 'US' },
-];
+type Location = {
+  city?: string;
+  stateCode?: string;
+  countryCode?: string;
+  region?: string;
+  isGlobal?: boolean;
+  isOnline?: boolean;
+  label?: string;
+};
 
-function getLocation(tags: string[]) {
+function getLocation(tags: string[]): Location {
   if (!tags.length) {
     return null;
   }
@@ -55,11 +57,11 @@ function getLocation(tags: string[]) {
   return null;
 }
 
-function getLabel(location) {
+function getLabel(location: Location): string {
   if (location.city) {
-    return `${location.city}, ${location.countryCode}`;
+    return `${location.city}, ${location.stateCode}`;
   } else if (location.stateCode) {
-    return `${usStates.find(state => state.code === location.stateCode).name}, ${location.countryCode}`;
+    return `${usStates.find(state => state.code === location.stateCode).name}`;
   } else if (location.countryCode) {
     return countries.find(country => country.code === location.countryCode).name;
   } else if (location.region) {
@@ -72,8 +74,8 @@ function getLabel(location) {
   return null;
 }
 
-export default function getLocationWithLabel(collective) {
-  const tags = collective.tags?.map(s => s.toLowerCase()) || [];
+export default function getLocationWithLabel(collective): Location {
+  const tags = collective.tags?.map((s: string) => s.toLowerCase()) || [];
 
   const isGlobal = tags.includes('global');
   const isOnline = tags.includes('online');

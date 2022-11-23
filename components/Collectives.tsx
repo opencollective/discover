@@ -104,6 +104,7 @@ function LocationFilter({ column: { filterValue, setFilter, preFilteredRows, id 
   return (
     <select
       value={filterValue}
+      className="p-1 bg-gray-50 mt-1"
       onChange={e => {
         setFilter(e.target.value || undefined);
       }}
@@ -165,7 +166,7 @@ export default function Collectives({
         ),
         Header: 'Name',
         sortDescFirst: true,
-        disableSortBy: false,
+        disableSortBy: true,
         className: 'left first',
         disableFilters: true,
       },

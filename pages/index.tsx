@@ -8,12 +8,12 @@ import Head from 'next/head';
 
 import { initializeApollo } from '../lib/apollo-client';
 import { getDumpByTagAndPeriod } from '../lib/getDataDump';
+import getLocation from '../lib/location/getLocation';
+import { getAllPosts, markdownToHtml } from '../lib/markdown';
 
 import Dashboard from '../components/Dashboard';
 import Layout from '../components/Layout';
 
-import getLocation from '../lib/location/getLocation';
-import { getAllPosts, markdownToHtml } from '../lib/markdown';
 import locationTags from '../locationTags.json';
 
 export const accountsQuery = gql`
@@ -181,14 +181,12 @@ const getDataForTagAndPeriod = async ({ apollo, hostSlug, category, period }) =>
       const totalDisbursed =
         collective.stats.totalNetAmountReceived.valueInCents - collective.stats.balance.valueInCents;
       const percentDisbursed = (totalDisbursed / collective.stats.totalNetAmountReceived.valueInCents) * 100;
-
       return {
         id: collective.id,
         name: collective.name,
         slug: collective.slug,
         description: collective.description,
         imageUrl: collective.imageUrl.replace('-staging', ''),
-        locationTags: collective.tags?.filter(tag => locationTags.includes(tag)) ?? null,
         location: getLocation(collective),
         totalRaised: collective.stats.totalNetAmountReceived.valueInCents,
         totalDisbursed,
