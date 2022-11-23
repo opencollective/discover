@@ -5,6 +5,7 @@ import usStates from './us_states.json';
 type Location = {
   city?: string;
   stateCode?: string;
+  domesticRegion?: string;
   countryCode?: string;
   region?: string;
   isGlobal?: boolean;
@@ -22,6 +23,7 @@ function getLocation(tags: string[]): Location {
     return {
       city: city.name,
       stateCode: city.stateCode,
+      domesticRegion: usStates.find(state => state.code === city.stateCode).region,
       countryCode: city.countryCode,
       region: countries.find(c => c.code === city.countryCode)?.region,
     };
@@ -31,6 +33,7 @@ function getLocation(tags: string[]): Location {
   if (state) {
     return {
       stateCode: state.code,
+      domesticRegion: state.region,
       countryCode: 'US',
       region: countries.find(c => c.code === 'US').region,
     };

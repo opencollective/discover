@@ -90,15 +90,54 @@ export const Avatar = styled.img`
 
 function LocationFilter({ column: { filterValue, setFilter, preFilteredRows, id } }) {
   const options = React.useMemo(() => {
+    const options = [];
     const regions = [];
-
+    const countries = [];
+    const domesticRegions = [];
     preFilteredRows.forEach(row => {
-      if (!regions.includes(row.values.location.region) && row.values.location.region) {
+      if (row.values.location.region && !regions.includes(row.values.location.region)) {
         regions.push(row.values.location.region);
       }
+
+      if (row.values.location.countryCode && !countries.find(c => c.countryCode === row.values.location.countryCode)) {
+        countries.push({ countryCode: row.values.location.countryCode, region: row.values.location.region });
+      }
+      if (
+        row.values.location.domesticRegion &&
+        !domesticRegions.find(c => c.domesticRegion === row.values.location.domesticRegion)
+      ) {
+        domesticRegions.push({
+          domesticRegion: row.values.location.domesticRegion,
+          countryCode: row.values.location.countryCode,
+        });
+      }
+    });
+    const sortedRegions = regions.sort();
+
+    // for each region
+    sortedRegions.forEach(region => {
+      // add the region to the options
+      options.push({ type: 'region', label: `${region}`, value: region });
+      // add the countries in that region to the options
+      countries
+        .filter(country => country.region === region)
+        .map(country => country.countryCode)
+        .sort()
+        .forEach(country => {
+          options.push({ type: 'countryCode', label: `- ${country}`, value: country });
+
+          // add the domestic regions in that country to the options
+          domesticRegions
+            .filter(domesticRegion => domesticRegion.countryCode === country)
+            .map(state => state.domesticRegion)
+            .sort()
+            .forEach(domesticRegion => {
+              options.push({ type: 'domesticRegion', label: `-- ${domesticRegion}`, value: domesticRegion });
+            });
+        });
     });
 
-    return regions.map(region => ({ label: region, type: 'region' })).sort((a, b) => a.label.localeCompare(b.label));
+    return options;
   }, [id, preFilteredRows]);
 
   return (
@@ -110,8 +149,8 @@ function LocationFilter({ column: { filterValue, setFilter, preFilteredRows, id 
       }}
     >
       <option value="">All</option>
-      {options.map((option, i) => (
-        <option key={i} value={JSON.stringify(option)}>
+      {options.map(option => (
+        <option key={option.label} value={JSON.stringify(option)}>
           {option.label}
         </option>
       ))}
@@ -122,13 +161,14 @@ function LocationFilter({ column: { filterValue, setFilter, preFilteredRows, id 
 function filterLocation(rows, id, filterValue) {
   return rows.filter(row => {
     const filter = JSON.parse(filterValue);
-    const { region, isOnline, isGlobal } = row.original.location;
+    const { region, domesticRegion, countryCode } = row.original.location;
+
     if (filter.type === 'region') {
-      return region === filter.label;
-    } else if (filter.type === 'online') {
-      return isOnline;
-    } else if (filter.type === 'global') {
-      return isGlobal;
+      return region === filter.value;
+    } else if (filter.type === 'domesticRegion') {
+      return domesticRegion === filter.value;
+    } else if (filter.type === 'countryCode') {
+      return countryCode === filter.value;
     }
   });
 }
