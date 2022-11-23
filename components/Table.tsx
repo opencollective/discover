@@ -93,7 +93,7 @@ function LocationFilter({ column: { filterValue, setFilter, preFilteredRows } })
   return (
     <select
       value={filterValue}
-      className="p-1 bg-gray-50 mt-1"
+      className="mt-1 bg-gray-50 p-1"
       onChange={e => {
         setFilter(e.target.value || undefined);
       }}
@@ -109,8 +109,11 @@ function LocationFilter({ column: { filterValue, setFilter, preFilteredRows } })
 }
 
 function filterLocation(rows, id, filterValue) {
+  const filter = JSON.parse(filterValue);
+  if (filter.value === '') {
+    return rows;
+  }
   return rows.filter(row => {
-    const filter = JSON.parse(filterValue);
     const { region, domesticRegion, countryCode } = row.original.location;
 
     if (filter.type === 'region') {
@@ -126,19 +129,19 @@ function filterLocation(rows, id, filterValue) {
 interface Props {
   collectives: [any];
   collectivesData: object;
-  currentMetric: string;
   currentTimePeriod: string;
   currentTag: string;
+  currentLocationFilter: string;
   locale: string;
 }
 
 export default function Collectives({
   collectives,
   collectivesData,
-  currentMetric,
   currentTimePeriod,
   currentTag,
   locale,
+  currentLocationFilter,
 }: Props) {
   const [collectiveInModal, setCollectiveInModal] = React.useState(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -154,7 +157,7 @@ export default function Collectives({
             <span>{row.original.name}</span>
           </div>
         ),
-        Header: 'Name',
+        Header: 'Collective',
         sortDescFirst: true,
         disableSortBy: true,
         className: 'left first',
@@ -174,14 +177,14 @@ export default function Collectives({
         disableSortBy: true,
         className: 'left',
       },
-      {
-        Header: 'Created',
-        accessor: 'createdAt',
-        sortDescFirst: true,
-        Cell: ({ row }) => new Date(row.original.createdAt).getUTCFullYear(),
-        className: 'center',
-        disableFilters: true,
-      },
+      // {
+      //   Header: 'Created',
+      //   accessor: 'createdAt',
+      //   sortDescFirst: true,
+      //   Cell: ({ row }) => new Date(row.original.createdAt).getUTCFullYear(),
+      //   className: 'center',
+      //   disableFilters: true,
+      // },
       {
         Header: 'Contributors',
         accessor: 'contributorsCount',
@@ -224,7 +227,6 @@ export default function Collectives({
     getTableBodyProps,
     headerGroups,
     prepareRow,
-    toggleSortBy,
     page,
     canPreviousPage,
     canNextPage,
@@ -232,6 +234,7 @@ export default function Collectives({
     gotoPage,
     nextPage,
     previousPage,
+    setFilter,
     state: { pageIndex },
   } = useTable(
     {
@@ -252,11 +255,17 @@ export default function Collectives({
     usePagination,
   );
 
+  // useEffect(() => {
+  //   if (currentMetric === 'TOTAL_RAISED') {
+  //     toggleSortBy('totalRaised', true, false);
+  //   }
+  // }, [currentMetric, currentTimePeriod, currentTag]);
+
+  // Listen for input changes outside
   useEffect(() => {
-    if (currentMetric === 'TOTAL_RAISED') {
-      toggleSortBy('totalRaised', true, false);
-    }
-  }, [currentMetric, currentTimePeriod, currentTag]);
+    // This will now use our custom filter for age
+    setFilter('location', currentLocationFilter);
+  }, [currentLocationFilter]);
 
   return (
     <React.Fragment>
@@ -300,7 +309,6 @@ export default function Collectives({
                           )}
                         </span>
                       )}
-                      <div>{column.canFilter ? column.render('Filter') : null}</div>
                     </th>
                   );
                 })}
@@ -334,12 +342,12 @@ export default function Collectives({
           })}
         </tbody>
       </Table>
-      <div className="px-6 pt-4 pb-4 flex items-center gap-4 text-sm text-gray-700">
+      <div className="flex items-center gap-4 px-6 pt-4 pb-4 text-sm text-gray-700">
         <span>
           Page{' '}
           <input
             type="number"
-            className="border rounded w-10 inline-block text-center"
+            className="inline-block w-10 rounded border text-center"
             value={pageIndex + 1}
             onChange={e => {
               const page = e.target.value ? Number(e.target.value) - 1 : 0;
@@ -353,14 +361,14 @@ export default function Collectives({
           <button
             onClick={() => previousPage()}
             disabled={!canPreviousPage}
-            className="hover:text-black p-2 hover:bg-gray-100 rounded-full w-10 h-10"
+            className="h-10 w-10 rounded-full p-2 hover:bg-gray-100 hover:text-black"
           >
             <ChevronLeft size="12" />
           </button>{' '}
           <button
             onClick={() => nextPage()}
             disabled={!canNextPage}
-            className="hover:text-black p-2 hover:bg-gray-100 rounded-full w-10 h-10"
+            className="h-10 w-10 rounded-full p-2 hover:bg-gray-100 hover:text-black"
           >
             <ChevronRight size="12" />
           </button>

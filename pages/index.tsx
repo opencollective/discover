@@ -76,11 +76,11 @@ export const accountsQuery = gql`
 `;
 
 export const categories = [
-  { label: 'All', tag: 'ALL', color: '#725fed' },
-  { label: 'mutual aid', tag: 'mutual aid', color: '#F94892' },
-  { label: 'civic tech', tag: 'civic tech', color: '#FF7F3F' },
-  { label: 'arts & culture', tag: 'arts and culture', color: '#FBDF07' },
-  { label: 'climate', tag: 'climate', extraTags: ['climate change', 'climate justice'], color: '#89CFFD' },
+  { label: 'All', tag: 'ALL', color: '#14B8A6', tc: 'teal' },
+  { label: 'Mutual aid', tag: 'mutual aid', color: '#3B82F6', tc: 'blue' },
+  { label: 'Civic tech', tag: 'civic tech', color: '#A855F7', tc: 'purple' },
+  { label: 'Arts & culture', tag: 'arts and culture', color: '#F43F5E', tc: 'rose' },
+  { label: 'Climate', tag: 'climate', extraTags: ['climate change', 'climate justice'], color: '#F59E0B', tc: 'amber' },
 ];
 
 export const simpleDateToISOString = (date, isEndOfDay, timezoneType) => {
@@ -257,7 +257,7 @@ export default function Page({ categories, collectivesData }) {
   return (
     <Layout>
       <Head>
-        <title>Horizons</title>
+        <title>Discover Open Collective Foundation</title>
       </Head>
       <Dashboard categories={categories} collectivesData={collectivesData} locale={locale} />
     </Layout>

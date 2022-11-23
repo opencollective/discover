@@ -12,6 +12,8 @@ import { ThemeProvider } from 'styled-components';
 import { useApollo } from '../lib/apollo-client';
 import theme from '@opencollective/frontend-components/lib/theme';
 
+import Footer from '../components/Footer';
+
 import '../globals.css';
 
 dayjs.extend(utc);
@@ -29,6 +31,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <ThemeProvider theme={theme}>
           <NextNProgress />
           <Component {...pageProps} />
+          <Footer />
         </ThemeProvider>
       </ApolloProvider>
     </IntlProvider>

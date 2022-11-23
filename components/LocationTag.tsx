@@ -1,6 +1,6 @@
 import React from 'react';
 
-const LocationPin = () => (
+export const LocationPin = () => (
   <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       fillRule="evenodd"
@@ -13,7 +13,7 @@ const LocationPin = () => (
 
 export default function LocationTag({ children }) {
   return (
-    <span className="text-sm bg-gray-50 rounded-full py-1 px-2 whitespace-nowrap border flex items-center gap-2">
+    <span className="flex items-center gap-2 whitespace-nowrap rounded-full border bg-gray-50 py-1 px-2 text-sm">
       <LocationPin />
       {children}
     </span>
