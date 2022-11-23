@@ -6,9 +6,9 @@ import { SortDown } from '@styled-icons/fa-solid/SortDown';
 import { useFilters, usePagination, useSortBy, useTable } from 'react-table';
 import styled from 'styled-components';
 
+import getFilterOptions from '../lib/location/getFilterOptions';
 import { formatCurrency } from '@opencollective/frontend-components/lib/currency-utils';
 
-import getFilterOptions from '../lib/location/getFilterOptions';
 import CollectiveModal from './CollectiveModal';
 import LocationTag from './LocationTag';
 
