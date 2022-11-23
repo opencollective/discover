@@ -14,8 +14,6 @@ import { getAllPosts, markdownToHtml } from '../lib/markdown';
 import Dashboard from '../components/Dashboard';
 import Layout from '../components/Layout';
 
-import locationTags from '../locationTags.json';
-
 export const accountsQuery = gql`
   query SearchAccounts($hostSlug: String, $tag: [String], $dateFrom: DateTime, $dateTo: DateTime, $timeUnit: TimeUnit) {
     accounts(type: [COLLECTIVE], tag: $tag, limit: 500, host: { slug: $hostSlug }) {

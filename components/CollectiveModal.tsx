@@ -8,8 +8,8 @@ import sanitizeHtml from 'sanitize-html';
 
 import { formatCurrency } from '@opencollective/frontend-components/lib/currency-utils';
 
-import { Avatar } from './Collectives';
 import LocationTag from './LocationTag';
+import { Avatar } from './Table';
 
 export const collectiveQuery = gql`
   query Account($slug: String!) {

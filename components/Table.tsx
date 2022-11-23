@@ -1,11 +1,9 @@
-/* eslint-disable react/jsx-key */
 import React, { useEffect } from 'react';
 import { ChevronLeft } from '@styled-icons/fa-solid/ChevronLeft';
 import { ChevronRight } from '@styled-icons/fa-solid/ChevronRight';
 import { Sort } from '@styled-icons/fa-solid/Sort';
 import { SortDown } from '@styled-icons/fa-solid/SortDown';
-import { FormattedDate } from 'react-intl';
-import { usePagination, useSortBy, useTable, useFilters } from 'react-table';
+import { useFilters, usePagination, useSortBy, useTable } from 'react-table';
 import styled from 'styled-components';
 
 import { formatCurrency } from '@opencollective/frontend-components/lib/currency-utils';
@@ -313,55 +311,71 @@ export default function Collectives({
       <CollectiveModal isOpen={isModalOpen} collective={collectiveInModal} onClose={() => setIsModalOpen(false)} />
       <Table {...getTableProps()} className="">
         <thead>
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <th
-                  {...column.getHeaderProps([{ className: column.className }, column.getSortByToggleProps()])}
-                  style={{
-                    color: column.isSorted ? 'black' : '#374151',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {column.render('Header')}{' '}
-                  {column.canSort && (
-                    <span
+          {headerGroups.map(headerGroup => {
+            const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
+            return (
+              <tr key={key} {...restHeaderGroupProps}>
+                {headerGroup.headers.map(column => {
+                  const { key, ...restColumn } = column.getHeaderProps([
+                    { className: column.className },
+                    column.getSortByToggleProps(),
+                  ]);
+                  return (
+                    <th
+                      key={key}
+                      {...restColumn}
                       style={{
-                        display: 'inline-block',
-                        verticalAlign: 'top',
-                        marginLeft: '4px',
-                        opacity: column.isSorted ? '100%' : '25%',
+                        color: column.isSorted ? 'black' : '#374151',
+                        cursor: 'pointer',
                       }}
                     >
-                      {column.isSortedDesc ? (
-                        <SortDown size="16" />
-                      ) : column.isSorted ? (
-                        <SortDown style={{ transform: 'rotate(180deg)' }} size="16" />
-                      ) : (
-                        <Sort size="16" />
+                      {column.render('Header')}{' '}
+                      {column.canSort && (
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            verticalAlign: 'top',
+                            marginLeft: '4px',
+                            opacity: column.isSorted ? '100%' : '25%',
+                          }}
+                        >
+                          {column.isSortedDesc ? (
+                            <SortDown size="16" />
+                          ) : column.isSorted ? (
+                            <SortDown style={{ transform: 'rotate(180deg)' }} size="16" />
+                          ) : (
+                            <Sort size="16" />
+                          )}
+                        </span>
                       )}
-                    </span>
-                  )}
-                  <div>{column.canFilter ? column.render('Filter') : null}</div>
-                </th>
-              ))}
-            </tr>
-          ))}
+                      <div>{column.canFilter ? column.render('Filter') : null}</div>
+                    </th>
+                  );
+                })}
+              </tr>
+            );
+          })}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {page.map((row, i) => {
+          {page.map(row => {
             prepareRow(row);
+            const { key, ...restRowProps } = row.getRowProps();
             return (
               <tr
-                key={row.original.id}
-                {...row.getRowProps()}
+                key={key}
+                {...restRowProps}
                 onClick={() => {
                   setCollectiveInModal(collectivesData[row.original.id]);
                   setIsModalOpen(true);
                 }}
               >
                 {row.cells.map(cell => {
-                  return <td {...cell.getCellProps([{ className: cell.column.className }])}>{cell.render('Cell')}</td>;
+                  const { key, ...restCellProps } = cell.getCellProps([{ className: cell.column.className }]);
+                  return (
+                    <td key={key} {...restCellProps}>
+                      {cell.render('Cell')}
+                    </td>
+                  );
                 })}
               </tr>
             );
