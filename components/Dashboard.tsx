@@ -132,7 +132,7 @@ export default function Dashboard({ categories, collectivesData, stories, locale
               openCollectiveModal={openCollectiveModal}
             />
           </div>
-          <Stories stories={stories} currentTag={currentTag} />
+          {/* <Stories stories={stories} currentTag={currentTag} /> */}
           <Updates currentTag={currentTag} openCollectiveModal={openCollectiveModal} />
         </div>
       </div>
