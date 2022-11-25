@@ -7,7 +7,7 @@ import { formatCurrency } from '@opencollective/frontend-components/lib/currency
 import Chart from './Chart';
 import CollectiveModal from './CollectiveModal';
 import FilterArea from './FilterArea';
-// import Stories from './Stories';
+import Stories from './Stories';
 import Table from './Table';
 import Updates from './Updates';
 
@@ -31,7 +31,7 @@ const Metric = styled.div`
 
 const getParam = param => (Array.isArray(param) ? param[0] : param);
 
-export default function Dashboard({ categories, collectivesData, locale }) {
+export default function Dashboard({ categories, collectivesData, stories, locale }) {
   const router = useRouter();
   const currentTag = getParam(router.query?.tag) ?? 'ALL';
   const currentTimePeriod = getParam(router.query?.time) ?? 'ALL';
@@ -132,7 +132,7 @@ export default function Dashboard({ categories, collectivesData, locale }) {
               openCollectiveModal={openCollectiveModal}
             />
           </div>
-          {/* <Stories stories={stories} currentTag={currentTag} /> */}
+          <Stories stories={stories} currentTag={currentTag} />
           <Updates currentTag={currentTag} openCollectiveModal={openCollectiveModal} />
         </div>
       </div>
