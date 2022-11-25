@@ -16,7 +16,7 @@ const CategorySelect = ({ categories, selectedTag, onSelect, currentTimePeriod }
               variants: {
                 selected: {
                   true: `border-${category.tc}-500`,
-                  false: `border-transparent hover:border-gray-200`,
+                  false: `border-transparent hover:border-${category.tc}-500`,
                 },
               },
             },

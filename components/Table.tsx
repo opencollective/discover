@@ -64,10 +64,10 @@ const Table = styled.table`
     }
   }
   .last {
-    padding-right: 20px;
+    padding-right: 32px;
   }
   .first {
-    padding-left: 16px;
+    padding-left: 32px;
   }
   .center {
     text-align: center;
@@ -128,23 +128,21 @@ function filterLocation(rows, id, filterValue) {
 
 interface Props {
   collectives: [any];
-  collectivesData: object;
   currentTimePeriod: string;
   currentTag: string;
   currentLocationFilter: string;
   locale: string;
+  openCollectiveModal: (slug: string) => void;
 }
 
 export default function Collectives({
   collectives,
-  collectivesData,
   currentTimePeriod,
   currentTag,
   locale,
   currentLocationFilter,
+  openCollectiveModal,
 }: Props) {
-  const [collectiveInModal, setCollectiveInModal] = React.useState(null);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const data = React.useMemo(() => collectives, [currentTag, currentTimePeriod]);
 
   const columns = React.useMemo(
@@ -175,7 +173,7 @@ export default function Collectives({
         Filter: LocationFilter,
         filter: filterLocation,
         disableSortBy: true,
-        className: 'left',
+        className: 'left  max-w-[200px] overflow-hidden',
       },
       // {
       //   Header: 'Created',
@@ -269,7 +267,6 @@ export default function Collectives({
 
   return (
     <React.Fragment>
-      <CollectiveModal isOpen={isModalOpen} collective={collectiveInModal} onClose={() => setIsModalOpen(false)} />
       <Table {...getTableProps()} className="">
         <thead>
           {headerGroups.map(headerGroup => {
@@ -287,7 +284,8 @@ export default function Collectives({
                       {...restColumn}
                       style={{
                         color: column.isSorted ? 'black' : '#374151',
-                        cursor: 'pointer',
+                        cursor: column.canSort ? 'pointer' : 'default',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {column.render('Header')}{' '}
@@ -300,13 +298,14 @@ export default function Collectives({
                             opacity: column.isSorted ? '100%' : '25%',
                           }}
                         >
-                          {column.isSortedDesc ? (
-                            <SortDown size="16" />
-                          ) : column.isSorted ? (
-                            <SortDown style={{ transform: 'rotate(180deg)' }} size="16" />
-                          ) : (
-                            <Sort size="16" />
-                          )}
+                          {
+                            column.isSortedDesc ? (
+                              <SortDown size="16" />
+                            ) : column.isSorted ? (
+                              <SortDown style={{ transform: 'rotate(180deg)' }} size="16" />
+                            ) : null
+                            // <Sort size="16" />
+                          }
                         </span>
                       )}
                     </th>
@@ -325,8 +324,7 @@ export default function Collectives({
                 key={key}
                 {...restRowProps}
                 onClick={() => {
-                  setCollectiveInModal(collectivesData[row.original.id]);
-                  setIsModalOpen(true);
+                  openCollectiveModal(row.original.slug);
                 }}
               >
                 {row.cells.map(cell => {
@@ -342,7 +340,7 @@ export default function Collectives({
           })}
         </tbody>
       </Table>
-      <div className="flex items-center gap-4 px-6 pt-4 pb-4 text-sm text-gray-700">
+      <div className="flex items-center gap-4 px-10 text-sm text-gray-700">
         <span>
           Page{' '}
           <input

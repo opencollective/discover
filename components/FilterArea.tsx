@@ -28,7 +28,7 @@ export default function FilterArea({
   const locationOptions = React.useMemo(() => getFilterOptions(collectives.map(c => ({ values: c }))), [collectives]);
 
   return (
-    <div className="rounded-lg bg-white p-4">
+    <div className="sticky top-10 rounded-lg bg-white p-4">
       <CategoryFilter
         currentTimePeriod={currentTimePeriod}
         selectedTag={currentTag}

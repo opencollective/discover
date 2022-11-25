@@ -219,7 +219,7 @@ export const getStaticProps: GetStaticProps = async () => {
   const collectivesAllData = categoriesWithData.find(c => c.tag === 'ALL').data.ALL.collectives;
 
   const collectivesData = collectivesAllData.reduce((acc, collective) => {
-    acc[collective.id] = collective;
+    acc[collective.slug] = collective;
     return acc;
   }, {});
 
@@ -235,31 +235,25 @@ export const getStaticProps: GetStaticProps = async () => {
       };
     }),
   );
-  const categoriesWithDataAndStories = categoriesWithData.map(category => {
-    const stories = storiesWithContent.filter(story => {
-      return story.tags.some(tag => tag.tag === category.tag) || category.tag === 'ALL';
-    });
-
-    return { ...category, stories };
-  });
 
   return {
     props: {
-      categories: categoriesWithDataAndStories,
+      categories: categoriesWithData,
       collectivesData,
+      stories: storiesWithContent,
     },
     revalidate: 60 * 60 * 24, // Revalidate the static page at most once every 24 hours to not overload the API
   };
 };
 
-export default function Page({ categories, collectivesData }) {
+export default function Page({ categories, collectivesData, stories }) {
   const locale = 'en';
   return (
     <Layout>
       <Head>
         <title>Discover Open Collective Foundation</title>
       </Head>
-      <Dashboard categories={categories} collectivesData={collectivesData} locale={locale} />
+      <Dashboard categories={categories} collectivesData={collectivesData} stories={stories} locale={locale} />
     </Layout>
   );
 }

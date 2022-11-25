@@ -1,7 +1,7 @@
 import React from 'react';
 
-export const LocationPin = () => (
-  <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+export const LocationPin = ({ className }) => (
+  <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -13,9 +13,9 @@ export const LocationPin = () => (
 
 export default function LocationTag({ children }) {
   return (
-    <span className="flex items-center gap-2 whitespace-nowrap rounded-full border bg-gray-50 py-1 px-2 text-sm">
-      <LocationPin />
-      {children}
-    </span>
+    <div className="flex max-w-full items-center gap-2 whitespace-nowrap rounded-full border bg-gray-50 py-1 px-2 text-sm">
+      <LocationPin className="flex-shrink-0" />
+      <span className="overflow-hidden overflow-ellipsis">{children}</span>
+    </div>
   );
 }

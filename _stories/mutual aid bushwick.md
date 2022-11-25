@@ -7,8 +7,6 @@ video:
   title: 'OCF video'
 ---
 
-# Mutual aid project
+# Mutual aid in Bushwick
 
-## Featured story
-
-This is about a project in mutual aid.
+Bushwick Ayuda Mutua is a network of neighbors supporting neighbors.
