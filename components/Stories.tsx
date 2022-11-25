@@ -1,7 +1,6 @@
 import React from 'react';
+import { Flipped, Flipper } from 'react-flip-toolkit';
 import styled from 'styled-components';
-import { Flipper, Flipped } from 'react-flip-toolkit';
-import { Transition } from '@headlessui/react';
 
 const Markdown = styled.div`
   line-height: 1.625;

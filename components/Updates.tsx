@@ -1,7 +1,7 @@
 import React from 'react';
-import sanitizeHtml from 'sanitize-html';
+import { Flipped,Flipper } from 'react-flip-toolkit';
 import { FormattedDate } from 'react-intl';
-import { Flipper, Flipped } from 'react-flip-toolkit';
+import sanitizeHtml from 'sanitize-html';
 
 const updates = [
   {

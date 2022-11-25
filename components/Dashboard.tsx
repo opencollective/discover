@@ -1,15 +1,15 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
 
 import { formatCurrency } from '@opencollective/frontend-components/lib/currency-utils';
 
 import Chart from './Chart';
+import CollectiveModal from './CollectiveModal';
 import FilterArea from './FilterArea';
 import Stories from './Stories';
 import Table from './Table';
 import Updates from './Updates';
-import CollectiveModal from './CollectiveModal';
 
 const Metric = styled.div`
   text-align: center;
