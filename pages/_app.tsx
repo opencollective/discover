@@ -31,7 +31,6 @@ export default function App({ Component, pageProps }: AppProps) {
         <ThemeProvider theme={theme}>
           <NextNProgress />
           <Component {...pageProps} />
-          <Footer />
         </ThemeProvider>
       </ApolloProvider>
     </IntlProvider>

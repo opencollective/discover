@@ -34,7 +34,7 @@ export default function FilterArea({
         selectedTag={currentTag}
         categories={categories}
         onSelect={category => {
-          router.push({ pathname: '/', query: { ...router.query, ...{ tag: category.tag } } }, null, {
+          router.push({ pathname: '/foundation', query: { ...router.query, ...{ tag: category.tag } } }, null, {
             shallow: true,
           });
         }}
@@ -55,7 +55,7 @@ export default function FilterArea({
             ]}
             value={currentTimePeriod}
             onChange={option => {
-              router.push({ pathname: '/', query: { ...router.query, ...{ time: option.value } } }, null, {
+              router.push({ pathname: '/foundation', query: { ...router.query, ...{ time: option.value } } }, null, {
                 shallow: true,
               });
             }}
