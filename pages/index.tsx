@@ -4,12 +4,11 @@ import Link from 'next/link';
 
 import Layout from '../components/Layout';
 
-export default function Page({ categories, collectivesData, stories }) {
-  const locale = 'en';
+export default function Page() {
   return (
     <Layout>
       <Head>
-        <title>Discover Open Collective Foundation</title>
+        <title>Discover Open Collective</title>
       </Head>
       <div className="mx-auto mt-4 flex max-w-[1280px]   flex-1 flex-col space-y-10 py-24 px-12">
         <Link href="/foundation">
