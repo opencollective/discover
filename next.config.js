@@ -61,6 +61,15 @@ const config = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/foundation',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 const withTm = nextTranspileModules(['@opencollective/frontend-components']);
