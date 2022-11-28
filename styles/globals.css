@@ -131,9 +131,3 @@ body {
   animation: fadeOut 0.3s forwards;
   animation-timing-function: cubic-bezier(0.47, 0, 0.745, 0.715);
 }
-.swiper-slide {
-  @apply relative w-auto max-w-full !important;
-}
-.swiper {
-  @apply px-4 lg:pl-8 lg:pr-10 !important;
-}

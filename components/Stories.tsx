@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import { Navigation } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-import 'swiper/swiper.min.css';
-
 const Markdown = styled.div`
   line-height: 1.625;
   p,
@@ -132,7 +130,10 @@ export default function Stories({ stories, currentTag }) {
                 clickable: true,
               }}
               modules={[Navigation]}
-              onSlideChange={swiper => setActiveIndex(swiper.activeIndex)}
+              onReachEnd={swiper => (swiper.snapGrid = [...swiperRef.current.slidesGrid])}
+              onSlideChange={swiper => {
+                setActiveIndex(swiper.activeIndex);
+              }}
               onBeforeInit={swiper => {
                 swiperRef.current = swiper;
               }}
