@@ -48,7 +48,7 @@ export default function Dashboard({ categories, collectivesData, stories, locale
   const totalCollectiveCount = categories[0].data.ALL.collectiveCount;
   return (
     <div className="mx-auto mt-4 flex max-w-[1400px] flex-col space-y-10 p-4 lg:p-10">
-      <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-4">
         <div className="w-full rounded-lg bg-white p-6 lg:col-span-3 lg:p-12">
           <h1 className="text-[28px] font-bold leading-tight text-[#111827] lg:text-[40px]">
             Discover {totalCollectiveCount.toLocaleString(locale)} collectives making an impact in{' '}
@@ -65,7 +65,7 @@ export default function Dashboard({ categories, collectivesData, stories, locale
             and more
           </h1>
         </div>
-        <div className="flex flex-col items-center justify-center rounded-lg  bg-[#F7FEFF] p-12">
+        <div className="flex flex-col items-center justify-center bg-[#F7FEFF]  p-12 lg:rounded-lg">
           <img src="/ocf-logo.svg" alt="OCF Logotype" className="h-10" />
           <a
             href="https://opencollective.com/solidarity-economy-fund"
@@ -78,8 +78,8 @@ export default function Dashboard({ categories, collectivesData, stories, locale
         </div>
       </div>
 
-      <div className="grid grid-cols-1 items-start gap-10 md:grid-cols-4">
-        <div className="sticky top-4 z-20 md:top-10">
+      <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-4">
+        <div className="sticky top-4 z-20 lg:top-10">
           <FilterArea
             currentTimePeriod={currentTimePeriod}
             currentTag={currentTag}
@@ -91,14 +91,14 @@ export default function Dashboard({ categories, collectivesData, stories, locale
           />
         </div>
         <div className="space-y-12 lg:col-span-3">
-          <div className="space-y-5 rounded-lg bg-white py-4 md:py-8" ref={collectivesDataContainer}>
+          <div className="-mx-4 space-y-5 rounded-lg bg-white py-4 lg:mx-0 lg:py-8" ref={collectivesDataContainer}>
             <Stats
               totalRaised={totalRaised}
               collectiveCount={collectiveCount}
               numberOfContributions={numberOfContributions}
               locale={locale}
             />
-            <div className="px-0 md:px-8">
+            <div className="lg:px-4">
               <Chart
                 startYear={2018}
                 currentTag={currentTag}
@@ -127,19 +127,19 @@ export default function Dashboard({ categories, collectivesData, stories, locale
         </div>
       </div>
       <div>
-        <div className="order my-12 grid grid-cols-1 rounded-lg border-2 border-teal-500 bg-[#F7FEFF] md:grid-cols-4 md:gap-12">
-          <div className="flex flex-col justify-center p-6 pt-0 md:p-10 md:pt-10 md:pr-4 ">
+        <div className="order my-12 grid grid-cols-1 rounded-lg border-2 border-teal-500 bg-[#F7FEFF] lg:grid-cols-4 lg:gap-12">
+          <div className="flex flex-col justify-center p-6 pt-0 lg:p-10 lg:pt-10 lg:pr-4 ">
             <a
               href="https://opencollective.com/solidarity-economy-fund"
               target="_blank"
               rel="noopener noreferrer"
-              className=" block rounded-full bg-[#044F54] px-3 py-3 text-center text-lg font-medium text-white md:py-4 md:text-xl"
+              className=" block rounded-full bg-[#044F54] px-3 py-3 text-center text-lg font-medium text-white lg:py-4 lg:text-xl"
             >
               Contribute
             </a>
           </div>
-          <div className="order-first p-6 md:order-last md:col-span-3 md:p-10 md:pl-0">
-            <h3 className="text-2xl font-bold text-teal-800 md:text-3xl">
+          <div className="order-first p-6 lg:order-last lg:col-span-3 lg:p-10 lg:pl-0">
+            <h3 className="text-2xl font-bold text-teal-800 lg:text-3xl">
               Contribute to a pooled fund to benefit multiple collectives within Open Collective Foundation
             </h3>{' '}
             <div className="flex justify-end"> </div>

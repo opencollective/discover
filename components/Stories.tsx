@@ -55,7 +55,7 @@ const LeftArrow = () => (
 export const Story = ({ story }) => {
   return (
     <div className={`fadeIn max-w-2xl rounded-lg bg-white p-8`}>
-      <div className="flex flex-col gap-8 md:flex-row">
+      <div className="flex flex-col gap-8 lg:flex-row">
         <img
           src="/video-placeholder.png"
           alt="Video placeholder"
@@ -106,7 +106,7 @@ export default function Stories({ stories, currentTag }) {
     <React.Fragment>
       <div>
         <div className="mb-6 flex items-center justify-between">
-          <h2 className=" text-xl font-bold text-gray-600 md:text-4xl">Featured stories</h2>
+          <h2 className=" text-xl font-bold text-gray-600 lg:text-4xl">Featured stories</h2>
           <div className="flex items-center gap-2">
             <SliderButton onClick={() => swiperRef.current?.slidePrev()} disabled={activeIndex === 0}>
               <LeftArrow />

@@ -131,7 +131,7 @@ export default function FilterArea({
   const [filtersExpanded, setFiltersExpanded] = React.useState(false);
   return (
     <Fragment>
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <div className="rounded-lg bg-white p-4">
           <Filters
             currentTimePeriod={currentTimePeriod}
@@ -145,7 +145,7 @@ export default function FilterArea({
           />
         </div>
       </div>
-      <div className="block md:hidden">
+      <div className="block lg:hidden">
         <div className="relative h-14">
           <div className="absolute top-0 right-0 left-0 rounded-2xl bg-white shadow">
             <button

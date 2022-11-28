@@ -20,7 +20,6 @@ const Table = styled.table`
       th {
         font-weight: 700;
         color: #374151;
-        padding: 16px 8px;
         height: 60px;
         text-transform: uppercase;
         font-size: 12px;
@@ -42,9 +41,6 @@ const Table = styled.table`
       :hover {
         background: #fbfcfd;
       }
-      td {
-        padding: 16px;
-      }
     }
   }
   .collective {
@@ -60,9 +56,6 @@ const Table = styled.table`
       overflow: hidden;
       text-overflow: ellipsis;
     }
-  }
-  .pl-4 {
-    padding-left: 16px;
   }
 `;
 
@@ -144,7 +137,7 @@ export default function Collectives({
         Header: 'Collective',
         sortDescFirst: true,
         disableSortBy: true,
-        className: 'text-left pl-4 md:pl-8',
+        className: 'max-w-[220px] text-left pl-4 lg:pl-8 pr-2 py-4',
         disableFilters: true,
       },
       {
@@ -159,7 +152,7 @@ export default function Collectives({
         Filter: LocationFilter,
         filter: filterLocation,
         disableSortBy: true,
-        className: 'max-w-[200px] overflow-hidden',
+        className: 'max-w-[150px] text-left overflow-hidden px-2 py-4',
       },
       // {
       //   Header: 'Created',
@@ -174,7 +167,7 @@ export default function Collectives({
         accessor: 'contributorsCount',
         sortDescFirst: true,
         Cell: tableProps => tableProps.row.original.contributorsCount.toLocaleString(locale),
-        className: 'text-center',
+        className: 'text-center px-2 py-4',
         disableFilters: true,
       },
       {
@@ -185,7 +178,7 @@ export default function Collectives({
           const percentDisbursed = parseFloat(row.original.percentDisbursed);
           return isNaN(percentDisbursed) ? 'n/a' : `${percentDisbursed.toFixed(1)}%`;
         },
-        className: 'right',
+        className: 'text-center px-2 py-4',
         disableFilters: true,
       },
       {
@@ -200,7 +193,7 @@ export default function Collectives({
           </div>
         ),
         sortDescFirst: true,
-        className: 'text-right pr-4 md:pr-8',
+        className: 'text-right pr-4 lg:pr-8 pl-2 py-4',
         disableFilters: true,
       },
     ],
@@ -276,7 +269,7 @@ export default function Collectives({
                         }}
                       >
                         {column.render('Header')}{' '}
-                        {column.canSort && (
+                        {column.canSort && column.isSorted && (
                           <span
                             style={{
                               display: 'inline-block',
@@ -285,14 +278,11 @@ export default function Collectives({
                               opacity: column.isSorted ? '100%' : '25%',
                             }}
                           >
-                            {
-                              column.isSortedDesc ? (
-                                <SortDown size="16" />
-                              ) : column.isSorted ? (
-                                <SortDown style={{ transform: 'rotate(180deg)' }} size="16" />
-                              ) : null
-                              // <Sort size="16" />
-                            }
+                            {column.isSortedDesc ? (
+                              <SortDown size="16" />
+                            ) : (
+                              <SortDown style={{ transform: 'rotate(180deg)' }} size="16" />
+                            )}
                           </span>
                         )}
                       </th>
