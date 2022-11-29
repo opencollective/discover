@@ -114,7 +114,7 @@ export const hosts = [
       buttonHref: 'https://opencollective.com/solidarity-economy-fund',
     },
     categories: [
-      { label: 'All', tag: 'ALL' },
+      { label: 'All Categories', tag: 'ALL' },
       { label: 'Mutual aid', tag: 'mutual aid' },
       { label: 'Civic Tech', tag: 'civic tech' },
       { label: 'Arts & Culture', tag: 'arts and culture' },
@@ -133,7 +133,7 @@ export const hosts = [
     color: 'purple',
     startYear: 2016,
     categories: [
-      { label: 'All', tag: 'ALL' },
+      { label: 'All Categories', tag: 'ALL' },
       //{ label: 'Open source', tag: 'open source', extraTags: ['opensource'] },
       //{ label: 'Javascript', tag: 'javascript', extraTags: ['nodejs', 'typescript'] },
       //{ label: 'React', tag: 'react' },
@@ -146,7 +146,7 @@ export const hosts = [
     slug: 'europe',
     logoSrc: '/oce-logo.svg',
     color: 'yellow',
-    categories: [{ label: 'All', tag: 'ALL' }],
+    categories: [{ label: 'All Categories', tag: 'ALL' }],
   },
 ];
 
