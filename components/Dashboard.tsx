@@ -94,7 +94,7 @@ export default function Dashboard({ categories, collectivesData, stories, locale
         </div>
       </div>
 
-      <div className="lggap-10 grid grid-cols-1 items-start gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-4 lg:gap-10">
         <div className="sticky top-4 z-20 lg:top-10">
           <FilterArea
             currentTimePeriod={currentTimePeriod}

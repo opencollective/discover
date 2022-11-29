@@ -33,8 +33,7 @@ export default function HostSwitcher({ host, hosts }) {
 
   return (
     <Fragment>
-      {' '}
-      <div className="">
+      <div className="-mb-2">
         <button
           type="button"
           onClick={openModal}
