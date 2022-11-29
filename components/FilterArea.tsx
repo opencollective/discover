@@ -42,7 +42,7 @@ export const Filters = ({
   currentLocationFilter,
   setCurrentLocationFilter,
   hideLocationAndTimeFilters,
-  mobile,
+  mobile = false,
 }) => {
   const router = useRouter();
   const locationOptions = React.useMemo(() => getFilterOptions(collectives.map(c => ({ values: c }))), [collectives]);
