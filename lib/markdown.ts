@@ -46,12 +46,16 @@ export function getPostBySlug(hostSlug, slug: string, fields: string[] = []) {
 }
 
 export function getAllPosts(hostSlug, fields: string[] = []) {
-  const slugs = getPostSlugs(hostSlug);
-  const posts = slugs
-    .map(slug => getPostBySlug(hostSlug, slug, fields))
-    // sort posts by date in descending order
-    .sort((post1, post2) => (post1.date > post2.date ? -1 : 1));
-  return posts;
+  try {
+    const slugs = getPostSlugs(hostSlug);
+    const posts = slugs
+      .map(slug => getPostBySlug(hostSlug, slug, fields))
+      // sort posts by date in descending order
+      .sort((post1, post2) => (post1.date > post2.date ? -1 : 1));
+    return posts;
+  } catch (e) {
+    return [];
+  }
 }
 
 export async function markdownToHtml(markdown: string) {

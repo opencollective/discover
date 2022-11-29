@@ -297,7 +297,6 @@ const getDataForTagAndPeriod = async ({ apollo, hostSlug, category, period }) =>
         const convertedAmount = Math.round(
           convertCurrency(node.amount.valueInCents, node.amount.currency, acc.currency),
         );
-        console.log({ convertedAmount });
         return { valueInCents: acc.valueInCents + convertedAmount, currency: acc.currency };
       }
       return {
@@ -360,8 +359,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         tw,
         data: {
           ALL: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'ALL' }),
-          // PAST_YEAR: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'PAST_YEAR' }),
-          // PAST_QUARTER: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'PAST_QUARTER' }),
+          PAST_YEAR: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'PAST_YEAR' }),
+          PAST_QUARTER: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'PAST_QUARTER' }),
         },
       };
     }),
