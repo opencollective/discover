@@ -52,7 +52,7 @@ export default function Dashboard({ categories, collectivesData, stories, locale
       <HostSwitcher host={host} hosts={hosts} />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 lg:gap-10">
-        <div className="w-full rounded-lg bg-transparent py-2 px-0 lg:col-span-3 lg:bg-white lg:py-12 lg:px-12">
+        <div className="w-full rounded-lg bg-transparent px-0 pt-2 lg:col-span-3 lg:bg-white lg:py-12 lg:px-12">
           <h1 className="text-[28px] font-bold leading-tight text-[#111827] lg:text-[40px]">
             Discover {totalCollectiveCount.toLocaleString(locale)} collectives making an impact
             {categories.length > 1 && (
@@ -94,7 +94,7 @@ export default function Dashboard({ categories, collectivesData, stories, locale
         </div>
       </div>
 
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-4 lg:gap-10">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-4 lg:gap-10">
         <div className="sticky top-4 z-20 lg:top-10">
           <FilterArea
             currentTimePeriod={currentTimePeriod}
