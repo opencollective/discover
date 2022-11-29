@@ -62,7 +62,7 @@ export default function Dashboard({ categories, collectivesData, stories, locale
                   {arr.length - 1 === i ? '' : ', '}
                 </React.Fragment>
               ))}{' '}
-            and more
+            and more.
           </h1>
         </div>
         <div className="flex flex-col items-center justify-center bg-[#F7FEFF]  p-12 lg:rounded-lg">
