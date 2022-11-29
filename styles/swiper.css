@@ -1,13 +1,13 @@
 .swiper-slide {
   @apply w-auto max-w-full !important;
-  flex-shrink: 0;
-  height: 100%;
-  position: relative;
-  transition-property: transform;
 }
 
 .swiper {
   @apply px-4 lg:pl-8 lg:pr-10 !important;
+}
+
+/* css from "swiper/swiper.min.css" included below, with the exception of trying to load a font that we don't need and is blocked by content policy */
+.swiper {
   margin-left: auto;
   margin-right: auto;
   position: relative;
@@ -38,7 +38,13 @@
 .swiper-pointer-events.swiper-vertical {
   touch-action: pan-x;
 }
-
+.swiper-slide {
+  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition-property: transform;
+}
 .swiper-slide-invisible-blank {
   visibility: hidden;
 }
