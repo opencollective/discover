@@ -162,12 +162,12 @@ const getSeriesFromData = (intl, timeSeriesArray, startYear, currentTimePeriod, 
   return series;
 };
 
-export default function Chart({ timeSeriesArray, startYear, currentTag, type, currentTimePeriod }) {
+export default function Chart({ timeSeriesArray, startYear, currentTag, type, currentTimePeriod, hostSlug }) {
   const currency = 'USD';
   const intl = useIntl();
   const series = useMemo(
     () => getSeriesFromData(intl, timeSeriesArray, startYear, currentTimePeriod, type),
-    [currentTag, type, currentTimePeriod],
+    [currentTag, type, currentTimePeriod, hostSlug],
   );
   // useEffect(() => {
   //   if (typeof window !== 'undefined') window.ApexCharts = Apppex;
@@ -176,7 +176,7 @@ export default function Chart({ timeSeriesArray, startYear, currentTag, type, cu
   const colors = timeSeriesArray.map(s => s.color);
   const chartOptions = useMemo(
     () => getChartOptions(intl, timeSeriesArray[0].timeUnit, currency, isCompactNotation, colors, type),
-    [currentTag, type, currentTimePeriod],
+    [currentTag, type, currentTimePeriod, hostSlug],
   );
 
   return (

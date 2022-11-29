@@ -111,6 +111,7 @@ interface Props {
   currentTag: string;
   currentLocationFilter: string;
   locale: string;
+  hostSlug: string;
   openCollectiveModal: (slug: string) => void;
 }
 
@@ -121,8 +122,9 @@ export default function Collectives({
   locale,
   currentLocationFilter,
   openCollectiveModal,
+  hostSlug,
 }: Props) {
-  const data = React.useMemo(() => collectives, [currentTag, currentTimePeriod]);
+  const data = React.useMemo(() => collectives, [currentTag, currentTimePeriod, hostSlug]);
 
   const columns = React.useMemo(
     () => [

@@ -7,12 +7,12 @@ export function getPostSlugs() {
   return fs.readdirSync(dataDirectory);
 }
 
-export function getDumpByTagAndPeriod(tag: string, period: string) {
-  const files = fs.readdirSync(dataDirectory);
+export function getDataDump(hostSlug: string, tag: string, period: string) {
+  const files = fs.readdirSync(join(dataDirectory, hostSlug));
   const fileName = `${tag}-${period}.json`;
   const file = files.find(file => file === fileName);
   if (file) {
-    const fullPath = join(dataDirectory, `${tag}-${period}.json`);
+    const fullPath = join(dataDirectory, hostSlug, `${tag}-${period}.json`);
     const json = fs.readFileSync(fullPath, 'utf8');
     const data = JSON.parse(json);
     return data;

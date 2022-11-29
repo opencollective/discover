@@ -7,7 +7,7 @@ import type { GetStaticProps } from 'next';
 import Head from 'next/head';
 
 import { initializeApollo } from '../lib/apollo-client';
-import { getDumpByTagAndPeriod } from '../lib/getDataDump';
+import { getDataDump } from '../lib/getDataDump';
 import getLocation from '../lib/location/getLocation';
 import { getAllPosts, markdownToHtml } from '../lib/markdown';
 
@@ -76,12 +76,78 @@ export const accountsQuery = gql`
   }
 `;
 
-export const categories = [
-  { label: 'All', tag: 'ALL', color: '#14B8A6', tc: 'teal' },
-  { label: 'Mutual aid', tag: 'mutual aid', color: '#3B82F6', tc: 'blue' },
-  { label: 'Civic Tech', tag: 'civic tech', color: '#A855F7', tc: 'purple' },
-  { label: 'Arts & Culture', tag: 'arts and culture', color: '#F43F5E', tc: 'rose' },
-  { label: 'Climate', tag: 'climate', extraTags: ['climate change', 'climate justice'], color: '#F59E0B', tc: 'amber' },
+const colors = [
+  { tw: 'red', color: '#EF4444' },
+  { tw: 'orange', color: '#F97316' },
+  { tw: 'amber', color: '#F59E0B' },
+  { tw: 'yellow', color: '#EAB308' },
+  { tw: 'lime', color: '#84CC16' },
+  { tw: 'green', color: '#22C55E' },
+  { tw: 'emerald', color: '#10B981' },
+  { tw: 'teal', color: '#14B8A6' },
+  { tw: 'cyan', color: '#06B6D4' },
+  { tw: 'light-blue', color: '#0EA5E9' },
+  { tw: 'blue', color: '#3B82F6' },
+  { tw: 'indigo', color: '#6366F1' },
+  { tw: 'violet', color: '#8B5CF6' },
+  { tw: 'purple', color: '#A855F7' },
+  { tw: 'fuchsia', color: '#D946EF' },
+  { tw: 'pink', color: '#EC4899' },
+  { tw: 'rose', color: '#F43F5E' },
+];
+
+const pickColorForCategory = (startColor: string, i: number, numOfCategories: number) => {
+  const startColorIndex = colors.findIndex(c => c.tw === startColor);
+  const step = Math.floor(colors.length / numOfCategories);
+  return colors[(startColorIndex + i * step) % colors.length];
+};
+
+export const hosts = [
+  {
+    name: 'Open Collective Foundation',
+    slug: 'foundation',
+    logoSrc: '/ocf-logo.svg',
+    color: 'teal',
+    cta: {
+      text: 'Contribute to a pooled fund to benefit multiple collectives within Open Collective Foundation',
+      buttonLabel: 'Contribute',
+      buttonHref: 'https://opencollective.com/solidarity-economy-fund',
+    },
+    categories: [
+      { label: 'All', tag: 'ALL' },
+      { label: 'Mutual aid', tag: 'mutual aid' },
+      { label: 'Civic Tech', tag: 'civic tech' },
+      { label: 'Arts & Culture', tag: 'arts and culture' },
+      {
+        label: 'Climate',
+        tag: 'climate',
+        extraTags: ['climate change', 'climate justice'],
+      },
+    ],
+  },
+  {
+    name: 'Open Source Collective',
+    slug: 'opensource',
+    logoSrc: '/osc-logo.svg',
+    website: 'https://opencollective.com/opensource',
+    color: 'purple',
+    startYear: 2016,
+    categories: [
+      { label: 'All', tag: 'ALL' },
+      //{ label: 'Open source', tag: 'open source', extraTags: ['opensource'] },
+      //{ label: 'Javascript', tag: 'javascript', extraTags: ['nodejs', 'typescript'] },
+      //{ label: 'React', tag: 'react' },
+      //{ label: 'Python', tag: 'python' },
+      //{ label: 'PHP', tag: 'php' },
+    ],
+  },
+  {
+    name: 'Open Collective Europe',
+    slug: 'europe',
+    logoSrc: '/oce-logo.svg',
+    color: 'yellow',
+    categories: [{ label: 'All', tag: 'ALL' }],
+  },
 ];
 
 export const simpleDateToISOString = (date, isEndOfDay, timezoneType) => {
@@ -117,17 +183,91 @@ const getTimeVariables = (
       };
     case 'ALL':
       return {
-        dateFrom: dayjs.utc(`2018-01-01`).startOf('year').toISOString(),
+        dateFrom: dayjs.utc(`2015-01-01`).startOf('year').toISOString(),
         dateTo: dayjs.utc().endOf('year').toISOString(),
         timeUnit: 'YEAR',
       };
   }
 };
 
+// year by year average currency conversion rate between EUR and USD
+// https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-usd.en.html
+const EUR_TO_USD_CONVERSION_RATES = {
+  2017: 1.1297,
+  2018: 1.181,
+  2019: 1.1195,
+  2020: 1.1422,
+  2021: 1.1827,
+  2022: 1.0527,
+};
+
+//https://www.ofx.com/en-ie/forex-news/historical-exchange-rates/gbp/usd/
+const GBP_TO_USD_CONVERSION_RATES = {
+  2015: 1.528504,
+  2016: 1.355673,
+  2017: 1.288611,
+  2018: 1.334801,
+  2019: 1.276933,
+  2020: 1.284145,
+  2021: 1.375083,
+  2022: 1.239608,
+};
+
+const CAD_TO_USD_CONVERSION_RATES = {
+  2015: 0.782992,
+  2016: 0.755107,
+  2017: 0.771282,
+  2018: 0.771588,
+  2019: 0.753598,
+  2020: 0.74652,
+  2021: 0.797833,
+  2022: 0.772785,
+};
+
+const INR_TO_USD_CONVERSION_RATES = {
+  2015: 0.782992,
+  2016: 0.755107,
+  2017: 0.771282,
+  2018: 0.771588,
+  2019: 0.753598,
+  2020: 0.74652,
+  2021: 0.797833,
+  2022: 0.772785,
+};
+
+const convertCurrency = (amount, fromCurrency, toCurrency) => {
+  if (fromCurrency === toCurrency) {
+    return amount;
+  } else if (fromCurrency === 'EUR' && toCurrency === 'USD') {
+    const year = dayjs.utc(amount.date).year();
+    const conversionRate = EUR_TO_USD_CONVERSION_RATES[year];
+    return amount * conversionRate;
+  } else if (fromCurrency === 'USD' && toCurrency === 'EUR') {
+    const year = dayjs.utc(amount.date).year();
+    const conversionRate = EUR_TO_USD_CONVERSION_RATES[year];
+
+    return amount / conversionRate;
+  } else if (fromCurrency === 'GBP' && toCurrency === 'USD') {
+    const year = dayjs.utc(amount.date).year();
+    const conversionRate = GBP_TO_USD_CONVERSION_RATES[year];
+    return amount * conversionRate;
+  } else if (fromCurrency === 'CAD' && toCurrency === 'USD') {
+    const year = dayjs.utc(amount.date).year();
+    const conversionRate = CAD_TO_USD_CONVERSION_RATES[year];
+    return amount * conversionRate;
+  } else if (fromCurrency === 'INR' && toCurrency === 'USD') {
+    const year = dayjs.utc(amount.date).year();
+    const conversionRate = INR_TO_USD_CONVERSION_RATES[year];
+    return amount * conversionRate;
+  } else {
+    throw new Error(`Unsupported currency conversion: ${fromCurrency} -> ${toCurrency}`);
+  }
+};
+
 const getDataForTagAndPeriod = async ({ apollo, hostSlug, category, period }) => {
   const { dateFrom, dateTo, timeUnit } = getTimeVariables(period);
   const { tag, extraTags = [] } = category;
-  let data = getDumpByTagAndPeriod(tag, period);
+  let data = getDataDump(hostSlug, tag, period);
 
   if (!data) {
     ({ data } = await apollo.query({
@@ -143,7 +283,7 @@ const getDataForTagAndPeriod = async ({ apollo, hostSlug, category, period }) =>
 
     // eslint-disable-next-line no-process-env
     if (data && process.env.NODE_ENV === 'development') {
-      fs.writeFile(`_dump/${tag}-${period}.json`, JSON.stringify(data), error => {
+      fs.writeFile(`_dump/${hostSlug}/${tag}-${period}.json`, JSON.stringify(data), error => {
         if (error) {
           throw error;
         }
@@ -154,7 +294,11 @@ const getDataForTagAndPeriod = async ({ apollo, hostSlug, category, period }) =>
   const totalRaisedAmount = data.accounts.stats.transactionsTimeSeries.nodes.reduce(
     (acc, node) => {
       if (acc.currency && acc.currency !== node.amount.currency) {
-        throw new Error('Mismatch in currency!');
+        const convertedAmount = Math.round(
+          convertCurrency(node.amount.valueInCents, node.amount.currency, acc.currency),
+        );
+        console.log({ convertedAmount });
+        return { valueInCents: acc.valueInCents + convertedAmount, currency: acc.currency };
       }
       return {
         valueInCents: acc.valueInCents + node.amount.valueInCents,
@@ -202,19 +346,25 @@ const getDataForTagAndPeriod = async ({ apollo, hostSlug, category, period }) =>
   };
 };
 
-export const getStaticProps: GetStaticProps = async () => {
-  const hostSlug = 'foundation';
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const hostSlug: string = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const apollo = initializeApollo();
-
+  const host = hosts.find(h => h.slug === hostSlug);
   const categoriesWithData = await Promise.all(
-    categories.map(async category => ({
-      ...category,
-      data: {
-        ALL: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'ALL' }),
-        PAST_YEAR: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'PAST_YEAR' }),
-        PAST_QUARTER: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'PAST_QUARTER' }),
-      },
-    })),
+    host.categories.map(async (category, i, arr) => {
+      const { color, tw } = pickColorForCategory(host.color, i, arr.length);
+
+      return {
+        ...category,
+        color,
+        tw,
+        data: {
+          ALL: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'ALL' }),
+          // PAST_YEAR: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'PAST_YEAR' }),
+          // PAST_QUARTER: await getDataForTagAndPeriod({ apollo, hostSlug, category, period: 'PAST_QUARTER' }),
+        },
+      };
+    }),
   );
 
   const collectivesAllData = categoriesWithData.find(c => c.tag === 'ALL').data.ALL.collectives;
@@ -224,14 +374,14 @@ export const getStaticProps: GetStaticProps = async () => {
     return acc;
   }, {});
 
-  const allStories = getAllPosts(['title', 'content', 'tags', 'location', 'slug', 'video']);
+  const allStories = getAllPosts(hostSlug, ['title', 'content', 'tags', 'location', 'slug', 'video']);
   // run markdownToHtml on content in stories
 
   const storiesWithContent = await Promise.all(
     allStories.map(async story => {
       return {
         ...story,
-        tags: story.tags.map(tag => ({ color: categories.find(c => c.tag === tag)?.color ?? null, tag: tag })),
+        tags: story.tags.map(tag => ({ color: categoriesWithData.find(c => c.tag === tag)?.color ?? null, tag: tag })),
         content: await markdownToHtml(story.content),
       };
     }),
@@ -239,6 +389,8 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return {
     props: {
+      host: hosts.find(h => h.slug === hostSlug),
+      hosts,
       categories: categoriesWithData,
       collectivesData,
       stories: storiesWithContent,
@@ -249,19 +401,26 @@ export const getStaticProps: GetStaticProps = async () => {
 
 export async function getStaticPaths() {
   return {
-    paths: [{ params: { slug: 'foundation' } }],
+    paths: [{ params: { slug: 'foundation' } }, { params: { slug: 'opensource' } }, { params: { slug: 'europe' } }],
     fallback: false,
   };
 }
 
-export default function Page({ categories, collectivesData, stories }) {
+export default function Page({ categories, collectivesData, stories, host, hosts }) {
   const locale = 'en';
   return (
     <Layout>
       <Head>
-        <title>Discover Open Collective Foundation</title>
+        <title>Discover {host.name}</title>
       </Head>
-      <Dashboard categories={categories} collectivesData={collectivesData} stories={stories} locale={locale} />
+      <Dashboard
+        categories={categories}
+        collectivesData={collectivesData}
+        stories={stories}
+        locale={locale}
+        host={host}
+        hosts={hosts}
+      />
     </Layout>
   );
 }
