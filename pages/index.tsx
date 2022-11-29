@@ -12,7 +12,7 @@ export default function Page() {
       <Head>
         <title>Discover Open Collective</title>
       </Head>
-      <div className="mx-auto mt-4 flex flex-1 flex-col space-y-10 py-24 px-12">
+      <div className="flex flex-1 items-center justify-center py-24 px-12">
         <div className="grid max-w-xl grid-cols-1 gap-4 rounded-lg bg-white p-6  lg:gap-6">
           {hosts.map(host => (
             <Link href={`/${host.slug}`} key={host.slug}>
