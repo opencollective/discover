@@ -57,7 +57,6 @@ export const Filters = ({
   return (
     <div className="relative z-50 translate-x-0 bg-white">
       <CategoryFilter
-        currentTimePeriod={currentTimePeriod}
         selectedTag={currentTag}
         categories={categories}
         onSelect={category => {

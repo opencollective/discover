@@ -11,15 +11,14 @@ const Metric = ({ value, label }: { label: string; value: string }) => {
   );
 };
 
-export default function Stats({ collectiveCount, totalRaised, locale, numberOfContributions }) {
+export default function Stats({ collectiveCount, totalNetRaised, locale, totalContributions, totalContributors }) {
+  console.log({ totalNetRaised });
   return (
-    <div className="-mb-2 grid grid-cols-1 divide-y px-4 lg:grid-cols-3 lg:divide-y-0 lg:divide-x lg:px-8">
+    <div className="-mb-2 grid grid-cols-1 divide-y px-4 lg:grid-cols-4 lg:divide-y-0 lg:divide-x lg:px-8">
       <Metric value={collectiveCount.toLocaleString(locale)} label="Collectives" />
-      <Metric
-        value={formatCurrency(totalRaised.valueInCents, totalRaised.currency, { locale, precision: 0 })}
-        label="Total raised"
-      />
-      <Metric value={numberOfContributions.toLocaleString(locale)} label="Contributions" />
+      <Metric value={formatCurrency(totalNetRaised, 'USD', { locale, precision: 0 })} label="Total raised" />
+      <Metric value={totalContributions.toLocaleString(locale)} label="Contributions" />
+      <Metric value={totalContributors.toLocaleString(locale)} label="Contributors" />
     </div>
   );
 }

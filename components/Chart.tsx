@@ -142,7 +142,7 @@ const getSeriesDataFromNodes = (nodes, startYear, currentTimePeriod, type) => {
     if (!keyedData[date]) {
       keyedData[date] = { x: date, y: 0, kinds: {} };
     }
-    keyedData[date].y += type === 'amount' ? amount.value : count;
+    keyedData[date].y += type === 'amount' ? amount.valueInCents / 100 : count;
   });
 
   return Object.values(keyedData);
@@ -162,16 +162,24 @@ const getSeriesFromData = (intl, timeSeriesArray, startYear, currentTimePeriod, 
   return series;
 };
 
-export default function Chart({ timeSeriesArray, startYear, currentTag, type, currentTimePeriod }) {
+export default function Chart({
+  timeSeriesArray,
+  startYear,
+  currentTag,
+  type,
+  currentTimePeriod,
+  currentLocationFilter,
+}) {
   const currency = 'USD';
   const intl = useIntl();
   const series = useMemo(
     () => getSeriesFromData(intl, timeSeriesArray, startYear, currentTimePeriod, type),
-    [currentTag, type, currentTimePeriod],
+    [currentTag, type, currentTimePeriod, currentLocationFilter],
   );
   // useEffect(() => {
   //   if (typeof window !== 'undefined') window.ApexCharts = Apppex;
   // });
+  console.log({ timeSeriesArray });
   const isCompactNotation = true; // getMinMaxDifference(series[0].data) >= 10000;
   const colors = timeSeriesArray.map(s => s.color);
   const chartOptions = useMemo(

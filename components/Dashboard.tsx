@@ -11,7 +11,25 @@ import Updates from './Updates';
 
 const getParam = param => (Array.isArray(param) ? param[0] : param);
 
-export default function Dashboard({ categories, collectivesData, stories, locale }) {
+function filterLocation(collectives, locationFilter) {
+  const filter = JSON.parse(locationFilter);
+  if (filter.value === '') {
+    return collectives;
+  }
+  return collectives.filter(collective => {
+    const { region, domesticRegion, countryCode } = collective.location;
+
+    if (filter.type === 'region') {
+      return region === filter.value;
+    } else if (filter.type === 'domesticRegion') {
+      return domesticRegion === filter.value;
+    } else if (filter.type === 'countryCode') {
+      return countryCode === filter.value;
+    }
+  });
+}
+
+export default function Dashboard({ categories, collectives, collectivesData, stories, locale }) {
   const router = useRouter();
   const currentTag = getParam(router.query?.tag) ?? 'ALL';
   const currentTimePeriod = getParam(router.query?.time) ?? 'ALL';
@@ -42,10 +60,165 @@ export default function Dashboard({ categories, collectivesData, stories, locale
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const currentCategory = categories.find(category => (currentTag ? category.tag === currentTag : !category.tag));
-  const { collectiveCount, totalRaised, numberOfContributions, collectives } =
-    currentCategory?.data[currentTimePeriod] || {};
-  const totalCollectiveCount = categories[0].data.ALL.collectiveCount;
+  const filteredCollectives = React.useMemo(
+    () => filterLocation(collectives, currentLocationFilter),
+    [currentTag, currentLocationFilter],
+  );
+
+  const categoriesWithFilteredData = categories.map(category => {
+    const collectivesInCategory = filteredCollectives.filter(
+      collective => category.tag === 'ALL' || collective.tags?.includes(category.tag),
+    );
+    return {
+      ...category,
+      collectives: collectivesInCategory,
+    };
+  });
+
+  const currentCategory = categoriesWithFilteredData.find(category =>
+    currentTag ? category.tag === currentTag : !category.tag,
+  );
+
+  // const filteredCollectivesInCurrentCategory = React.useMemo(
+  //   () => filterLocation(currentCategory.data.collectives, currentLocationFilter),
+  //   [currentTag, currentLocationFilter],
+  // );
+  console.log({ collectives });
+  const stats = React.useMemo(() => {
+    return currentCategory.collectives.reduce(
+      (acc, collective) => {
+        return {
+          ALL: {
+            totalNetRaised: acc.ALL.totalNetRaised + collective.stats.ALL.totalNetRaised,
+            totalContributions: acc.ALL.totalContributions + collective.stats.ALL.contributions,
+            totalContributors: acc.ALL.totalContributors + collective.stats.ALL.contributors,
+          },
+          PAST_YEAR: {
+            totalNetRaised: acc.PAST_YEAR.totalNetRaised + collective.stats.PAST_YEAR.totalNetRaised,
+            totalContributions: acc.PAST_YEAR.totalContributions + collective.stats.PAST_YEAR.contributions,
+            totalContributors: acc.PAST_YEAR.totalContributors + collective.stats.PAST_YEAR.contributors,
+          },
+
+          PAST_QUARTER: {
+            totalNetRaised: acc.PAST_QUARTER.totalNetRaised + collective.stats.PAST_QUARTER.totalNetRaised,
+            totalContributions: acc.PAST_QUARTER.totalContributions + collective.stats.PAST_QUARTER.contributions,
+            totalContributors: acc.PAST_QUARTER.totalContributors + collective.stats.PAST_QUARTER.contributors,
+          },
+        };
+      },
+      {
+        ALL: {
+          totalNetRaised: 0,
+          totalContributions: 0,
+          totalContributors: 0,
+        },
+        PAST_YEAR: {
+          totalNetRaised: 0,
+          totalContributions: 0,
+          totalContributors: 0,
+        },
+        PAST_QUARTER: {
+          totalNetRaised: 0,
+          totalContributions: 0,
+          totalContributors: 0,
+        },
+      },
+    );
+  }, [currentTag, currentLocationFilter]);
+
+  const totalCollectiveCount = collectives.length;
+
+  const timeSeries = React.useMemo(() => {
+    const categories = categoriesWithFilteredData.map(category => {
+      const categoryTimeSeries = category.collectives.reduce(
+        (acc, node) => {
+          // console.log({ acc });
+          // if (!acc) {
+          //   console.log({ acc });
+          // }
+          // return acc;
+          node.stats.ALL.totalNetRaisedTimeSeries.forEach(timeSeries => {
+            const key = timeSeries.date;
+            if (!acc.ALL[key]) {
+              acc.ALL[key] = {
+                date: timeSeries.date,
+                amount: { valueInCents: 0, currency: timeSeries.amount.currency },
+              };
+            }
+            acc.ALL[key].amount.valueInCents += timeSeries.amount.valueInCents;
+          });
+          node.stats.PAST_QUARTER.totalNetRaisedTimeSeries.forEach(timeSeries => {
+            const key = timeSeries.date;
+            if (!acc.PAST_QUARTER[key]) {
+              acc.PAST_QUARTER[key] = {
+                date: timeSeries.date,
+                amount: { valueInCents: 0, currency: timeSeries.amount.currency },
+              };
+            }
+            acc.PAST_QUARTER[key].amount.valueInCents += timeSeries.amount.valueInCents;
+          });
+          node.stats.PAST_YEAR.totalNetRaisedTimeSeries.forEach(timeSeries => {
+            const key = timeSeries.date;
+            if (!acc.PAST_YEAR[key]) {
+              acc.PAST_YEAR[key] = {
+                date: timeSeries.date,
+                amount: { valueInCents: 0, currency: timeSeries.amount.currency },
+              };
+            }
+            acc.PAST_YEAR[key].amount.valueInCents += timeSeries.amount.valueInCents;
+          });
+          return { ...acc };
+        },
+        { ALL: {}, PAST_QUARTER: {}, PAST_YEAR: {} },
+      );
+      console.log({ categoryTimeSeries });
+
+      return {
+        ALL: {
+          label: category.label,
+          color: category.color,
+          tag: category.tag,
+          timeUnit: 'YEAR',
+          nodes: Object.values(categoryTimeSeries.ALL),
+        },
+        PAST_QUARTER: {
+          label: category.label,
+          color: category.color,
+          tag: category.tag,
+
+          timeUnit: 'WEEK',
+          nodes: Object.values(categoryTimeSeries.PAST_QUARTER),
+        },
+        PAST_YEAR: {
+          label: category.label,
+          color: category.color,
+          tag: category.tag,
+
+          timeUnit: 'MONTH',
+          nodes: Object.values(categoryTimeSeries.PAST_YEAR),
+        },
+      };
+    });
+    console.log({ categories });
+    return categories.reduce(
+      (acc, category) => {
+        if (!acc) {
+          console.log({ accInLastR: acc });
+        }
+        return {
+          ALL: [...acc.ALL, category.ALL],
+          PAST_QUARTER: [...acc.PAST_QUARTER, category.PAST_QUARTER],
+          PAST_YEAR: [...acc.PAST_YEAR, category.PAST_YEAR],
+        };
+        // acc.ALL.push(category.ALL);
+        // acc.PAST_QUARTER.push(category.PAST_QUARTER);
+        // acc.PAST_YEAR.push(category.PAST_YEAR);
+      },
+      { ALL: [], PAST_QUARTER: [], PAST_YEAR: [] },
+    );
+  }, [currentTag, currentLocationFilter]);
+
+  console.log({ stats });
   return (
     <div className="mx-auto mt-4 flex max-w-[1400px] flex-col space-y-10 p-4 lg:p-10">
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-4">
@@ -83,7 +256,7 @@ export default function Dashboard({ categories, collectivesData, stories, locale
           <FilterArea
             currentTimePeriod={currentTimePeriod}
             currentTag={currentTag}
-            categories={categories}
+            categories={categoriesWithFilteredData}
             collectives={collectives}
             currentLocationFilter={currentLocationFilter}
             setCurrentLocationFilter={setCurrentLocationFilter}
@@ -93,28 +266,26 @@ export default function Dashboard({ categories, collectivesData, stories, locale
         <div className="space-y-12 lg:col-span-3">
           <div className="-mx-4 space-y-5 rounded-lg bg-white py-4 lg:mx-0 lg:py-8" ref={collectivesDataContainer}>
             <Stats
-              totalRaised={totalRaised}
-              collectiveCount={collectiveCount}
-              numberOfContributions={numberOfContributions}
+              totalNetRaised={stats[currentTimePeriod].totalNetRaised}
+              collectiveCount={currentCategory.collectives.length}
+              totalContributions={stats[currentTimePeriod].totalContributions}
               locale={locale}
+              totalContributors={stats[currentTimePeriod].totalContributors}
             />
             <div className="lg:px-4">
               <Chart
-                startYear={2018}
+                startYear={2016}
                 currentTag={currentTag}
                 currentTimePeriod={currentTimePeriod}
+                currentLocationFilter={currentLocationFilter}
                 type={'amount'}
-                timeSeriesArray={categories
-                  .filter(category => (currentTag === 'ALL' ? true : category.tag === currentTag))
-                  .map(category => ({
-                    ...category.data[currentTimePeriod].totalReceivedTimeSeries,
-                    label: category.label,
-                    color: category.color,
-                  }))}
+                timeSeriesArray={timeSeries[currentTimePeriod].filter(category =>
+                  currentTag === 'ALL' ? true : category.tag === currentTag,
+                )}
               />
             </div>
             <Table
-              collectives={collectives}
+              collectives={currentCategory.collectives}
               currentTimePeriod={currentTimePeriod}
               currentTag={currentTag}
               currentLocationFilter={currentLocationFilter}

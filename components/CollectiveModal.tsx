@@ -102,7 +102,7 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                     </div>
                   )}
 
-                  <div className="mt-4 grid grid-cols-4 gap-1 rounded bg-gray-50 p-4 text-sm text-gray-600">
+                  {/* <div className="mt-4 grid grid-cols-4 gap-1 rounded bg-gray-50 p-4 text-sm text-gray-600">
                     <div className="text-black">Total disbursed</div>
                     <div>
                       {formatCurrency(collective.totalDisbursed, collective.currency, {
@@ -126,7 +126,7 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                     <div>
                       <FormattedDate dateStyle={'medium'} value={collective.createdAt} />
                     </div>
-                  </div>
+                  </div> */}
                   <AnimateHeight id="updates" duration={500} height={height}>
                     {data?.account?.updates?.nodes?.length > 0 && (
                       <React.Fragment>
