@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
+import { computeStats, computeTimeSeries } from '../lib/computeData';
+import filterLocation from '../lib/location/filterLocation';
+
 import Chart from './Chart';
 import CollectiveModal from './CollectiveModal';
 import FilterArea from './FilterArea';
@@ -11,25 +14,7 @@ import Updates from './Updates';
 
 const getParam = param => (Array.isArray(param) ? param[0] : param);
 
-function filterLocation(collectives, locationFilter) {
-  const filter = JSON.parse(locationFilter);
-  if (filter.value === '') {
-    return collectives;
-  }
-  return collectives.filter(collective => {
-    const { region, domesticRegion, countryCode } = collective.location;
-
-    if (filter.type === 'region') {
-      return region === filter.value;
-    } else if (filter.type === 'domesticRegion') {
-      return domesticRegion === filter.value;
-    } else if (filter.type === 'countryCode') {
-      return countryCode === filter.value;
-    }
-  });
-}
-
-export default function Dashboard({ categories, collectives, collectivesData, stories, locale }) {
+export default function Dashboard({ categories, collectives, collectivesData, stories, locale, currency }) {
   const router = useRouter();
   const currentTag = getParam(router.query?.tag) ?? 'ALL';
   const currentTimePeriod = getParam(router.query?.time) ?? 'ALL';
@@ -60,14 +45,17 @@ export default function Dashboard({ categories, collectives, collectivesData, st
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const filteredCollectives = React.useMemo(
+  const locationFilteredCollectives = React.useMemo(
     () => filterLocation(collectives, currentLocationFilter),
-    [currentTag, currentLocationFilter],
+    [currentLocationFilter],
   );
 
-  const categoriesWithFilteredData = categories.map(category => {
-    const collectivesInCategory = filteredCollectives.filter(
-      collective => category.tag === 'ALL' || collective.tags?.includes(category.tag),
+  const categoriesWithCollectives = categories.map(category => {
+    const collectivesInCategory = locationFilteredCollectives.filter(
+      collective =>
+        category.tag === 'ALL' ||
+        collective.tags?.includes(category.tag) ||
+        category.extraTags?.filter(tag => collective.tags?.includes(tag)).length > 0,
     );
     return {
       ...category,
@@ -75,150 +63,19 @@ export default function Dashboard({ categories, collectives, collectivesData, st
     };
   });
 
-  const currentCategory = categoriesWithFilteredData.find(category =>
+  const currentCategory = categoriesWithCollectives.find(category =>
     currentTag ? category.tag === currentTag : !category.tag,
   );
 
-  // const filteredCollectivesInCurrentCategory = React.useMemo(
-  //   () => filterLocation(currentCategory.data.collectives, currentLocationFilter),
-  //   [currentTag, currentLocationFilter],
-  // );
-  console.log({ collectives });
-  const stats = React.useMemo(() => {
-    return currentCategory.collectives.reduce(
-      (acc, collective) => {
-        return {
-          ALL: {
-            totalNetRaised: acc.ALL.totalNetRaised + collective.stats.ALL.totalNetRaised,
-            totalContributions: acc.ALL.totalContributions + collective.stats.ALL.contributions,
-            totalContributors: acc.ALL.totalContributors + collective.stats.ALL.contributors,
-          },
-          PAST_YEAR: {
-            totalNetRaised: acc.PAST_YEAR.totalNetRaised + collective.stats.PAST_YEAR.totalNetRaised,
-            totalContributions: acc.PAST_YEAR.totalContributions + collective.stats.PAST_YEAR.contributions,
-            totalContributors: acc.PAST_YEAR.totalContributors + collective.stats.PAST_YEAR.contributors,
-          },
+  const stats = React.useMemo(
+    () => computeStats(currentCategory.collectives, currency),
+    [currentTag, currentLocationFilter],
+  );
 
-          PAST_QUARTER: {
-            totalNetRaised: acc.PAST_QUARTER.totalNetRaised + collective.stats.PAST_QUARTER.totalNetRaised,
-            totalContributions: acc.PAST_QUARTER.totalContributions + collective.stats.PAST_QUARTER.contributions,
-            totalContributors: acc.PAST_QUARTER.totalContributors + collective.stats.PAST_QUARTER.contributors,
-          },
-        };
-      },
-      {
-        ALL: {
-          totalNetRaised: 0,
-          totalContributions: 0,
-          totalContributors: 0,
-        },
-        PAST_YEAR: {
-          totalNetRaised: 0,
-          totalContributions: 0,
-          totalContributors: 0,
-        },
-        PAST_QUARTER: {
-          totalNetRaised: 0,
-          totalContributions: 0,
-          totalContributors: 0,
-        },
-      },
-    );
-  }, [currentTag, currentLocationFilter]);
+  const timeSeries = React.useMemo(() => computeTimeSeries(categoriesWithCollectives), [currentLocationFilter]);
 
   const totalCollectiveCount = collectives.length;
 
-  const timeSeries = React.useMemo(() => {
-    const categories = categoriesWithFilteredData.map(category => {
-      const categoryTimeSeries = category.collectives.reduce(
-        (acc, node) => {
-          // console.log({ acc });
-          // if (!acc) {
-          //   console.log({ acc });
-          // }
-          // return acc;
-          node.stats.ALL.totalNetRaisedTimeSeries.forEach(timeSeries => {
-            const key = timeSeries.date;
-            if (!acc.ALL[key]) {
-              acc.ALL[key] = {
-                date: timeSeries.date,
-                amount: { valueInCents: 0, currency: timeSeries.amount.currency },
-              };
-            }
-            acc.ALL[key].amount.valueInCents += timeSeries.amount.valueInCents;
-          });
-          node.stats.PAST_QUARTER.totalNetRaisedTimeSeries.forEach(timeSeries => {
-            const key = timeSeries.date;
-            if (!acc.PAST_QUARTER[key]) {
-              acc.PAST_QUARTER[key] = {
-                date: timeSeries.date,
-                amount: { valueInCents: 0, currency: timeSeries.amount.currency },
-              };
-            }
-            acc.PAST_QUARTER[key].amount.valueInCents += timeSeries.amount.valueInCents;
-          });
-          node.stats.PAST_YEAR.totalNetRaisedTimeSeries.forEach(timeSeries => {
-            const key = timeSeries.date;
-            if (!acc.PAST_YEAR[key]) {
-              acc.PAST_YEAR[key] = {
-                date: timeSeries.date,
-                amount: { valueInCents: 0, currency: timeSeries.amount.currency },
-              };
-            }
-            acc.PAST_YEAR[key].amount.valueInCents += timeSeries.amount.valueInCents;
-          });
-          return { ...acc };
-        },
-        { ALL: {}, PAST_QUARTER: {}, PAST_YEAR: {} },
-      );
-      console.log({ categoryTimeSeries });
-
-      return {
-        ALL: {
-          label: category.label,
-          color: category.color,
-          tag: category.tag,
-          timeUnit: 'YEAR',
-          nodes: Object.values(categoryTimeSeries.ALL),
-        },
-        PAST_QUARTER: {
-          label: category.label,
-          color: category.color,
-          tag: category.tag,
-
-          timeUnit: 'WEEK',
-          nodes: Object.values(categoryTimeSeries.PAST_QUARTER),
-        },
-        PAST_YEAR: {
-          label: category.label,
-          color: category.color,
-          tag: category.tag,
-
-          timeUnit: 'MONTH',
-          nodes: Object.values(categoryTimeSeries.PAST_YEAR),
-        },
-      };
-    });
-    console.log({ categories });
-    return categories.reduce(
-      (acc, category) => {
-        if (!acc) {
-          console.log({ accInLastR: acc });
-        }
-        return {
-          ALL: [...acc.ALL, category.ALL],
-          PAST_QUARTER: [...acc.PAST_QUARTER, category.PAST_QUARTER],
-          PAST_YEAR: [...acc.PAST_YEAR, category.PAST_YEAR],
-        };
-        // acc.ALL.push(category.ALL);
-        // acc.PAST_QUARTER.push(category.PAST_QUARTER);
-        // acc.PAST_YEAR.push(category.PAST_YEAR);
-      },
-      { ALL: [], PAST_QUARTER: [], PAST_YEAR: [] },
-    );
-  }, [currentTag, currentLocationFilter]);
-
-  console.log({ stats });
   return (
     <div className="mx-auto mt-4 flex max-w-[1400px] flex-col space-y-10 p-4 lg:p-10">
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-4">
@@ -256,7 +113,7 @@ export default function Dashboard({ categories, collectives, collectivesData, st
           <FilterArea
             currentTimePeriod={currentTimePeriod}
             currentTag={currentTag}
-            categories={categoriesWithFilteredData}
+            categories={categoriesWithCollectives}
             collectives={collectives}
             currentLocationFilter={currentLocationFilter}
             setCurrentLocationFilter={setCurrentLocationFilter}
@@ -291,6 +148,7 @@ export default function Dashboard({ categories, collectives, collectivesData, st
               currentLocationFilter={currentLocationFilter}
               locale={locale}
               openCollectiveModal={openCollectiveModal}
+              currency={currency}
             />
           </div>
           <Stories stories={stories} currentTag={currentTag} />

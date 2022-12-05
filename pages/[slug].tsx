@@ -15,7 +15,7 @@ import Dashboard from '../components/Dashboard';
 import Layout from '../components/Layout';
 
 export const accountsQuery = gql`
-  query SearchAccounts($hostSlug: String, $quarterAgo: DateTime, $yearAgo: DateTime) {
+  query SearchAccounts($hostSlug: String, $quarterAgo: DateTime, $yearAgo: DateTime, $currency: String) {
     accounts(type: [COLLECTIVE, FUND], limit: 5000, host: { slug: $hostSlug }) {
       totalCount
       nodes {
@@ -28,12 +28,12 @@ export const accountsQuery = gql`
         tags
         stats {
           id
-          allTimeSeries: transactionsTimeSeries(timeUnit: YEAR, includeChildren: true) {
+          allTimeSeries: combinedTimeSeries(timeUnit: YEAR, includeChildren: true, currency: $currency) {
             timeUnit
             nodes {
               date
               contributors
-              count
+              contributions
               totalNetRaised {
                 valueInCents
                 currency
@@ -44,12 +44,17 @@ export const accountsQuery = gql`
               }
             }
           }
-          quarterTimeSeries: transactionsTimeSeries(dateFrom: $quarterAgo, timeUnit: WEEK, includeChildren: true) {
+          quarterTimeSeries: combinedTimeSeries(
+            dateFrom: $quarterAgo
+            timeUnit: WEEK
+            includeChildren: true
+            currency: $currency
+          ) {
             timeUnit
             nodes {
               date
               contributors
-              count
+              contributions
               totalNetRaised {
                 valueInCents
                 currency
@@ -60,12 +65,17 @@ export const accountsQuery = gql`
               }
             }
           }
-          yearTimeSeries: transactionsTimeSeries(dateFrom: $yearAgo, timeUnit: MONTH, includeChildren: true) {
+          yearTimeSeries: combinedTimeSeries(
+            dateFrom: $yearAgo
+            timeUnit: MONTH
+            includeChildren: true
+            currency: $currency
+          ) {
             timeUnit
             nodes {
               date
               contributors
-              count
+              contributions
               totalNetRaised {
                 valueInCents
                 currency
@@ -101,21 +111,32 @@ export const simpleDateToISOString = (date, isEndOfDay, timezoneType) => {
   }
 };
 
-const getTotalStats = nodes => {
+const getTotalStats = (nodes, currency) => {
   const total = nodes.reduce(
     (acc, node) => {
       return {
-        totalNetRaised: acc.totalNetRaised + node.totalNetRaised.valueInCents,
-        totalSpent: acc.totalSpent + node.totalSpent.valueInCents,
+        totalNetRaised: {
+          valueInCents: acc.totalNetRaised.valueInCents + node.totalNetRaised.valueInCents,
+          currency,
+        },
+        totalSpent: {
+          valueInCents: acc.totalSpent.valueInCents + node.totalSpent.valueInCents,
+          currency,
+        },
         contributors: acc.contributors + node.contributors,
-        contributions: acc.contributions + node.count,
+        contributions: acc.contributions + node.contributions,
       };
     },
-    { totalNetRaised: 0, totalSpent: 0, contributors: 0, contributions: 0 },
+    {
+      totalNetRaised: { valueInCents: 0, currency },
+      totalSpent: { valueInCents: 0, currency },
+      contributors: 0,
+      contributions: 0,
+    },
   );
   return {
     ...total,
-    percentDisbursed: (total.totalSpent / total.totalNetRaised) * 100,
+    percentDisbursed: (total.totalSpent.valueInCents / total.totalNetRaised.valueInCents) * 100,
     totalNetRaisedTimeSeries: nodes.map(node => ({
       date: node.date,
       amount: { valueInCents: node.totalNetRaised.valueInCents, currency: node.totalNetRaised.currency },
@@ -123,9 +144,7 @@ const getTotalStats = nodes => {
   };
 };
 
-const getDataForHost = async ({ apollo, hostSlug }) => {
-  //const { dateFrom, dateTo, timeUnit } = getTimeVariables(period);
-  //const { tag, extraTags = [] } = category;
+const getDataForHost = async ({ apollo, hostSlug, currency }) => {
   let data = getDump(hostSlug);
 
   if (!data) {
@@ -135,6 +154,7 @@ const getDataForHost = async ({ apollo, hostSlug }) => {
         hostSlug,
         quarterAgo: dayjs.utc().subtract(12, 'week').startOf('week').toISOString(),
         yearAgo: dayjs.utc().subtract(12, 'month').startOf('month').toISOString(),
+        currency,
       },
     }));
 
@@ -159,9 +179,9 @@ const getDataForHost = async ({ apollo, hostSlug }) => {
       tags: collective.tags,
       createdAt: collective.createdAt,
       stats: {
-        ALL: getTotalStats(collective.stats.allTimeSeries.nodes),
-        PAST_YEAR: getTotalStats(collective.stats.yearTimeSeries.nodes),
-        PAST_QUARTER: getTotalStats(collective.stats.quarterTimeSeries.nodes),
+        ALL: getTotalStats(collective.stats.allTimeSeries.nodes, currency),
+        PAST_YEAR: getTotalStats(collective.stats.yearTimeSeries.nodes, currency),
+        PAST_QUARTER: getTotalStats(collective.stats.quarterTimeSeries.nodes, currency),
       },
     };
   });
@@ -173,9 +193,9 @@ const getDataForHost = async ({ apollo, hostSlug }) => {
 
 export const getStaticProps: GetStaticProps = async () => {
   const hostSlug = 'foundation';
+  const currency = 'USD';
   const apollo = initializeApollo();
-
-  const { collectives } = await getDataForHost({ apollo, hostSlug });
+  const { collectives } = await getDataForHost({ apollo, hostSlug, currency });
 
   const collectivesData = collectives.reduce((acc, collective) => {
     acc[collective.slug] = collective;
@@ -201,6 +221,7 @@ export const getStaticProps: GetStaticProps = async () => {
       categories,
       collectivesData,
       stories: storiesWithContent,
+      currency,
     },
     revalidate: 60 * 60 * 24, // Revalidate the static page at most once every 24 hours to not overload the API
   };
@@ -213,7 +234,7 @@ export async function getStaticPaths() {
   };
 }
 
-export default function Page({ categories, collectivesData, stories, collectives }) {
+export default function Page({ categories, collectivesData, stories, collectives, currency }) {
   const locale = 'en';
   return (
     <Layout>
@@ -224,6 +245,7 @@ export default function Page({ categories, collectivesData, stories, collectives
         categories={categories}
         collectives={collectives}
         collectivesData={collectivesData}
+        currency={currency}
         stories={stories}
         locale={locale}
       />

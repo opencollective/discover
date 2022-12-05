@@ -112,6 +112,7 @@ interface Props {
   currentLocationFilter: string;
   locale: string;
   openCollectiveModal: (slug: string) => void;
+  currency: string;
 }
 
 export default function Collectives({
@@ -121,20 +122,20 @@ export default function Collectives({
   locale,
   currentLocationFilter,
   openCollectiveModal,
+  currency,
 }: Props) {
   const data = React.useMemo(
     () =>
       collectives.map(c => ({
         ...c,
         contributorsCount: c.stats[currentTimePeriod].contributors,
-        totalRaised: c.stats[currentTimePeriod].totalNetRaised,
-        totalSpent: c.stats[currentTimePeriod].totalSpent,
-        currency: 'USD',
+        totalRaised: c.stats[currentTimePeriod].totalNetRaised.valueInCents,
+        totalSpent: c.stats[currentTimePeriod].totalSpent.valueInCents,
         percentDisbursed: c.stats[currentTimePeriod].percentDisbursed,
       })),
-    [currentTag, currentTimePeriod],
+    [currentTag, currentTimePeriod, currentLocationFilter],
   );
-  // console.log({ data, collectives });
+
   const columns = React.useMemo(
     () => [
       {
@@ -182,7 +183,7 @@ export default function Collectives({
         disableFilters: true,
       },
       {
-        Header: '% disbursed',
+        Header: 'Disbursed',
         accessor: 'percentDisbursed',
         sortDescFirst: true,
         Cell: ({ row }) => {
@@ -193,26 +194,11 @@ export default function Collectives({
         disableFilters: true,
       },
       {
-        Header: 'Spent',
-        accessor: 'totalSpent',
-        Cell: tableProps => (
-          <div className="">
-            {formatCurrency(tableProps.row.original.totalSpent, tableProps.row.original.currency, {
-              locale: 'en-US',
-              precision: 0,
-            })}
-          </div>
-        ),
-        sortDescFirst: true,
-        className: 'text-right pr-4 lg:pr-8 pl-2 py-4',
-        disableFilters: true,
-      },
-      {
         Header: 'Raised',
         accessor: 'totalRaised',
         Cell: tableProps => (
           <div className="">
-            {formatCurrency(tableProps.row.original.totalRaised, tableProps.row.original.currency, {
+            {formatCurrency(tableProps.row.original.totalRaised, currency, {
               locale: 'en-US',
               precision: 0,
             })}
