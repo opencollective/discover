@@ -14,7 +14,7 @@ import Updates from './Updates';
 
 const getParam = param => (Array.isArray(param) ? param[0] : param);
 
-export default function Dashboard({ categories, collectives, collectivesData, stories, locale, currency }) {
+export default function Dashboard({ categories, collectives, collectivesData, stories, locale, currency, startYear }) {
   const router = useRouter();
   const currentTag = getParam(router.query?.tag) ?? 'ALL';
   const currentTimePeriod = getParam(router.query?.time) ?? 'ALL';
@@ -131,11 +131,10 @@ export default function Dashboard({ categories, collectives, collectivesData, st
             />
             <div className="lg:px-4">
               <Chart
-                startYear={2016}
+                startYear={startYear}
                 currentTag={currentTag}
                 currentTimePeriod={currentTimePeriod}
                 currentLocationFilter={currentLocationFilter}
-                type={'amount'}
                 timeSeriesArray={timeSeries[currentTimePeriod].filter(category =>
                   currentTag === 'ALL' ? true : category.tag === currentTag,
                 )}

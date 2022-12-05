@@ -52,8 +52,8 @@ export function computeStats(collectives, currency) {
 }
 
 export function computeTimeSeries(categoriesWithFilteredData) {
-  const categories = categoriesWithFilteredData.map(category => {
-    const categoryTimeSeries = category.collectives.reduce(
+  const categoriesTimeSeries = categoriesWithFilteredData.map(category => {
+    const timeSeries = category.collectives.reduce(
       (acc, node) => {
         node.stats.ALL.totalNetRaisedTimeSeries.forEach(timeSeries => {
           const key = timeSeries.date;
@@ -96,7 +96,7 @@ export function computeTimeSeries(categoriesWithFilteredData) {
         color: category.color,
         tag: category.tag,
         timeUnit: 'YEAR',
-        nodes: Object.values(categoryTimeSeries.ALL),
+        nodes: Object.values(timeSeries.ALL),
       },
       PAST_QUARTER: {
         label: category.label,
@@ -104,7 +104,7 @@ export function computeTimeSeries(categoriesWithFilteredData) {
         tag: category.tag,
 
         timeUnit: 'WEEK',
-        nodes: Object.values(categoryTimeSeries.PAST_QUARTER),
+        nodes: Object.values(timeSeries.PAST_QUARTER),
       },
       PAST_YEAR: {
         label: category.label,
@@ -112,11 +112,11 @@ export function computeTimeSeries(categoriesWithFilteredData) {
         tag: category.tag,
 
         timeUnit: 'MONTH',
-        nodes: Object.values(categoryTimeSeries.PAST_YEAR),
+        nodes: Object.values(timeSeries.PAST_YEAR),
       },
     };
   });
-  return categories.reduce(
+  return categoriesTimeSeries.reduce(
     (acc, category) => {
       return {
         ALL: [...acc.ALL, category.ALL],

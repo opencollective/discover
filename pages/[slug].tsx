@@ -15,7 +15,7 @@ import Dashboard from '../components/Dashboard';
 import Layout from '../components/Layout';
 
 export const accountsQuery = gql`
-  query SearchAccounts($hostSlug: String, $quarterAgo: DateTime, $yearAgo: DateTime, $currency: String) {
+  query SearchAccounts($hostSlug: String, $quarterAgo: DateTime, $yearAgo: DateTime, $currency: Currency) {
     accounts(type: [COLLECTIVE, FUND], limit: 5000, host: { slug: $hostSlug }) {
       totalCount
       nodes {
@@ -152,7 +152,7 @@ const getDataForHost = async ({ apollo, hostSlug, currency }) => {
       query: accountsQuery,
       variables: {
         hostSlug,
-        quarterAgo: dayjs.utc().subtract(12, 'week').startOf('week').toISOString(),
+        quarterAgo: dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString(),
         yearAgo: dayjs.utc().subtract(12, 'month').startOf('month').toISOString(),
         currency,
       },
@@ -194,6 +194,7 @@ const getDataForHost = async ({ apollo, hostSlug, currency }) => {
 export const getStaticProps: GetStaticProps = async () => {
   const hostSlug = 'foundation';
   const currency = 'USD';
+  const startYear = 2018;
   const apollo = initializeApollo();
   const { collectives } = await getDataForHost({ apollo, hostSlug, currency });
 
@@ -221,6 +222,7 @@ export const getStaticProps: GetStaticProps = async () => {
       categories,
       collectivesData,
       stories: storiesWithContent,
+      startYear,
       currency,
     },
     revalidate: 60 * 60 * 24, // Revalidate the static page at most once every 24 hours to not overload the API
@@ -234,7 +236,7 @@ export async function getStaticPaths() {
   };
 }
 
-export default function Page({ categories, collectivesData, stories, collectives, currency }) {
+export default function Page({ categories, collectivesData, stories, collectives, currency, startYear }) {
   const locale = 'en';
   return (
     <Layout>
@@ -248,6 +250,7 @@ export default function Page({ categories, collectivesData, stories, collectives
         currency={currency}
         stories={stories}
         locale={locale}
+        startYear={startYear}
       />
     </Layout>
   );
