@@ -1,50 +1,75 @@
-export default function getFilterOptions(preFilteredRows) {
-  const options = [];
-  const regions = [];
-  const countries = [];
-  const domesticRegions = [];
-  preFilteredRows.forEach(row => {
-    if (row.values.location.region && !regions.includes(row.values.location.region)) {
-      regions.push(row.values.location.region);
-    }
+import countriesData from './countries.json';
 
-    if (row.values.location.countryCode && !countries.find(c => c.countryCode === row.values.location.countryCode)) {
-      countries.push({ countryCode: row.values.location.countryCode, region: row.values.location.region });
+type LocationOption = {
+  type: string;
+  value: string;
+  label?: string;
+  count: number;
+};
+export default function getFilterOptions(collectives) {
+  const foundLocations: {
+    regions: { [key: string]: LocationOption };
+    countries: { [key: string]: LocationOption };
+    cities: { [key: string]: LocationOption };
+  } = {
+    regions: {},
+    countries: {},
+    cities: {},
+  };
+  collectives.forEach(c => {
+    if (c.location.region) {
+      foundLocations.regions[c.location.region] = {
+        type: 'region',
+        value: c.location.region,
+        label: c.location.region,
+        count: (foundLocations.regions[c.location.region]?.count || 0) + 1,
+      };
     }
-    if (
-      row.values.location.domesticRegion &&
-      !domesticRegions.find(c => c.domesticRegion === row.values.location.domesticRegion)
-    ) {
-      domesticRegions.push({
-        domesticRegion: row.values.location.domesticRegion,
-        countryCode: row.values.location.countryCode,
-      });
+    if (c.location.countryCode) {
+      foundLocations.countries[c.location.countryCode] = {
+        type: 'countryCode',
+        value: c.location.countryCode,
+        count: (foundLocations.countries[c.location.countryCode]?.count || 0) + 1,
+      };
+    }
+    if (c.location.city) {
+      foundLocations.cities[c.location.city] = {
+        type: 'city',
+        value: c.location.city,
+        label: c.location.city,
+        count: (foundLocations.cities[c.location.city]?.count || 0) + 1,
+      };
     }
   });
-  const sortedRegions = regions.sort();
+
+  const regions = Object.values(foundLocations.regions).sort((a, b) => a.label.localeCompare(b.label));
+
+  const countries = Object.values(foundLocations.countries).map(c => {
+    const country = countriesData.find(c2 => c2.code === c.value);
+    return { ...c, label: country.code === 'US' ? 'USA' : country.name, region: country.region };
+  });
+
+  const topCities = Object.values(foundLocations.cities)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  // add top cities with hr below
+  const options = [...topCities, { hr: true }];
 
   // for each region
-  sortedRegions.forEach(region => {
+  regions.forEach(region => {
     // add the region to the options
-    options.push({ type: 'region', label: region, value: region });
+    options.push(region);
     // add the countries in that region to the options
     countries
-      .filter(country => country.region === region)
-      .map(country => country.countryCode)
-      .sort()
+      .filter(country => {
+        return country.region === region.value;
+      })
+      .sort((a, b) => a.label.localeCompare(b.label))
       .forEach(country => {
-        options.push({ type: 'countryCode', label: country, value: country });
-
-        // add the domestic regions in that country to the options
-        domesticRegions
-          .filter(domesticRegion => domesticRegion.countryCode === country)
-          .map(state => state.domesticRegion)
-          .sort()
-          .forEach(domesticRegion => {
-            options.push({ type: 'domesticRegion', label: domesticRegion, value: domesticRegion });
-          });
+        options.push(country);
       });
   });
 
-  return options;
+  return [{ value: '', label: 'All locations', count: collectives.length }, ...options];
 }

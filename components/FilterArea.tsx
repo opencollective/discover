@@ -53,7 +53,7 @@ export const Filters = ({
   collapseFilterArea,
 }) => {
   const router = useRouter();
-  const locationOptions = React.useMemo(() => getFilterOptions(collectives.map(c => ({ values: c }))), [collectives]);
+  const locationOptions = React.useMemo(() => getFilterOptions(collectives), [collectives]);
   return (
     <div className="relative z-50 translate-x-0 bg-white">
       <CategoryFilter
@@ -104,7 +104,7 @@ export const Filters = ({
                   <span className="text-gray-900">Location</span>
                 </div>
               }
-              options={[{ value: '', label: 'All locations' }, ...locationOptions]}
+              options={locationOptions}
               value={JSON.parse(currentLocationFilter).value}
               onChange={value => {
                 collapseFilterArea?.();

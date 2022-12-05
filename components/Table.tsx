@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ChevronLeft } from '@styled-icons/fa-solid/ChevronLeft';
 import { ChevronRight } from '@styled-icons/fa-solid/ChevronRight';
 import { SortDown } from '@styled-icons/fa-solid/SortDown';
-import { useFilters, usePagination, useSortBy, useTable } from 'react-table';
+import { usePagination, useSortBy, useTable } from 'react-table';
 import styled from 'styled-components';
 
 import getFilterOptions from '../lib/location/getFilterOptions';
@@ -150,7 +150,6 @@ export default function Collectives({
         sortDescFirst: true,
         disableSortBy: true,
         className: 'max-w-[220px] text-left pl-4 lg:pl-8 pr-2 py-4',
-        disableFilters: true,
       },
       {
         accessor: 'location',
@@ -172,7 +171,7 @@ export default function Collectives({
       //   sortDescFirst: true,
       //   Cell: ({ row }) => new Date(row.original.createdAt).getUTCFullYear(),
       //   className: 'center',
-      //   disableFilters: true,
+      //
       // },
       {
         Header: 'Contributors',
@@ -180,7 +179,6 @@ export default function Collectives({
         sortDescFirst: true,
         Cell: tableProps => tableProps.row.original.contributorsCount.toLocaleString(locale),
         className: 'text-center px-2 py-4',
-        disableFilters: true,
       },
       {
         Header: 'Disbursed',
@@ -191,7 +189,6 @@ export default function Collectives({
           return isNaN(percentDisbursed) ? 'n/a' : `${percentDisbursed.toFixed(1)}%`;
         },
         className: 'text-center px-2 py-4',
-        disableFilters: true,
       },
       {
         Header: 'Raised',
@@ -206,7 +203,6 @@ export default function Collectives({
         ),
         sortDescFirst: true,
         className: 'text-right pr-4 lg:pr-8 pl-2 py-4',
-        disableFilters: true,
       },
     ],
     [currentTag, currentTimePeriod],
@@ -223,7 +219,6 @@ export default function Collectives({
     gotoPage,
     nextPage,
     previousPage,
-    setFilter,
     state: { pageIndex },
   } = useTable(
     {
@@ -239,7 +234,6 @@ export default function Collectives({
         ],
       },
     },
-    useFilters,
     useSortBy,
     usePagination,
   );
@@ -249,12 +243,6 @@ export default function Collectives({
   //     toggleSortBy('totalRaised', true, false);
   //   }
   // }, [currentMetric, currentTimePeriod, currentTag]);
-
-  // Listen for input changes outside
-  useEffect(() => {
-    // This will now use our custom filter for age
-    setFilter('location', currentLocationFilter);
-  }, [currentLocationFilter]);
 
   return (
     <React.Fragment>

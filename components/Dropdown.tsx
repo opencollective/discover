@@ -15,31 +15,39 @@ export default function DropdownSelector({ options, fieldLabel, value, onChange 
           </div>
         </Listbox.Button>
         <Listbox.Options className="absolute right-0 z-10 mt-2 mb-10 rounded-lg bg-white p-2 shadow">
-          {options.map(option => (
-            <Listbox.Option
-              key={option.value}
-              value={option}
-              className={({ active }) =>
-                `cursor-pointer select-none rounded-lg px-2 py-1 ${active ? 'bg-gray-50 ' : ''}`
-              }
-            >
-              {({ selected }) => (
-                <span className="relative flex items-center justify-between pl-5">
-                  {selected ? (
-                    <span className="absolute left-0 ">
-                      <Check size="12" aria-hidden="true" />
-                    </span>
-                  ) : null}
+          {options.map(option => {
+            if (option.hr === true) {
+              return <hr key="hr" className="my-2 border-t border-gray-200" />;
+            }
+            return (
+              <Listbox.Option
+                key={option.value}
+                value={option}
+                className={({ active }) =>
+                  `cursor-pointer select-none rounded-lg px-2 py-1 ${active ? 'bg-gray-50 ' : ''}`
+                }
+              >
+                {({ selected }) => (
+                  <span className="relative flex items-center justify-between pl-5">
+                    {selected ? (
+                      <span className="absolute left-0 ">
+                        <Check size="12" aria-hidden="true" />
+                      </span>
+                    ) : null}
 
-                  <span
-                    className={option.type === 'countryCode' ? 'pl-3' : option.type === 'domesticRegion' ? 'pl-6' : ''}
-                  >
-                    {option.label}
+                    <span
+                      className={
+                        option.type === 'countryCode' ? 'pl-3' : option.type === 'domesticRegion' ? 'pl-6' : ''
+                      }
+                    >
+                      {option.label}
+                    </span>
+                    {option.count && <span className="text-sm text-gray-500">{option.count}</span>}
                   </span>
-                </span>
-              )}
-            </Listbox.Option>
-          ))}
+                )}
+              </Listbox.Option>
+            );
+          })}
         </Listbox.Options>
       </Listbox>
     </div>

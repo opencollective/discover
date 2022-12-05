@@ -3,8 +3,8 @@ export default function filterLocation(collectives, locationFilter) {
   if (filter.value === '') {
     return collectives;
   }
-  return collectives.filter(collective => {
-    const { region, domesticRegion, countryCode } = collective.location;
+  const filtered = collectives.filter(collective => {
+    const { region, domesticRegion, countryCode, city } = collective.location;
 
     if (filter.type === 'region') {
       return region === filter.value;
@@ -12,6 +12,10 @@ export default function filterLocation(collectives, locationFilter) {
       return domesticRegion === filter.value;
     } else if (filter.type === 'countryCode') {
       return countryCode === filter.value;
+    } else if (filter.type === 'city') {
+      return city === filter.value;
     }
   });
+
+  return filtered;
 }
