@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
-import { computeStats, computeTimeSeries } from '../lib/computeData';
-import filterLocation from '../lib/location/filterLocation';
+import { computeTimeSeries } from '../lib/computeData';
+import filterLocation, { LocationFilter } from '../lib/location/filterLocation';
 
 import Chart from './Chart';
 import CollectiveModal from './CollectiveModal';
@@ -14,12 +14,63 @@ import Updates from './Updates';
 
 const getParam = param => (Array.isArray(param) ? param[0] : param);
 
+const getLocationFilter = query => {
+  const location = getParam(query?.location);
+  const locationType = getParam(query?.locationType);
+  return location && locationType ? { value: location, type: locationType } : null;
+};
+
 export default function Dashboard({ categories, collectives, collectivesData, stories, locale, currency, startYear }) {
   const router = useRouter();
-  const currentTag = getParam(router.query?.tag) ?? 'ALL';
-  const currentTimePeriod = getParam(router.query?.time) ?? 'ALL';
+  const currentTag: string = getParam(router.query?.tag) ?? 'ALL';
+  const currentTimePeriod: string = getParam(router.query?.time) ?? 'ALL';
+  const currentLocationFilter: LocationFilter = getLocationFilter(router.query);
 
-  const [currentLocationFilter, setCurrentLocationFilter] = useState(JSON.stringify({ label: 'All', value: '' }));
+  const setTag = (value: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { slug, tag, ...rest } = router.query;
+    router.push(
+      { pathname: '/foundation', query: { ...rest, ...(value !== 'ALL' && tag !== value && { tag: value }) } },
+      null,
+      {
+        shallow: true,
+      },
+    );
+  };
+
+  const setTimePeriod = (value: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { slug, time, ...rest } = router.query;
+    router.push(
+      {
+        pathname: '/foundation',
+        query: { ...rest, ...(value !== 'ALL' && { time: value }) },
+      },
+      null,
+      {
+        shallow: true,
+      },
+    );
+  };
+
+  const setLocationFilter = (locationFilter: LocationFilter) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { slug, location, locationType, ...rest } = router.query;
+    router.push(
+      {
+        pathname: '/foundation',
+        query: {
+          ...rest,
+          ...(locationFilter && { location: locationFilter.value, locationType: locationFilter.type }),
+        },
+      },
+      null,
+      {
+        shallow: true,
+      },
+    );
+  };
+
   const [collectiveInModal, setCollectiveInModal] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -27,6 +78,7 @@ export default function Dashboard({ categories, collectives, collectivesData, st
     setCollectiveInModal(collectivesData[slug]);
     setIsModalOpen(true);
   };
+
   const collectivesDataContainer = useRef(null);
   const [hideFilters, setHideFilters] = useState(false);
 
@@ -67,11 +119,6 @@ export default function Dashboard({ categories, collectives, collectivesData, st
     currentTag ? category.tag === currentTag : !category.tag,
   );
 
-  const stats = React.useMemo(
-    () => computeStats(currentCategory.collectives, currency),
-    [currentTag, currentLocationFilter],
-  );
-
   const timeSeries = React.useMemo(() => computeTimeSeries(categoriesWithCollectives), [currentLocationFilter]);
 
   const totalCollectiveCount = collectives.length;
@@ -82,16 +129,27 @@ export default function Dashboard({ categories, collectives, collectivesData, st
         <div className="w-full rounded-lg bg-white p-6 lg:col-span-3 lg:p-12">
           <h1 className="text-[28px] font-bold leading-tight text-[#111827] lg:text-[40px]">
             Discover {totalCollectiveCount.toLocaleString(locale)} collectives making an impact in{' '}
-            {categories
-              .filter(c => c.tag !== 'ALL')
-              .map((cat, i, arr) => (
-                <React.Fragment key={cat.label}>
-                  <span className={`whitespace-nowrap underline underline-offset-4 decoration-${cat.tc}-500`}>
-                    {cat.label.toLowerCase()}
-                  </span>
-                  {arr.length - 1 === i ? '' : ', '}
-                </React.Fragment>
-              ))}{' '}
+            <span className="group">
+              {categories
+                .filter(c => c.tag !== 'ALL')
+                .map((cat, i, arr) => (
+                  <React.Fragment key={cat.label}>
+                    <button
+                      className={`inline-block whitespace-nowrap underline decoration-${
+                        cat.tc
+                      }-500 underline-offset-4 transition-colors hover:!decoration-${
+                        cat.tc
+                      }-500 group-hover:decoration-transparent ${
+                        currentTag !== 'ALL' && currentTag !== cat.tag ? `decoration-transparent` : ` `
+                      }`}
+                      onClick={() => setTag(cat.tag)}
+                    >
+                      {cat.label.toLowerCase()}
+                    </button>
+                    {arr.length - 1 === i ? '' : ', '}
+                  </React.Fragment>
+                ))}
+            </span>{' '}
             and more.
           </h1>
         </div>
@@ -116,18 +174,21 @@ export default function Dashboard({ categories, collectives, collectivesData, st
             categories={categoriesWithCollectives}
             collectives={collectives}
             currentLocationFilter={currentLocationFilter}
-            setCurrentLocationFilter={setCurrentLocationFilter}
+            setLocationFilter={setLocationFilter}
+            setTimePeriod={setTimePeriod}
+            setTag={setTag}
             hideFilters={hideFilters}
           />
         </div>
         <div className="space-y-12 lg:col-span-3">
           <div className="-mx-4 space-y-5 rounded-lg bg-white py-4 lg:mx-0 lg:py-8" ref={collectivesDataContainer}>
             <Stats
-              totalNetRaised={stats[currentTimePeriod].totalNetRaised}
-              collectiveCount={currentCategory.collectives.length}
-              totalContributions={stats[currentTimePeriod].totalContributions}
+              currentCategory={currentCategory}
+              currentTag={currentTag}
+              currentLocationFilter={currentLocationFilter}
+              currentTimePeriod={currentTimePeriod}
               locale={locale}
-              totalContributors={stats[currentTimePeriod].totalContributors}
+              currency={currency}
             />
             <div className="lg:px-4">
               <Chart
@@ -145,6 +206,7 @@ export default function Dashboard({ categories, collectives, collectivesData, st
               currentTimePeriod={currentTimePeriod}
               currentTag={currentTag}
               currentLocationFilter={currentLocationFilter}
+              setLocationFilter={setLocationFilter}
               locale={locale}
               openCollectiveModal={openCollectiveModal}
               currency={currency}

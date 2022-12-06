@@ -93,7 +93,7 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                   </div>
                   {(collective.tags?.length > 0 || collective.location?.label) && (
                     <div className="mt-4 flex flex-wrap gap-2">
-                      {collective.location?.label && <LocationTag>{collective.location.label}</LocationTag>}
+                      {collective.location && <LocationTag location={collective.location} />}
                       {collective?.tags?.map(tag => (
                         <span key={tag} className="rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-700">
                           {tag}

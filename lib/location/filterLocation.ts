@@ -1,19 +1,28 @@
-export default function filterLocation(collectives, locationFilter) {
-  const filter = JSON.parse(locationFilter);
-  if (filter.value === '') {
+export type LocationFilter = {
+  value: string;
+  type: 'city' | 'state' | 'country' | 'region' | 'other';
+};
+
+export default function filterLocation(collectives, filter: LocationFilter) {
+  if (!filter) {
     return collectives;
   }
   const filtered = collectives.filter(collective => {
-    const { region, domesticRegion, countryCode, city } = collective.location;
+    const { region, countryCode, stateCode, city, isGlobal, isOnline } = collective.location;
 
-    if (filter.type === 'region') {
-      return region === filter.value;
-    } else if (filter.type === 'domesticRegion') {
-      return domesticRegion === filter.value;
-    } else if (filter.type === 'countryCode') {
-      return countryCode === filter.value;
-    } else if (filter.type === 'city') {
-      return city === filter.value;
+    switch (filter.type) {
+      case 'city':
+        return city === filter.value;
+      case 'state':
+        return stateCode === filter.value;
+      case 'country':
+        return countryCode === filter.value;
+      case 'region':
+        return region === filter.value;
+      case 'other':
+        return filter.value === 'global' ? isGlobal : filter.value === 'online' ? isOnline : false;
+      default:
+        return false;
     }
   });
 

@@ -4,7 +4,18 @@ import { Check } from '@styled-icons/fa-solid/Check';
 import { ChevronDown } from '@styled-icons/fa-solid/ChevronDown';
 
 export default function DropdownSelector({ options, fieldLabel, value, onChange }) {
-  const selectedOption = options.find(option => option.value === value);
+  const selectedOption = options.find(option => {
+    if (!value) {
+      return option.value === '';
+    }
+    if (value.type) {
+      return option.value === value.value && option.type === value.type;
+    }
+    return option.value === value;
+  });
+  const breakIndex = options.findIndex(option => option.break);
+  const lastVisibleIndex = breakIndex > 0 ? breakIndex : options.length;
+
   return (
     <div className="relative w-full">
       <Listbox value={selectedOption} onChange={onChange}>
@@ -14,8 +25,8 @@ export default function DropdownSelector({ options, fieldLabel, value, onChange 
             <span>{selectedOption?.label}</span> <ChevronDown size="10" />
           </div>
         </Listbox.Button>
-        <Listbox.Options className="absolute right-0 z-10 mt-2 mb-10 rounded-lg bg-white p-2 shadow">
-          {options.map(option => {
+        <Listbox.Options className="absolute right-0 z-10 mt-2 mb-10 w-full rounded-lg bg-white p-2 shadow">
+          {options.slice(0, lastVisibleIndex).map(option => {
             if (option.hr === true) {
               return <hr key="hr" className="my-2 border-t border-gray-200" />;
             }
@@ -35,13 +46,7 @@ export default function DropdownSelector({ options, fieldLabel, value, onChange 
                       </span>
                     ) : null}
 
-                    <span
-                      className={
-                        option.type === 'countryCode' ? 'pl-3' : option.type === 'domesticRegion' ? 'pl-6' : ''
-                      }
-                    >
-                      {option.label}
-                    </span>
+                    <span className={option.type === 'country' ? 'pl-3' : ''}>{option.label}</span>
                     {option.count && <span className="text-sm text-gray-500">{option.count}</span>}
                   </span>
                 )}

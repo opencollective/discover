@@ -66,45 +66,6 @@ export const Avatar = styled.img`
   width: 40px;
 `;
 
-function LocationFilter({ column: { filterValue, setFilter, preFilteredRows } }) {
-  const options = React.useMemo(() => getFilterOptions(preFilteredRows), [preFilteredRows]);
-
-  return (
-    <select
-      value={filterValue}
-      className="mt-1 bg-gray-50 p-1"
-      onChange={e => {
-        setFilter(e.target.value || undefined);
-      }}
-    >
-      <option value="">All</option>
-      {options.map(option => (
-        <option key={option.label} value={JSON.stringify(option)}>
-          {option.label}
-        </option>
-      ))}
-    </select>
-  );
-}
-
-function filterLocation(rows, id, filterValue) {
-  const filter = JSON.parse(filterValue);
-  if (filter.value === '') {
-    return rows;
-  }
-  return rows.filter(row => {
-    const { region, domesticRegion, countryCode } = row.original.location;
-
-    if (filter.type === 'region') {
-      return region === filter.value;
-    } else if (filter.type === 'domesticRegion') {
-      return domesticRegion === filter.value;
-    } else if (filter.type === 'countryCode') {
-      return countryCode === filter.value;
-    }
-  });
-}
-
 interface Props {
   collectives: [any];
   currentTimePeriod: string;
@@ -112,6 +73,7 @@ interface Props {
   currentLocationFilter: string;
   locale: string;
   openCollectiveModal: (slug: string) => void;
+  setLocationFilter: (location: string) => void;
   currency: string;
 }
 
@@ -121,6 +83,7 @@ export default function Collectives({
   currentTag,
   locale,
   currentLocationFilter,
+  setLocationFilter,
   openCollectiveModal,
   currency,
 }: Props) {
@@ -156,12 +119,10 @@ export default function Collectives({
         Cell: ({ row }) =>
           row.original.location.label && (
             <div className="flex justify-start">
-              <LocationTag>{row.original.location.label}</LocationTag>
+              <LocationTag location={row.original.location} setLocationFilter={setLocationFilter} />
             </div>
           ),
         Header: 'Location',
-        Filter: LocationFilter,
-        filter: filterLocation,
         disableSortBy: true,
         className: 'max-w-[150px] text-left overflow-hidden px-2 py-4',
       },

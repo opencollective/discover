@@ -6,14 +6,17 @@ type LocationOption = {
   label?: string;
   count: number;
 };
+
 export default function getFilterOptions(collectives) {
   const foundLocations: {
     regions: { [key: string]: LocationOption };
     countries: { [key: string]: LocationOption };
+    states: { [key: string]: LocationOption };
     cities: { [key: string]: LocationOption };
   } = {
     regions: {},
     countries: {},
+    states: {},
     cities: {},
   };
   collectives.forEach(c => {
@@ -27,9 +30,16 @@ export default function getFilterOptions(collectives) {
     }
     if (c.location.countryCode) {
       foundLocations.countries[c.location.countryCode] = {
-        type: 'countryCode',
+        type: 'country',
         value: c.location.countryCode,
         count: (foundLocations.countries[c.location.countryCode]?.count || 0) + 1,
+      };
+    }
+    if (c.location.stateCode) {
+      foundLocations.states[c.location.stateCode] = {
+        type: 'state',
+        value: c.location.stateCode,
+        count: (foundLocations.states[c.location.stateCode]?.count || 0) + 1,
       };
     }
     if (c.location.city) {
@@ -49,17 +59,18 @@ export default function getFilterOptions(collectives) {
     return { ...c, label: country.code === 'US' ? 'USA' : country.name, region: country.region };
   });
 
-  const topCities = Object.values(foundLocations.cities)
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5);
+  const states = Object.values(foundLocations.states);
+  const cities = Object.values(foundLocations.cities).sort((a, b) => b.count - a.count);
+
+  const topCities = cities.slice(0, 5);
+  const restCities = cities.slice(5);
 
   // add top cities with hr below
-  const options = [...topCities, { hr: true }];
-
+  const regionsAndCountriesNested = [];
   // for each region
   regions.forEach(region => {
     // add the region to the options
-    options.push(region);
+    regionsAndCountriesNested.push(region);
     // add the countries in that region to the options
     countries
       .filter(country => {
@@ -67,9 +78,19 @@ export default function getFilterOptions(collectives) {
       })
       .sort((a, b) => a.label.localeCompare(b.label))
       .forEach(country => {
-        options.push(country);
+        regionsAndCountriesNested.push(country);
       });
   });
 
-  return [{ value: '', label: 'All locations', count: collectives.length }, ...options];
+  return [
+    { value: '', label: 'All locations', count: collectives.length },
+    ...topCities,
+    { hr: true },
+    ...regionsAndCountriesNested,
+    { break: true },
+    ...restCities,
+    ...states,
+    { type: 'other', value: 'online', label: 'Online', count: collectives.filter(c => c.location.isOnline).length },
+    { type: 'other', value: 'global', label: 'Global', count: collectives.filter(c => c.location.isGlobal).length },
+  ];
 }

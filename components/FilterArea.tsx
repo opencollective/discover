@@ -35,24 +35,18 @@ const CloseIcon = () => (
   </svg>
 );
 
-// function that removes slug from query object
-const removeSlug = query => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { slug: _, ...rest } = query;
-  return rest;
-};
-
 export const Filters = ({
   currentTimePeriod,
   currentTag,
   categories,
   collectives,
   currentLocationFilter,
-  setCurrentLocationFilter,
+  setLocationFilter,
+  setTag,
+  setTimePeriod,
   hideLocationAndTimeFilters,
   collapseFilterArea,
 }) => {
-  const router = useRouter();
   const locationOptions = React.useMemo(() => getFilterOptions(collectives), [collectives]);
   return (
     <div className="relative z-50 translate-x-0 bg-white">
@@ -61,13 +55,7 @@ export const Filters = ({
         categories={categories}
         onSelect={category => {
           collapseFilterArea?.();
-          router.push(
-            { pathname: '/foundation', query: { ...removeSlug(router.query), ...{ tag: category.tag } } },
-            null,
-            {
-              shallow: true,
-            },
-          );
+          setTag(category.tag);
         }}
       />
       <AnimateHeight id="example-panel" duration={500} height={hideLocationAndTimeFilters ? 0 : 'auto'}>
@@ -88,13 +76,7 @@ export const Filters = ({
               value={currentTimePeriod}
               onChange={option => {
                 collapseFilterArea?.();
-                router.push(
-                  { pathname: '/foundation', query: { ...removeSlug(router.query), ...{ time: option.value } } },
-                  null,
-                  {
-                    shallow: true,
-                  },
-                );
+                setTimePeriod(option.value);
               }}
             />
             <Dropdown
@@ -105,10 +87,14 @@ export const Filters = ({
                 </div>
               }
               options={locationOptions}
-              value={JSON.parse(currentLocationFilter).value}
-              onChange={value => {
+              value={currentLocationFilter}
+              onChange={({ type, value }) => {
                 collapseFilterArea?.();
-                setCurrentLocationFilter(JSON.stringify(value));
+                if (value === '') {
+                  setLocationFilter(null);
+                } else {
+                  setLocationFilter({ type, value });
+                }
               }}
             />
           </div>
@@ -124,7 +110,9 @@ export default function FilterArea({
   categories,
   collectives,
   currentLocationFilter,
-  setCurrentLocationFilter,
+  setLocationFilter,
+  setTimePeriod,
+  setTag,
   hideFilters,
 }) {
   const [filtersExpanded, setFiltersExpanded] = React.useState(false);
@@ -138,7 +126,9 @@ export default function FilterArea({
             categories={categories}
             collectives={collectives}
             currentLocationFilter={currentLocationFilter}
-            setCurrentLocationFilter={setCurrentLocationFilter}
+            setLocationFilter={setLocationFilter}
+            setTimePeriod={setTimePeriod}
+            setTag={setTag}
             hideLocationAndTimeFilters={hideFilters}
             collapseFilterArea={() => setFiltersExpanded(false)}
           />
@@ -161,7 +151,9 @@ export default function FilterArea({
                   categories={categories}
                   collectives={collectives}
                   currentLocationFilter={currentLocationFilter}
-                  setCurrentLocationFilter={setCurrentLocationFilter}
+                  setLocationFilter={setLocationFilter}
+                  setTimePeriod={setTimePeriod}
+                  setTag={setTag}
                   hideLocationAndTimeFilters={hideFilters}
                   collapseFilterArea={() => setFiltersExpanded(false)}
                 />
