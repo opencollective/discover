@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react';
-import { useRouter } from 'next/router';
 import AnimateHeight from 'react-animate-height';
 
 import getFilterOptions from '../lib/location/getFilterOptions';

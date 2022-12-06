@@ -236,7 +236,12 @@ export default function Dashboard({ categories, collectives, collectivesData, st
           </div>
         </div>
       </div>
-      <CollectiveModal isOpen={isModalOpen} collective={collectiveInModal} onClose={() => setIsModalOpen(false)} />
+      <CollectiveModal
+        isOpen={isModalOpen}
+        collective={collectiveInModal}
+        onClose={() => setIsModalOpen(false)}
+        setLocationFilter={setLocationFilter}
+      />
     </div>
   );
 }

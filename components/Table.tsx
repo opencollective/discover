@@ -5,7 +5,7 @@ import { SortDown } from '@styled-icons/fa-solid/SortDown';
 import { usePagination, useSortBy, useTable } from 'react-table';
 import styled from 'styled-components';
 
-import getFilterOptions from '../lib/location/getFilterOptions';
+import { LocationFilter } from '../lib/location/filterLocation';
 import { formatCurrency } from '@opencollective/frontend-components/lib/currency-utils';
 
 import LocationTag from './LocationTag';
@@ -70,10 +70,10 @@ interface Props {
   collectives: [any];
   currentTimePeriod: string;
   currentTag: string;
-  currentLocationFilter: string;
+  currentLocationFilter: LocationFilter;
   locale: string;
   openCollectiveModal: (slug: string) => void;
-  setLocationFilter: (location: string) => void;
+  setLocationFilter: (location: LocationFilter) => void;
   currency: string;
 }
 
