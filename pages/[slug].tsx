@@ -26,46 +26,37 @@ export const accountsQuery = gql`
         description
         imageUrl(height: 100, format: png)
         tags
-        stats {
-          id
-          allTimeSeries: combinedTimeSeries(timeUnit: YEAR, includeChildren: true, currency: $currency) {
+
+        ALL_stats: stats {
+          contributorsCount(includeChildren: true)
+          contributionsCount(includeChildren: true)
+
+          totalAmountSpent(includeChildren: true, currency: $currency) {
+            valueInCents
+            currency
+          }
+
+          totalNetAmountReceivedTimeSeries(timeUnit: YEAR, includeChildren: true, currency: $currency) {
             timeUnit
             nodes {
               date
-              contributors
-              contributions
-              totalNetRaised {
-                valueInCents
-                currency
-              }
-              totalSpent {
+              amount {
                 valueInCents
                 currency
               }
             }
           }
-          quarterTimeSeries: combinedTimeSeries(
-            dateFrom: $quarterAgo
-            timeUnit: WEEK
-            includeChildren: true
-            currency: $currency
-          ) {
-            timeUnit
-            nodes {
-              date
-              contributors
-              contributions
-              totalNetRaised {
-                valueInCents
-                currency
-              }
-              totalSpent {
-                valueInCents
-                currency
-              }
-            }
+        }
+
+        PAST_YEAR_stats: stats {
+          contributorsCount(includeChildren: true, dateFrom: $yearAgo)
+          contributionsCount(includeChildren: true, dateFrom: $yearAgo)
+
+          totalAmountSpent(includeChildren: true, dateFrom: $yearAgo, currency: $currency) {
+            valueInCents
+            currency
           }
-          yearTimeSeries: combinedTimeSeries(
+          totalNetAmountReceivedTimeSeries(
             dateFrom: $yearAgo
             timeUnit: MONTH
             includeChildren: true
@@ -74,13 +65,33 @@ export const accountsQuery = gql`
             timeUnit
             nodes {
               date
-              contributors
-              contributions
-              totalNetRaised {
+              amount {
                 valueInCents
                 currency
               }
-              totalSpent {
+            }
+          }
+        }
+
+        PAST_QUARTER_stats: stats {
+          contributorsCount(includeChildren: true, dateFrom: $quarterAgo)
+          contributionsCount(includeChildren: true, dateFrom: $quarterAgo)
+
+          totalAmountSpent(includeChildren: true, dateFrom: $quarterAgo, currency: $currency) {
+            valueInCents
+            currency
+          }
+
+          totalNetAmountReceivedTimeSeries(
+            dateFrom: $quarterAgo
+            timeUnit: WEEK
+            includeChildren: true
+            currency: $currency
+          ) {
+            timeUnit
+            nodes {
+              date
+              amount {
                 valueInCents
                 currency
               }
@@ -100,47 +111,29 @@ export const categories = [
   { label: 'Climate', tag: 'climate', extraTags: ['climate change', 'climate justice'], color: '#F59E0B', tc: 'amber' },
 ];
 
-export const simpleDateToISOString = (date, isEndOfDay, timezoneType) => {
-  if (!date) {
-    return null;
-  } else {
-    const isUTC = timezoneType === 'UTC';
-    const dayjsTimeMethod = isEndOfDay ? 'endOf' : 'startOf';
-    const result = isUTC ? dayjs.utc(date) : dayjs(date);
-    return result[dayjsTimeMethod]('day').toISOString();
-  }
-};
-
-const getTotalStats = (nodes, currency) => {
-  const total = nodes.reduce(
+const getTotalStats = stats => {
+  const totalNetAmountReceived = stats.totalNetAmountReceivedTimeSeries.nodes.reduce(
     (acc, node) => {
       return {
-        totalNetRaised: {
-          valueInCents: acc.totalNetRaised.valueInCents + node.totalNetRaised.valueInCents,
-          currency,
-        },
-        totalSpent: {
-          valueInCents: acc.totalSpent.valueInCents + node.totalSpent.valueInCents,
-          currency,
-        },
-        contributors: acc.contributors + node.contributors,
-        contributions: acc.contributions + node.contributions,
+        valueInCents: acc.valueInCents + node.amount.valueInCents,
+        currency: node.amount.currency,
       };
     },
-    {
-      totalNetRaised: { valueInCents: 0, currency },
-      totalSpent: { valueInCents: 0, currency },
-      contributors: 0,
-      contributions: 0,
-    },
+    { valueInCents: 0 },
   );
+  const totalSpent = {
+    valueInCents: Math.abs(stats.totalAmountSpent.valueInCents),
+    currency: stats.totalAmountSpent.currency,
+  };
+  const percentDisbursed = (totalSpent.valueInCents / totalNetAmountReceived.valueInCents) * 100;
+
   return {
-    ...total,
-    percentDisbursed: (total.totalSpent.valueInCents / total.totalNetRaised.valueInCents) * 100,
-    totalNetRaisedTimeSeries: nodes.map(node => ({
-      date: node.date,
-      amount: { valueInCents: node.totalNetRaised.valueInCents, currency: node.totalNetRaised.currency },
-    })),
+    contributors: stats.contributorsCount,
+    contributions: stats.contributionsCount,
+    totalSpent,
+    totalNetRaised: totalNetAmountReceived,
+    percentDisbursed,
+    totalNetRaisedTimeSeries: stats.totalNetAmountReceivedTimeSeries.nodes,
   };
 };
 
@@ -179,9 +172,9 @@ const getDataForHost = async ({ apollo, hostSlug, currency }) => {
       tags: collective.tags,
       createdAt: collective.createdAt,
       stats: {
-        ALL: getTotalStats(collective.stats.allTimeSeries.nodes, currency),
-        PAST_YEAR: getTotalStats(collective.stats.yearTimeSeries.nodes, currency),
-        PAST_QUARTER: getTotalStats(collective.stats.quarterTimeSeries.nodes, currency),
+        ALL: getTotalStats(collective.ALL_stats),
+        PAST_YEAR: getTotalStats(collective.PAST_YEAR_stats),
+        PAST_QUARTER: getTotalStats(collective.PAST_QUARTER_stats),
       },
     };
   });
@@ -197,7 +190,6 @@ export const getStaticProps: GetStaticProps = async () => {
   const startYear = 2018;
   const apollo = initializeApollo();
   const { collectives } = await getDataForHost({ apollo, hostSlug, currency });
-
   const collectivesData = collectives.reduce((acc, collective) => {
     acc[collective.slug] = collective;
     return acc;
