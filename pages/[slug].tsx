@@ -1,13 +1,7 @@
-import fs from 'fs';
-
 import React from 'react';
-import dayjs from 'dayjs';
 import type { GetStaticProps } from 'next';
 import Head from 'next/head';
 
-import { initializeApollo } from '../lib/apollo-client';
-import { getDump } from '../lib/getDataDump';
-import { accountsQuery } from '../lib/graphql/queries';
 import getLocation from '../lib/location/getLocation';
 import { getAllPosts, markdownToHtml } from '../lib/markdown';
 
@@ -48,31 +42,8 @@ const getTotalStats = stats => {
   };
 };
 
-const getDataForHost = async ({ apollo, hostSlug, currency, limit }) => {
-  let data = getDump(hostSlug);
-
-  if (!data) {
-    ({ data } = await apollo.query({
-      query: accountsQuery,
-      variables: {
-        hostSlug,
-        quarterAgo: dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString(),
-        yearAgo: dayjs.utc().subtract(12, 'month').startOf('month').toISOString(),
-        currency,
-        offset: 0,
-        limit: limit,
-      },
-    }));
-
-    // eslint-disable-next-line no-process-env
-    if (data && process.env.NODE_ENV === 'development') {
-      fs.writeFile(`_dump/${hostSlug}.json`, JSON.stringify(data, null, 2), error => {
-        if (error) {
-          throw error;
-        }
-      });
-    }
-  }
+const getDataForHost = async ({ hostSlug }) => {
+  const data = await require(`../_dump/${hostSlug}.json`);
 
   const collectives = data.accounts.nodes.map(collective => {
     return {
@@ -101,9 +72,7 @@ export const getStaticProps: GetStaticProps = async () => {
   const hostSlug = 'foundation';
   const currency = 'USD';
   const startYear = 2018;
-  const limit = 5000;
-  const apollo = initializeApollo();
-  const { collectives } = await getDataForHost({ apollo, hostSlug, currency, limit });
+  const { collectives } = await getDataForHost({ hostSlug });
   const collectivesData = collectives.reduce((acc, collective) => {
     acc[collective.slug] = collective;
     return acc;

@@ -42,7 +42,7 @@ async function run() {
       console.log(`Paginating with offset ${variables.offset}`);
 
       result = await graphqlRequest(accountsQuery, variables);
-      nodes = [...nodes, result.data.accounts.nodes];
+      nodes = [...nodes, ...result.data.accounts.nodes];
     } while (result.data.accounts.totalCount > result.data.accounts.limit + result.data.accounts.offset);
 
     result = {
