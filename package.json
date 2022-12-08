@@ -24,7 +24,8 @@
     "prettier:check": "npm run prettier -- --check",
     "prettier:write": "npm run prettier -- --write",
     "start": "next start",
-    "type:check": "tsc"
+    "type:check": "tsc",
+    "fetch-data": "ts-node ./scripts/fetch-data.ts"
   },
   "contributors": [
     "Benjamin Piouffle <benjamin@opencollective.com>",
