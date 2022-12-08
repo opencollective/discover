@@ -1,16 +1,15 @@
 import fs from 'fs';
 
 import React from 'react';
-import { gql } from '@apollo/client';
 import dayjs from 'dayjs';
 import type { GetStaticProps } from 'next';
 import Head from 'next/head';
 
 import { initializeApollo } from '../lib/apollo-client';
 import { getDump } from '../lib/getDataDump';
+import { accountsQuery } from '../lib/graphql/queries';
 import getLocation from '../lib/location/getLocation';
 import { getAllPosts, markdownToHtml } from '../lib/markdown';
-import { accountsQuery } from '../lib/graphql/queries';
 
 import Dashboard from '../components/Dashboard';
 import Layout from '../components/Layout';
@@ -49,7 +48,7 @@ const getTotalStats = stats => {
   };
 };
 
-const getDataForHost = async ({ apollo, hostSlug, currency }) => {
+const getDataForHost = async ({ apollo, hostSlug, currency, limit }) => {
   let data = getDump(hostSlug);
 
   if (!data) {
@@ -61,7 +60,7 @@ const getDataForHost = async ({ apollo, hostSlug, currency }) => {
         yearAgo: dayjs.utc().subtract(12, 'month').startOf('month').toISOString(),
         currency,
         offset: 0,
-        limit: 5000,
+        limit: limit,
       },
     }));
 

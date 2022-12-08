@@ -1,16 +1,17 @@
 // TODO: load this dynamically from the environment
+// eslint-disable-next-line no-process-env
 process.env.NEXT_PUBLIC_OPENCOLLECTIVE_API_URL = 'http://localhost:3060';
 
 import fs from 'fs';
 import path from 'path';
 
 import dayjs from 'dayjs';
-import nodeFetch from 'node-fetch';
-import dayjsPluginUTC from 'dayjs/plugin/utc';
 import dayjsPluginIsoWeek from 'dayjs/plugin/isoWeek';
+import dayjsPluginUTC from 'dayjs/plugin/utc';
+import nodeFetch from 'node-fetch';
 
-import { accountsQuery } from '../lib/graphql/queries';
 import { initializeApollo } from '../lib/apollo-client';
+import { accountsQuery } from '../lib/graphql/queries';
 
 dayjs.extend(dayjsPluginUTC);
 dayjs.extend(dayjsPluginIsoWeek);
