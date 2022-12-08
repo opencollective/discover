@@ -60,6 +60,8 @@ const getDataForHost = async ({ apollo, hostSlug, currency }) => {
         quarterAgo: dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString(),
         yearAgo: dayjs.utc().subtract(12, 'month').startOf('month').toISOString(),
         currency,
+        offset: 0,
+        limit: 5000,
       },
     }));
 

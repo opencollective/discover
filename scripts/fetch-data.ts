@@ -1,3 +1,4 @@
+// TODO: load this dynamically from the environment
 process.env.NEXT_PUBLIC_OPENCOLLECTIVE_API_URL = 'http://localhost:3060';
 
 import fs from 'fs';
@@ -29,7 +30,7 @@ async function run() {
   const quarterAgo = dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString();
   const yearAgo = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
 
-  const variables = { hostSlug: 'foundation', quarterAgo, yearAgo, offset: 0, limit: 100 };
+  const variables = { hostSlug, quarterAgo, yearAgo, offset: 0, limit: 100 };
 
   let result = await graphqlRequest(accountsQuery, variables);
 
