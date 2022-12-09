@@ -1,6 +1,4 @@
 import React, { Fragment } from 'react';
-import { ChevronDown } from '@styled-icons/fa-solid';
-import { useRouter } from 'next/router';
 import AnimateHeight from 'react-animate-height';
 
 import getFilterOptions from '../lib/location/getFilterOptions';
@@ -17,13 +15,6 @@ const DateIcon = () => (
     />
   </svg>
 );
-
-// function that removes slug from query object
-const removeSlug = query => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { slug: _, ...rest } = query;
-  return rest;
-};
 
 const CloseIcon = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">

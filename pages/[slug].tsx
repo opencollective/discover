@@ -310,11 +310,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export async function getStaticPaths() {
   return {
-    paths: [
-      { params: { slug: 'foundation' } },
-      // { params: { slug: 'opensource' } },
-      // { params: { slug: 'europe' } }
-    ],
+    paths: hosts.filter(h => !h.disabled).map(host => ({ params: { slug: host.slug } })),
     fallback: false,
   };
 }
