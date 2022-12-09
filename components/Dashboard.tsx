@@ -241,7 +241,7 @@ export default function Dashboard({
               currency={currency}
             />
           </div>
-          <Stories stories={stories} currentTag={currentTag} />
+          <Stories stories={stories} currentTag={currentTag} openCollectiveModal={openCollectiveModal} />
           <Updates host={host} currentTag={currentTag} openCollectiveModal={openCollectiveModal} />
         </div>
       </div>

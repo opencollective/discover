@@ -24,6 +24,7 @@ export function getPostBySlug(hostSlug, slug: string, fields: string[] = []) {
     tags?: string[];
     location?: string;
     date?: string;
+    collectiveSlug?: string;
   };
 
   const items: Items = {};

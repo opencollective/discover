@@ -281,7 +281,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     };
   });
 
-  const allStories = getAllPosts(hostSlug, ['title', 'content', 'tags', 'location', 'slug', 'video']);
+  const allStories = getAllPosts(hostSlug, ['title', 'content', 'tags', 'location', 'slug', 'video', 'collectiveSlug']);
   // run markdownToHtml on content in stories
   const storiesWithContent = await Promise.all(
     allStories.map(async story => {
@@ -289,6 +289,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         ...story,
         tags: story.tags.map(tag => ({ color: categories.find(c => c.tag === tag)?.color ?? null, tag: tag })),
         content: await markdownToHtml(story.content),
+        collective: collectivesData[story.collectiveSlug] ?? null,
       };
     }),
   );
