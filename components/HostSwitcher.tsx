@@ -46,7 +46,7 @@ export default function HostSwitcher({ host, hosts }) {
       <a
         // This is a link since it needs to break with the text, TODO: fix suggestion
         onClick={openModal}
-        className={`underline underline-offset-4 transition-colors ${hostStyles.button[host.slug]}`}
+        className={`cursor-pointer underline underline-offset-4 transition-colors ${hostStyles.button[host.slug]}`}
       >
         {host.name}
         <ChevronUpDown className="inline h-6 w-6 flex-shrink-0 text-gray-800 lg:h-12 lg:w-12" />
