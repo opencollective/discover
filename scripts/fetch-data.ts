@@ -25,10 +25,12 @@ dayjs.extend(dayjsPluginIsoWeek);
 const apolloClient = initializeApollo({ fetch: nodeFetch });
 
 function graphqlRequest(query, variables = {}) {
-  return apolloClient.query({
-    query,
-    variables,
-  });
+  return apolloClient
+    .query({
+      query,
+      variables,
+    })
+    .then(result => result.data);
 }
 
 async function run() {
@@ -39,34 +41,32 @@ async function run() {
 
   const variables = { hostSlug, quarterAgo, yearAgo, offset: 0, limit: 100 };
 
-  let result = await graphqlRequest(accountsQuery, variables);
+  let data = await graphqlRequest(accountsQuery, variables);
 
-  if (result.data.accounts.totalCount > result.data.accounts.limit) {
-    let nodes = [...result.data.accounts.nodes];
+  if (data.accounts.totalCount > data.accounts.limit) {
+    let nodes = [...data.accounts.nodes];
     do {
-      variables.offset += result.data.accounts.limit;
+      variables.offset += data.accounts.limit;
       console.log(`Paginating with offset ${variables.offset}`);
 
-      result = await graphqlRequest(accountsQuery, variables);
-      nodes = [...nodes, ...result.data.accounts.nodes];
-    } while (result.data.accounts.totalCount > result.data.accounts.limit + result.data.accounts.offset);
+      data = await graphqlRequest(accountsQuery, variables);
+      nodes = [...nodes, ...data.accounts.nodes];
+    } while (data.accounts.totalCount > data.accounts.limit + data.accounts.offset);
 
-    result = {
-      data: {
-        accounts: {
-          ...result.data.accounts,
-          offset: 0,
-          limit: result.data.accounts.totalCount,
-          nodes,
-        },
+    data = {
+      accounts: {
+        ...data.accounts,
+        offset: 0,
+        limit: data.accounts.totalCount,
+        nodes,
       },
     };
   }
 
-  if (result.data) {
+  if (data) {
     const filename = path.join(__dirname, '..', '_dump', `${hostSlug}.json`);
 
-    fs.writeFile(filename, JSON.stringify(result.data, null, 2), error => {
+    fs.writeFile(filename, JSON.stringify(data, null, 2), error => {
       if (error) {
         throw error;
       }
