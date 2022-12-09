@@ -9,14 +9,17 @@ module.exports = {
       borderWidth: {
         3: '3px',
       },
+      colors: {
+        'ocf-brand': '#0C5559',
+      },
     },
   },
   plugins: [],
   safelist: [
     {
       pattern:
-        /(border|bg|text|decoration|ring)-(red|orange|amber|yellow|lime|green|emerald|teal|cyan|light-blue|blue|indigo|violet|purple|fuchsia|pink|rose)/,
-      variants: ['lg', 'hover', 'focus', 'lg:hover'],
+        /(border|bg|text|decoration)-(red|orange|amber|yellow|lime|green|emerald|teal|cyan|light-blue|blue|indigo|violet|purple|fuchsia|pink|rose)/,
+      variants: ['hover', 'focus'],
     },
   ],
 };

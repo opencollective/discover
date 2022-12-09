@@ -18,6 +18,13 @@ const DateIcon = () => (
   </svg>
 );
 
+// function that removes slug from query object
+const removeSlug = query => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { slug: _, ...rest } = query;
+  return rest;
+};
+
 const CloseIcon = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
@@ -27,12 +34,14 @@ const CloseIcon = () => (
   </svg>
 );
 
-// function that removes slug from query object
-const removeSlug = query => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { slug: _, ...rest } = query;
-  return rest;
-};
+const FilterIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M11.125 14C11.7466 14 12.25 14.4475 12.25 15C12.25 15.5525 11.7466 16 11.125 16H8.875C8.25344 16 7.75 15.5525 7.75 15C7.75 14.4475 8.25344 14 8.875 14H11.125ZM14.5 9C15.1216 9 15.625 9.4475 15.625 10C15.625 10.5525 15.1216 11 14.5 11H5.5C4.87844 11 4.375 10.5525 4.375 10C4.375 9.4475 4.87844 9 5.5 9H14.5ZM17.875 4C18.4966 4 19 4.4475 19 5C19 5.5525 18.4966 6 17.875 6H2.125C1.50344 6 1 5.5525 1 5C1 4.4475 1.50344 4 2.125 4H17.875Z"
+      fill="#4D4F51"
+    />
+  </svg>
+);
 
 export const Filters = ({
   currentTimePeriod,
@@ -40,13 +49,15 @@ export const Filters = ({
   categories,
   collectives,
   currentLocationFilter,
-  setCurrentLocationFilter,
+  setLocationFilter,
+  setTag,
+  setTimePeriod,
   hideLocationAndTimeFilters,
   mobile = false,
 }) => {
-  const router = useRouter();
-  const locationOptions = React.useMemo(() => getFilterOptions(collectives.map(c => ({ values: c }))), [collectives]);
+  const locationOptions = React.useMemo(() => getFilterOptions(collectives), [collectives]);
   const [expanded, setExpanded] = React.useState(!mobile);
+
   return (
     <div className="relative z-50 translate-x-0 bg-white">
       {mobile && (
@@ -57,27 +68,21 @@ export const Filters = ({
           <span className={`transition-opacity duration-300 ${expanded ? 'opacity-25' : 'opacity-100'}`}>
             {categories.find(c => c.tag === currentTag).label}
           </span>{' '}
-          {expanded ? <CloseIcon /> : <ChevronDown size={16} />}
+          {expanded ? <CloseIcon /> : <FilterIcon />}
         </button>
       )}
-      <AnimateHeight id="example-panel" duration={300} height={expanded ? 'auto' : 0}>
+      <AnimateHeight id="categories" duration={300} height={expanded ? 'auto' : 0}>
         <CategoryFilter
-          currentTimePeriod={currentTimePeriod}
           selectedTag={currentTag}
           categories={categories}
           onSelect={category => {
-            mobile && setExpanded(false);
-            router.push(
-              { pathname: '/foundation', query: { ...removeSlug(router.query), ...{ tag: category.tag } } },
-              null,
-              {
-                shallow: true,
-              },
-            );
+            setTag(category.tag);
+            setExpanded(false);
           }}
         />
       </AnimateHeight>
-      <AnimateHeight id="example-panel" duration={300} height={hideLocationAndTimeFilters ? 0 : 'auto'}>
+
+      <AnimateHeight id="example-panel" duration={500} height={hideLocationAndTimeFilters ? 0 : 'auto'}>
         <div className="mt-1 border-t pt-2 lg:mt-4 lg:pt-4">
           <div className="space-y-1 lg:space-y-2">
             <Dropdown
@@ -94,13 +99,7 @@ export const Filters = ({
               ]}
               value={currentTimePeriod}
               onChange={option => {
-                router.push(
-                  { pathname: '/foundation', query: { ...removeSlug(router.query), ...{ time: option.value } } },
-                  null,
-                  {
-                    shallow: true,
-                  },
-                );
+                setTimePeriod(option.value);
               }}
             />
             <Dropdown
@@ -110,10 +109,17 @@ export const Filters = ({
                   <span className="text-gray-900">Location</span>
                 </div>
               }
-              options={[{ value: '', label: 'All locations' }, ...locationOptions]}
-              value={JSON.parse(currentLocationFilter).value}
-              onChange={value => {
-                setCurrentLocationFilter(JSON.stringify(value));
+              options={locationOptions}
+              value={currentLocationFilter}
+              onOpen={() => {
+                setExpanded(false);
+              }}
+              onChange={({ type, value }) => {
+                if (value === '') {
+                  setLocationFilter(null);
+                } else {
+                  setLocationFilter({ type, value });
+                }
               }}
             />
           </div>
@@ -129,7 +135,9 @@ export default function FilterArea({
   categories,
   collectives,
   currentLocationFilter,
-  setCurrentLocationFilter,
+  setLocationFilter,
+  setTimePeriod,
+  setTag,
   hideFilters,
 }) {
   return (
@@ -142,7 +150,9 @@ export default function FilterArea({
             categories={categories}
             collectives={collectives}
             currentLocationFilter={currentLocationFilter}
-            setCurrentLocationFilter={setCurrentLocationFilter}
+            setLocationFilter={setLocationFilter}
+            setTimePeriod={setTimePeriod}
+            setTag={setTag}
             hideLocationAndTimeFilters={hideFilters}
           />
         </div>
@@ -156,7 +166,9 @@ export default function FilterArea({
               categories={categories}
               collectives={collectives}
               currentLocationFilter={currentLocationFilter}
-              setCurrentLocationFilter={setCurrentLocationFilter}
+              setLocationFilter={setLocationFilter}
+              setTimePeriod={setTimePeriod}
+              setTag={setTag}
               hideLocationAndTimeFilters={hideFilters}
               mobile={true}
             />

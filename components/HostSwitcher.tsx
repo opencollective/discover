@@ -31,19 +31,22 @@ export default function HostSwitcher({ host, hosts }) {
     setIsOpen(true);
   }
 
+  const hostStyles = {
+    button: {
+      foundation: 'text-ocf-brand hover:border-ocf-brand ',
+    },
+  };
+
   return (
     <Fragment>
-      <div className="-mb-2">
-        <button
-          type="button"
-          onClick={openModal}
-          className="flex cursor-pointer items-center gap-4 overflow-hidden text-ellipsis whitespace-nowrap rounded-full border px-2 py-1 text-base font-medium transition-colors hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-        >
-          <img src={host.logoSrc} alt={host.name} className="h-4 flex-shrink-0" />
-          <span className="overflow-hidden text-ellipsis">{host.name}</span>{' '}
-          <ChevronUpDown className="h-6 w-6 flex-shrink-0" />
-        </button>
-      </div>
+      <a
+        // This is a link since it needs to break with the text, TODO: fix suggestion
+        onClick={openModal}
+        className={`underline underline-offset-4 transition-colors ${hostStyles.button[host.slug]}`}
+      >
+        {host.name}
+        <ChevronUpDown className="inline h-6 w-6 flex-shrink-0 text-gray-800 lg:h-12 lg:w-12" />
+      </a>
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-30" onClose={closeModal}>
           <Transition.Child
@@ -74,27 +77,30 @@ export default function HostSwitcher({ host, hosts }) {
                     Switch host
                   </Dialog.Title>
                   <div className="grid grid-cols-1 gap-4 lg:gap-6">
-                    {hosts.map(host => (
-                      <Link href={`/${host.slug}`} key={host.slug}>
-                        <a
-                          className={`flex h-24 items-center justify-start gap-3 rounded-xl border-3 px-4 lg:h-32 lg:gap-4 lg:px-6 bg-${
-                            host.color
-                          }-500 bg-opacity-5 transition-colors ${
-                            activeHost.slug === host.slug
-                              ? `border-${host.color}-500`
-                              : `border-transparent hover:border-${host.color}-500`
-                          }`}
-                          onClick={() => {
-                            closeModal();
-                          }}
-                        >
-                          <div className="flex min-w-[64px] justify-center lg:min-w-[128px]">
-                            <img src={host.logoSrc} className="h-5 lg:h-10" alt={host.name} />
-                          </div>
-                          <span className={`text-base font-medium lg:text-lg `}>{host.name}</span>
-                        </a>
-                      </Link>
-                    ))}
+                    {hosts
+                      .filter(h => !h.disabled)
+                      .map(host => (
+                        <Link href={`/${host.slug}`} key={host.slug}>
+                          <a
+                            key={host.slug}
+                            className={`flex h-24 items-center justify-start gap-3 rounded-xl border-3 px-4 lg:h-32 lg:gap-4 lg:px-6 bg-${
+                              host.color
+                            }-500 bg-opacity-5 transition-colors ${
+                              activeHost.slug === host.slug
+                                ? `border-${host.color}-500`
+                                : `border-transparent hover:border-${host.color}-500`
+                            }`}
+                            onClick={() => {
+                              closeModal();
+                            }}
+                          >
+                            <div className="flex min-w-[64px] justify-center lg:min-w-[128px]">
+                              <img src={host.logoSrc} className="h-5 lg:h-10" alt={host.name} />
+                            </div>
+                            <span className={`text-base font-medium lg:text-lg `}>{host.name}</span>
+                          </a>
+                        </Link>
+                      ))}
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
