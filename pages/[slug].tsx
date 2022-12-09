@@ -145,7 +145,9 @@ export const hosts = [
     },
     categories: [
       { label: 'Mutual aid', tag: 'mutual aid' },
+      { label: 'Education', tag: 'education' },
       { label: 'Civic Tech', tag: 'civic tech' },
+      { label: 'Food', tag: 'food' },
       { label: 'Arts & Culture', tag: 'arts and culture' },
       {
         label: 'Climate',
