@@ -42,7 +42,7 @@ export default function Dashboard({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { slug, tag, ...rest } = router.query;
     router.push(
-      { pathname: '/foundation', query: { ...rest, ...(value !== 'ALL' && tag !== value && { tag: value }) } },
+      { pathname: `/${slug}`, query: { ...rest, ...(value !== 'ALL' && tag !== value && { tag: value }) } },
       null,
       {
         shallow: true,
@@ -55,7 +55,7 @@ export default function Dashboard({
     const { slug, time, ...rest } = router.query;
     router.push(
       {
-        pathname: '/foundation',
+        pathname: `/${slug}`,
         query: { ...rest, ...(value !== 'ALL' && { time: value }) },
       },
       null,
@@ -70,7 +70,7 @@ export default function Dashboard({
     const { slug, location, locationType, ...rest } = router.query;
     router.push(
       {
-        pathname: '/foundation',
+        pathname: `/${slug}`,
         query: {
           ...rest,
           ...(locationFilter && { location: locationFilter.value, locationType: locationFilter.type }),
@@ -178,7 +178,7 @@ export default function Dashboard({
       </div>
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-4 lg:gap-10">
-        <div className="sticky top-4 z-20 lg:top-10">
+        <div className="sticky top-0 z-20 lg:top-10">
           <FilterArea
             currentTimePeriod={currentTimePeriod}
             currentTag={currentTag}

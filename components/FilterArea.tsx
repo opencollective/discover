@@ -174,8 +174,8 @@ export default function FilterArea({
         </div>
       </div>
       <div className="block lg:hidden">
-        <div className="relative h-36">
-          <div className="absolute top-0 right-0 left-0 -mx-4 -mt-4 bg-white py-2 px-4 shadow">
+        <div className="relative h-40">
+          <div className="absolute top-0 right-0 left-0 -mx-4 bg-white py-2 px-4 shadow">
             <Filters
               currentTimePeriod={currentTimePeriod}
               currentTag={currentTag}
