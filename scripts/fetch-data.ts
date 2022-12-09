@@ -1,14 +1,19 @@
-// TODO: load this dynamically from the environment
-// eslint-disable-next-line no-process-env
-process.env.NEXT_PUBLIC_OPENCOLLECTIVE_API_URL = 'http://localhost:3060';
-
 import fs from 'fs';
 import path from 'path';
 
 import dayjs from 'dayjs';
 import dayjsPluginIsoWeek from 'dayjs/plugin/isoWeek';
 import dayjsPluginUTC from 'dayjs/plugin/utc';
+import dotenv from 'dotenv';
 import nodeFetch from 'node-fetch';
+
+// Load environment
+for (const env of ['local', process.env.NODE_ENV || 'development']) {
+  const envPath = path.join(__dirname, '..', `.env.${env}`);
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+  }
+}
 
 import { initializeApollo } from '../lib/apollo-client';
 import { accountsQuery } from '../lib/graphql/queries';
