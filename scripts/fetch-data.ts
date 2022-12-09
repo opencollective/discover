@@ -8,6 +8,7 @@ import dotenv from 'dotenv';
 import nodeFetch from 'node-fetch';
 
 // Load environment
+// eslint-disable-next-line no-process-env
 for (const env of ['local', process.env.NODE_ENV || 'development']) {
   const envPath = path.join(__dirname, '..', `.env.${env}`);
   if (fs.existsSync(envPath)) {
