@@ -3,7 +3,7 @@ import { cva } from 'class-variance-authority';
 
 const CategorySelect = ({ categories, selectedTag, onSelect }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 py-2">
       {categories.map(category => (
         <button
           type="button"
@@ -15,8 +15,8 @@ const CategorySelect = ({ categories, selectedTag, onSelect }) => {
             {
               variants: {
                 selected: {
-                  true: `border-${category.tc}-500`,
-                  false: `border-transparent hover:border-${category.tc}-500`,
+                  true: `border-${category.tw}-500`,
+                  false: `border-transparent hover:border-${category.tw}-500`,
                 },
               },
             },

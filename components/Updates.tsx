@@ -413,10 +413,14 @@ const updates = [
   },
 ];
 
-export default function Updates({ currentTag, openCollectiveModal }) {
+export default function Updates({ host, currentTag, openCollectiveModal }) {
   const sortedUpdates = React.useMemo(() => {
     return updates.sort((a, b) => new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf());
   }, []);
+  if (host.slug !== 'foundation') {
+    return null;
+  }
+
   return (
     <div>
       <h1 className="mb-6  text-xl font-bold text-gray-600 lg:text-4xl">Updates from collectives</h1>
