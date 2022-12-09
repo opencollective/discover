@@ -62,10 +62,12 @@ export const Story = ({ story, openCollectiveModal }) => {
             ></iframe>
           </div>
         )}
-        <div>
+        <div className="px-4">
           {story.collective && (
-            <div className="flex items-center gap-2">
-              <CollectiveButton collective={story.collective} openCollectiveModal={openCollectiveModal} />
+            <div className="flex flex-wrap items-center gap-2  lg:-mx-4">
+              <div className="-mx-2 lg:mx-0">
+                <CollectiveButton collective={story.collective} openCollectiveModal={openCollectiveModal} />
+              </div>
               <LocationTag location={story.collective.location} />
               {story?.tags?.map(({ tag }) => (
                 <span key={tag} className="rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-700">
@@ -74,7 +76,7 @@ export const Story = ({ story, openCollectiveModal }) => {
               ))}
             </div>
           )}
-          <div className="px-4 text-gray-600">
+          <div className=" text-gray-600">
             <Markdown dangerouslySetInnerHTML={{ __html: story.content }} />
           </div>
         </div>
