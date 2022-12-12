@@ -450,7 +450,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export async function getStaticPaths() {
   return {
-    paths: hosts.filter(h => h.slug !== '').map(host => ({ params: { slug: host.slug } })),
+    paths: [],
     fallback: false,
   };
 }
