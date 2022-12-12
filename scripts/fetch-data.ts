@@ -117,31 +117,31 @@ async function getDataForHost(host) {
   const quarterAgo = dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString();
   const yearAgo = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
 
-  const variables = { ...(slug !== '' && { host: { slug } }), currency, quarterAgo, yearAgo, offset: 0, limit: 400 };
+  const variables = { ...(slug !== '' && { host: { slug } }), currency, quarterAgo, yearAgo, offset: 0, limit: 250 };
 
   let data = await graphqlRequest(accountsQuery, variables);
 
-  if (data.accounts.totalCount > data.accounts.limit) {
-    let nodes = [...data.accounts.nodes];
-    do {
-      variables.offset += data.accounts.limit;
-      console.log(`Paginating with offset ${variables.offset}`);
-      const startTime = Date.now();
-      data = await graphqlRequest(accountsQuery, variables);
-      const endTime = Date.now();
-      console.log(`Fetched in ${(endTime - startTime) / 1000} s`);
-      nodes = [...nodes, ...data.accounts.nodes];
-    } while (data.accounts.totalCount > data.accounts.limit + data.accounts.offset);
+  // if (data.accounts.totalCount > data.accounts.limit) {
+  //   let nodes = [...data.accounts.nodes];
+  //   do {
+  //     variables.offset += data.accounts.limit;
+  //     console.log(`Paginating with offset ${variables.offset}`);
+  //     const startTime = Date.now();
+  //     data = await graphqlRequest(accountsQuery, variables);
+  //     const endTime = Date.now();
+  //     console.log(`Fetched in ${(endTime - startTime) / 1000} s`);
+  //     nodes = [...nodes, ...data.accounts.nodes];
+  //   } while (data.accounts.totalCount > data.accounts.limit + data.accounts.offset);
 
-    data = {
-      accounts: {
-        ...data.accounts,
-        offset: 0,
-        limit: data.accounts.totalCount,
-        nodes,
-      },
-    };
-  }
+  //   data = {
+  //     accounts: {
+  //       ...data.accounts,
+  //       offset: 0,
+  //       limit: data.accounts.totalCount,
+  //       nodes,
+  //     },
+  //   };
+  // }
 
   if (data) {
     const collectives = data.accounts.nodes.map(collective => {
@@ -157,7 +157,12 @@ async function getDataForHost(host) {
         stats: getStats(collective),
       };
     });
-    const filename = path.join(__dirname, '..', '_dump', `${host.slug === '' ? 'ALL' : host.slug}.json`);
+    const directory = path.join(__dirname, '..', '_dump');
+    if (!fs.existsSync(directory)) {
+      fs.mkdirSync(directory);
+    }
+
+    const filename = path.join(directory, `${host.slug === '' ? 'ALL' : host.slug}.json`);
     console.log('Writing to file', filename);
     fs.writeFile(filename, JSON.stringify({ collectives }, null, 2), error => {
       if (error) {
