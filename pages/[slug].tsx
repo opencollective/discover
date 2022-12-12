@@ -282,7 +282,7 @@ const getDataForHost = async ({ apollo, hostSlug, currency }) => {
     yearAgo: dayjs.utc().subtract(12, 'month').startOf('month').toISOString(),
     currency,
     offset: 0,
-    limit: 200,
+    limit: 500,
   };
 
   // let { data } = await apollo.query({
@@ -450,8 +450,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export async function getStaticPaths() {
   return {
-    paths: [],
-    fallback: 'blocking',
+    paths: hosts.filter(h => h.slug !== '').map(host => ({ params: { slug: host.slug } })),
+    fallback: false,
   };
 }
 
