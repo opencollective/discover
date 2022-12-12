@@ -137,7 +137,6 @@ export const hosts = [
     startYear: 2016,
     logoSrc: '/oc-logo.svg',
     color: 'blue',
-    //brandColor: '#044F54',
     styles: {
       text: 'text-[#0C2D66]',
       button: 'bg-[#0C2D66] text-white',
@@ -152,7 +151,6 @@ export const hosts = [
     startYear: 2018,
     logoSrc: '/ocf-logo.svg',
     color: 'teal',
-    //brandColor: '#044F54',
     styles: {
       text: 'text-ocf-brand',
       button: 'bg-ocf-brand text-white',
@@ -290,6 +288,7 @@ const getTagKey = tag => {
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const startTime = Date.now();
   const hostSlug: string = params ? (Array.isArray(params.slug) ? params.slug[0] : params.slug) : null;
   const host = hosts.find(h => {
     if (!hostSlug) {
@@ -298,7 +297,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     return h.slug === hostSlug;
   });
 
-  const { currency = 'USD', startYear = 2016 } = host || {};
+  const { currency, startYear } = host;
   const apollo = initializeApollo();
   const { collectives } = await getDataForHost({ apollo, hostSlug, currency });
 
@@ -361,6 +360,9 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     }),
   );
 
+  const endTime = Date.now();
+  const ms = endTime - startTime;
+
   return {
     props: {
       host,
@@ -371,6 +373,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       stories: storiesWithContent,
       startYear,
       currency,
+      ms,
     },
     revalidate: 60 * 60 * 24, // Revalidate the static page at most once every 24 hours to not overload the API
   };
@@ -383,7 +386,18 @@ export async function getStaticPaths() {
   };
 }
 
-export default function Page({ categories, collectivesData, stories, host, hosts, collectives, currency, startYear }) {
+export default function Page({
+  categories,
+  collectivesData,
+  stories,
+  host,
+  hosts,
+  collectives,
+  currency,
+  startYear,
+  ms,
+}) {
+  console.log(`Props built in ${ms} ms`);
   const locale = 'en';
   return (
     <Layout>
