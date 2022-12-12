@@ -63,13 +63,30 @@ const getStats = collective => {
   return stats.ALL.totalNetRaised.valueInCents !== 0 ? stats : null;
 };
 
-function graphqlRequest(query, variables = {}) {
-  return apolloClient
-    .query({
-      query,
-      variables,
-    })
-    .then(result => result.data);
+async function graphqlRequest(query, variables = {}) {
+  let data;
+  // retry fetch 3 times
+
+  for (let i = 0; i < 3; i++) {
+    try {
+      if (i === 0) console.log('retrying fetch', i, ' of 3');
+      ({ data } = await apolloClient.query({
+        query,
+        variables,
+      }));
+      if (data) {
+        break;
+      }
+    } catch (error) {
+      console.error('Error while fetching data', error);
+    }
+  }
+
+  if (!data) {
+    throw new Error('Failed to fetch data');
+  }
+
+  return data;
 }
 
 async function getDataForHost(host) {
