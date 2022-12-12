@@ -9,6 +9,7 @@ export const hosts: {
   styles: { text: string; button: string; brandBox: string; box: string };
   website?: string;
   categories?: { label: string; tag: string }[];
+  cta?: { text: string; href: string; buttonLabel: string };
 }[] = [
   {
     name: 'Open Collective',
@@ -46,7 +47,11 @@ export const hosts: {
       brandBox: 'lg:bg-[#F7FEFF] text-ocf-brand',
       box: 'bg-[#F7FEFF] text-ocf-brand',
     },
-
+    cta: {
+      href: 'https://opencollective.com/solidarity-economy-fund/donat',
+      buttonLabel: 'Contribute',
+      text: 'Contribute to many collectives at once',
+    },
     categories: [
       { label: 'Mutual aid', tag: 'mutual aid' },
       { label: 'Education', tag: 'education' },

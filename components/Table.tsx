@@ -94,9 +94,9 @@ export default function Collectives({
       collectives.map(c => ({
         ...c,
         contributorsCount: c.stats?.[currentTimePeriod].contributors ?? 0,
-        totalRaised: c.stats?.[currentTimePeriod].totalNetRaised.valueInCents ?? 0,
-        totalSpent: c.stats?.[currentTimePeriod].totalSpent.valueInCents ?? 0,
-        percentDisbursed: c.stats?.[currentTimePeriod].percentDisbursed ?? null,
+        totalRaised: c.stats?.[currentTimePeriod].raised ?? 0,
+        spent: c.stats?.[currentTimePeriod].spent ?? 0,
+        percentDisbursed: c.stats?.[currentTimePeriod].percent ?? null,
       })),
     [currentTag, currentTimePeriod, currentLocationFilter, hostSlug],
   );
@@ -119,11 +119,11 @@ export default function Collectives({
       {
         accessor: 'location',
         Cell: ({ row }) =>
-          row.original.location.label && (
+          row.original.location?.label ? (
             <div className="flex justify-start">
               <LocationTag location={row.original.location} setLocationFilter={setLocationFilter} />
             </div>
-          ),
+          ) : null,
         Header: 'Location',
         disableSortBy: true,
         className: 'max-w-[150px] text-left overflow-hidden px-2 py-4',
@@ -168,7 +168,7 @@ export default function Collectives({
         className: 'text-right pr-4 lg:pr-8 pl-2 py-4',
       },
     ],
-    [currentTag, currentTimePeriod],
+    [currentTag, currentTimePeriod, hostSlug],
   );
   const {
     getTableProps,

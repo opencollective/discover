@@ -6,29 +6,18 @@ export function computeStats(collectives, currency) {
       }
       return {
         ALL: {
-          totalNetRaised: {
-            valueInCents: acc.ALL.totalNetRaised.valueInCents + collective.stats.ALL.totalNetRaised.valueInCents,
-            currency,
-          },
+          raised: acc.ALL.raised + collective.stats.ALL.raised,
           totalContributions: acc.ALL.totalContributions + collective.stats.ALL.contributions,
           totalContributors: acc.ALL.totalContributors + collective.stats.ALL.contributors,
         },
         PAST_YEAR: {
-          totalNetRaised: {
-            valueInCents:
-              acc.PAST_YEAR.totalNetRaised.valueInCents + collective.stats.PAST_YEAR.totalNetRaised.valueInCents,
-            currency,
-          },
+          raised: acc.PAST_YEAR.raised + collective.stats.PAST_YEAR.raised,
           totalContributions: acc.PAST_YEAR.totalContributions + collective.stats.PAST_YEAR.contributions,
           totalContributors: acc.PAST_YEAR.totalContributors + collective.stats.PAST_YEAR.contributors,
         },
 
         PAST_QUARTER: {
-          totalNetRaised: {
-            valueInCents:
-              acc.PAST_QUARTER.totalNetRaised.valueInCents + collective.stats.PAST_QUARTER.totalNetRaised.valueInCents,
-            currency,
-          },
+          raised: acc.PAST_QUARTER.raised + collective.stats.PAST_QUARTER.raised,
           totalContributions: acc.PAST_QUARTER.totalContributions + collective.stats.PAST_QUARTER.contributions,
           totalContributors: acc.PAST_QUARTER.totalContributors + collective.stats.PAST_QUARTER.contributors,
         },
@@ -36,17 +25,17 @@ export function computeStats(collectives, currency) {
     },
     {
       ALL: {
-        totalNetRaised: { valueInCents: 0, currency },
+        raised: 0,
         totalContributions: 0,
         totalContributors: 0,
       },
       PAST_YEAR: {
-        totalNetRaised: { valueInCents: 0, currency },
+        raised: 0,
         totalContributions: 0,
         totalContributors: 0,
       },
       PAST_QUARTER: {
-        totalNetRaised: { valueInCents: 0, currency },
+        raised: 0,
         totalContributions: 0,
         totalContributors: 0,
       },
@@ -62,35 +51,35 @@ export function computeTimeSeries(categoriesWithFilteredData) {
           return acc;
         }
 
-        node.stats.ALL.totalNetRaisedTimeSeries.forEach(timeSeries => {
+        node.stats.ALL.raisedSeries.forEach(timeSeries => {
           const key = timeSeries.date;
           if (!acc.ALL[key]) {
             acc.ALL[key] = {
               date: timeSeries.date,
-              amount: { valueInCents: 0, currency: timeSeries.amount.currency },
+              amount: 0,
             };
           }
-          acc.ALL[key].amount.valueInCents += timeSeries.amount.valueInCents;
+          acc.ALL[key].amount += timeSeries.amount;
         });
-        node.stats.PAST_QUARTER.totalNetRaisedTimeSeries.forEach(timeSeries => {
+        node.stats.PAST_QUARTER.raisedSeries.forEach(timeSeries => {
           const key = timeSeries.date;
           if (!acc.PAST_QUARTER[key]) {
             acc.PAST_QUARTER[key] = {
               date: timeSeries.date,
-              amount: { valueInCents: 0, currency: timeSeries.amount.currency },
+              amount: 0,
             };
           }
-          acc.PAST_QUARTER[key].amount.valueInCents += timeSeries.amount.valueInCents;
+          acc.PAST_QUARTER[key].amount += timeSeries.amount;
         });
-        node.stats.PAST_YEAR.totalNetRaisedTimeSeries.forEach(timeSeries => {
+        node.stats.PAST_YEAR.raisedSeries.forEach(timeSeries => {
           const key = timeSeries.date;
           if (!acc.PAST_YEAR[key]) {
             acc.PAST_YEAR[key] = {
               date: timeSeries.date,
-              amount: { valueInCents: 0, currency: timeSeries.amount.currency },
+              amount: 0,
             };
           }
-          acc.PAST_YEAR[key].amount.valueInCents += timeSeries.amount.valueInCents;
+          acc.PAST_YEAR[key].amount += timeSeries.amount;
         });
         return { ...acc };
       },
@@ -109,7 +98,6 @@ export function computeTimeSeries(categoriesWithFilteredData) {
         label: category.label,
         color: category.color,
         tag: category.tag,
-
         timeUnit: 'WEEK',
         nodes: Object.values(timeSeries.PAST_QUARTER),
       },
@@ -117,7 +105,6 @@ export function computeTimeSeries(categoriesWithFilteredData) {
         label: category.label,
         color: category.color,
         tag: category.tag,
-
         timeUnit: 'MONTH',
         nodes: Object.values(timeSeries.PAST_YEAR),
       },

@@ -148,17 +148,21 @@ export default function Dashboard({ host, hosts, categories, collectives, storie
             and more.
           </h1>
         </div>
-        <div className={`flex flex-col items-center justify-center px-2 lg:rounded-lg lg:p-10 ${host.styles.brandBox}`}>
+        <div
+          className={`flex-col items-center justify-center px-2 lg:rounded-lg lg:p-10 ${host.styles.brandBox} ${
+            !host.cta ? 'hidden lg:flex' : 'flex'
+          }`}
+        >
           <img src={host.logoSrc} alt={host.name} className="hidden h-8 lg:block" />
 
           <p className={`my-4 hidden text-center font-medium lg:block`}>
             {host.cta?.text ?? `Learn more about ${host.name}`}
           </p>
           <a
-            href={host.cta?.buttonHref ?? host.website}
+            href={host.cta?.href ?? host.website}
             target="_blank"
             rel="noopener noreferrer"
-            className={`block w-full rounded-full lg:rounded-full ${host.styles.button} px-3 py-3 text-center text-sm font-medium lg:text-lg`}
+            className={`w-full rounded-full lg:rounded-full ${host.styles.button} px-3 py-3 text-center text-sm font-medium lg:text-lg`}
           >
             <span className="hidden lg:inline-block">{host.cta?.buttonLabel ?? 'Learn more'}</span>
             <span className="inline-block lg:hidden">{host.cta?.text}</span>
@@ -179,6 +183,7 @@ export default function Dashboard({ host, hosts, categories, collectives, storie
             collectivesDataContainerRef={collectivesDataContainer}
             currentCategory={currentCategory}
             locationOptions={locationOptions}
+            locale={locale}
           />
         </div>
         <div className="space-y-12 lg:col-span-3">
@@ -247,6 +252,7 @@ export default function Dashboard({ host, hosts, categories, collectives, storie
         collective={collectiveInModal}
         onClose={() => setIsModalOpen(false)}
         setLocationFilter={setLocationFilter}
+        currency={currency}
       />
     </div>
   );

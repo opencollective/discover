@@ -14,11 +14,9 @@ export const accountsQuery = gql`
       offset
       limit
       nodes {
-        id
         name
         slug
         createdAt
-        description
         imageUrl(height: 100, format: png)
         tags
 
@@ -28,7 +26,6 @@ export const accountsQuery = gql`
 
           totalAmountSpent(includeChildren: true, currency: $currency) {
             valueInCents
-            currency
           }
 
           totalNetAmountReceivedTimeSeries(timeUnit: YEAR, includeChildren: true, currency: $currency) {
@@ -37,7 +34,6 @@ export const accountsQuery = gql`
               date
               amount {
                 valueInCents
-                currency
               }
             }
           }
@@ -49,7 +45,6 @@ export const accountsQuery = gql`
 
           totalAmountSpent(includeChildren: true, dateFrom: $yearAgo, currency: $currency) {
             valueInCents
-            currency
           }
           totalNetAmountReceivedTimeSeries(
             dateFrom: $yearAgo
@@ -62,7 +57,6 @@ export const accountsQuery = gql`
               date
               amount {
                 valueInCents
-                currency
               }
             }
           }
@@ -74,7 +68,6 @@ export const accountsQuery = gql`
 
           totalAmountSpent(includeChildren: true, dateFrom: $quarterAgo, currency: $currency) {
             valueInCents
-            currency
           }
 
           totalNetAmountReceivedTimeSeries(
@@ -88,7 +81,6 @@ export const accountsQuery = gql`
               date
               amount {
                 valueInCents
-                currency
               }
             }
           }

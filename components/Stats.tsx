@@ -25,12 +25,12 @@ export default function Stats({
     () => computeStats(currentCategory.collectives, currency),
     [currentTag, currentLocationFilter, hostSlug],
   );
-  const { totalNetRaised, totalContributions, totalContributors } = stats[currentTimePeriod];
+  const { raised, totalContributions, totalContributors } = stats[currentTimePeriod];
   return (
     <div className="-mb-2 grid grid-cols-1 divide-y px-4 lg:grid-cols-4 lg:divide-y-0 lg:divide-x lg:px-8">
       <Metric value={currentCategory.collectives.length.toLocaleString(locale)} label="Collectives" />
       <Metric
-        value={formatCurrency(totalNetRaised.valueInCents, totalNetRaised.currency, {
+        value={formatCurrency(raised, currency, {
           locale,
           precision: 0,
         })}

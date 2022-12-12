@@ -38,6 +38,7 @@ export const Filters = ({
   setLocationFilter,
   setTag,
   setTimePeriod,
+  locale,
   locationOptions,
   mobile = false,
   currentCategory,
@@ -80,6 +81,7 @@ export const Filters = ({
       )}
       <AnimateHeight id="categories" duration={300} height={!mobile ? 'auto' : expanded ? 'auto' : 0}>
         <CategoryFilter
+          locale={locale}
           selectedTag={currentTag}
           categories={categories}
           onSelect={category => {
@@ -143,52 +145,18 @@ export const Filters = ({
   );
 };
 
-export default function FilterArea({
-  currentTimePeriod,
-  currentTag,
-  categories,
-  currentLocationFilter,
-  setLocationFilter,
-  setTimePeriod,
-  setTag,
-  collectivesDataContainerRef,
-  currentCategory,
-  locationOptions,
-}) {
+export default function FilterArea(props) {
   return (
     <Fragment>
       <div className="hidden lg:block">
         <div className="rounded-lg bg-white p-4">
-          <Filters
-            currentTimePeriod={currentTimePeriod}
-            currentTag={currentTag}
-            categories={categories}
-            currentLocationFilter={currentLocationFilter}
-            setLocationFilter={setLocationFilter}
-            setTimePeriod={setTimePeriod}
-            setTag={setTag}
-            locationOptions={locationOptions}
-            currentCategory={currentCategory}
-            collectivesDataContainerRef={collectivesDataContainerRef}
-          />
+          <Filters {...props} />
         </div>
       </div>
       <div className="block lg:hidden">
         <div className="relative h-40">
           <div className="absolute top-0 right-0 left-0 -mx-4 bg-white py-2 px-4 shadow">
-            <Filters
-              currentTimePeriod={currentTimePeriod}
-              currentTag={currentTag}
-              categories={categories}
-              currentLocationFilter={currentLocationFilter}
-              setLocationFilter={setLocationFilter}
-              setTimePeriod={setTimePeriod}
-              setTag={setTag}
-              locationOptions={locationOptions}
-              currentCategory={currentCategory}
-              collectivesDataContainerRef={collectivesDataContainerRef}
-              mobile={true}
-            />
+            <Filters {...props} mobile={true} />
           </div>
         </div>
       </div>

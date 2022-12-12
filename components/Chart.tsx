@@ -155,7 +155,7 @@ const getSeriesDataFromNodes = (nodes, startYear, currentTimePeriod) => {
   }
   nodes.forEach(({ date, amount }) => {
     if (keyedData[date]) {
-      keyedData[date].y += amount.valueInCents / 100;
+      keyedData[date].y += amount / 100;
     }
   });
 

@@ -33,7 +33,7 @@ export const collectiveQuery = gql`
     }
   }
 `;
-export default function CollectiveModal({ isOpen, onClose, collective, locale = 'en', setLocationFilter }) {
+export default function CollectiveModal({ isOpen, onClose, collective, locale = 'en', setLocationFilter, currency }) {
   const { data } = useQuery(collectiveQuery, {
     variables: { slug: collective?.slug },
     skip: !collective,
@@ -107,14 +107,14 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                   <div className="mt-4 grid grid-cols-4 gap-1 rounded bg-gray-50 p-4 text-sm text-gray-600">
                     <div className="text-black">Total disbursed</div>
                     <div>
-                      {formatCurrency(collective.stats.ALL.totalSpent.valueInCents, collective.currency, {
+                      {formatCurrency(collective.stats.ALL.spent, currency, {
                         locale,
                         precision: 0,
                       })}
                     </div>
                     <div className="text-black">Total raised</div>
                     <div>
-                      {formatCurrency(collective.stats.ALL.totalNetRaised.valueInCents, collective.currency, {
+                      {formatCurrency(collective.stats.ALL.raised, currency, {
                         locale,
                         precision: 0,
                       })}

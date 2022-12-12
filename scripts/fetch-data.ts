@@ -28,29 +28,21 @@ dayjs.extend(dayjsPluginIsoWeek);
 const apolloClient = initializeApollo({ fetch: nodeFetch });
 
 const getTotalStats = stats => {
-  const totalNetAmountReceived = stats.totalNetAmountReceivedTimeSeries.nodes.reduce(
-    (acc, node) => {
-      return {
-        valueInCents: acc.valueInCents + node.amount.valueInCents,
-        currency: node.amount.currency,
-      };
-    },
-    { valueInCents: 0 },
-  );
-
-  const totalSpent = {
-    valueInCents: Math.abs(stats.totalAmountSpent.valueInCents),
-    currency: stats.totalAmountSpent.currency,
-  };
-  const percentDisbursed = (totalSpent.valueInCents / totalNetAmountReceived.valueInCents) * 100;
+  const raisedSeries = stats.totalNetAmountReceivedTimeSeries.nodes.map(node => ({
+    date: node.date,
+    amount: node.amount.valueInCents,
+  }));
+  const raised = raisedSeries.reduce((acc, node) => acc + node.amount, 0);
+  const spent = Math.abs(stats.totalAmountSpent.valueInCents);
+  const percent = (spent / raised) * 100;
 
   return {
     contributors: stats.contributorsCount,
     contributions: stats.contributionsCount,
-    totalSpent,
-    totalNetRaised: totalNetAmountReceived,
-    percentDisbursed,
-    totalNetRaisedTimeSeries: stats.totalNetAmountReceivedTimeSeries.nodes,
+    spent,
+    raised,
+    percent,
+    raisedSeries,
   };
 };
 
@@ -60,7 +52,7 @@ const getStats = collective => {
     PAST_YEAR: getTotalStats(collective.PAST_YEAR_stats),
     PAST_QUARTER: getTotalStats(collective.PAST_QUARTER_stats),
   };
-  return stats.ALL.totalNetRaised.valueInCents !== 0 ? stats : null;
+  return stats.ALL.raised !== 0 ? stats : null;
 };
 
 async function graphqlRequest(query, variables: any = {}) {
@@ -152,8 +144,8 @@ async function getDataForHost(host) {
 
   if (data) {
     const collectives = data.accounts.nodes.map(collective => {
+      const stats = getStats(collective);
       return {
-        id: collective.id,
         name: collective.name,
         slug: collective.slug,
         description: collective.description,
@@ -161,7 +153,7 @@ async function getDataForHost(host) {
         location: getLocation(collective),
         tags: collective.tags,
         createdAt: collective.createdAt,
-        stats: getStats(collective),
+        ...(stats && { stats }),
       };
     });
     const directory = path.join(__dirname, '..', '_dump');

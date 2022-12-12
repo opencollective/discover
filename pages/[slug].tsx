@@ -2,10 +2,8 @@ import React from 'react';
 import type { GetStaticProps } from 'next';
 import Head from 'next/head';
 
-import getLocation from '../lib/location/getLocation';
-import { getAllPosts, markdownToHtml } from '../lib/markdown';
-
 import { hosts } from '../lib/hosts';
+import { getAllPosts, markdownToHtml } from '../lib/markdown';
 
 import Dashboard from '../components/Dashboard';
 import Layout from '../components/Layout';
@@ -73,11 +71,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { currency, startYear } = host;
   const { collectives } = await getDataForHost({ hostSlug: hostSlug ?? 'ALL' });
 
-  const collectivesData = collectives.reduce((acc, collective) => {
-    acc[collective.slug] = collective;
-    return acc;
-  }, {});
-
   let categories;
   if (!host?.categories) {
     // go through collectives and find the top tags
@@ -121,13 +114,13 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   const allStories = getAllPosts(hostSlug, ['title', 'content', 'tags', 'location', 'slug', 'video', 'collectiveSlug']);
   // run markdownToHtml on content in stories
-  const storiesWithContent = await Promise.all(
+  const stories = await Promise.all(
     allStories.map(async story => {
       return {
         ...story,
         tags: story.tags.map(tag => ({ color: categories.find(c => c.tag === tag)?.color ?? null, tag: tag })),
         content: await markdownToHtml(story.content),
-        collective: collectivesData[story.collectiveSlug] ?? null,
+        collective: collectives.find(c => c.slug === story.collectiveSlug) ?? null,
       };
     }),
   );
@@ -141,13 +134,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       hosts,
       collectives,
       categories,
-      // collectivesData,
-      stories: storiesWithContent,
+      stories: stories,
       startYear,
       currency,
       ms,
     },
-    //revalidate: 60 * 60 * 24, // Revalidate the static page at most once every 24 hours to not overload the API
+    // revalidate: 60 * 60 * 24, // Revalidate the static page at most once every 24 hours to not overload the API
   };
 };
 

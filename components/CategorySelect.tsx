@@ -1,7 +1,7 @@
 import React from 'react';
 import { cva } from 'class-variance-authority';
 
-const CategorySelect = ({ categories, selectedTag, onSelect }) => {
+const CategorySelect = ({ categories, selectedTag, onSelect, locale }) => {
   return (
     <div className="space-y-4 py-2">
       {categories.map(category => (
@@ -26,7 +26,7 @@ const CategorySelect = ({ categories, selectedTag, onSelect }) => {
           }}
         >
           <span className="font-medium text-gray-800">{category.label}</span>{' '}
-          <span className="text-sm">{category.collectives.length}</span>
+          <span className="text-sm">{category.collectives.length.toLocaleString(locale)}</span>
         </button>
       ))}
     </div>
