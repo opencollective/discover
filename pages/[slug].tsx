@@ -270,6 +270,7 @@ function graphqlRequest(client, query, variables = {}) {
 }
 
 const getDataForHost = async ({ apollo, hostSlug, currency }) => {
+  return { collectives: [] };
   //let data = getDump(hostSlug ?? 'ALL');
   //let nodes = [];
   // if (!data) {
