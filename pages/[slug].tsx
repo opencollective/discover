@@ -138,7 +138,17 @@ const pickColorForCategory = (startColor: string, i: number, numOfCategories: nu
   return colors[(startColorIndex + i * step) % colors.length];
 };
 
-export const hosts = [
+export const hosts: {
+  name: string;
+  slug: string;
+  currency: string;
+  startYear: number;
+  logoSrc: string;
+  color: string;
+  styles: { text: string; button: string; brandBox: string; box: string };
+  website?: string;
+  categories?: { label: string; tag: string }[];
+}[] = [
   {
     name: 'Open Collective',
     slug: '',
@@ -238,22 +248,35 @@ const getTotalStats = stats => {
   };
 };
 
+const getStats = collective => {
+  const stats = {
+    ALL: getTotalStats(collective.ALL_stats),
+    PAST_YEAR: getTotalStats(collective.PAST_YEAR_stats),
+    PAST_QUARTER: getTotalStats(collective.PAST_QUARTER_stats),
+  };
+  return stats.ALL.totalNetRaised.valueInCents !== 0 ? stats : null;
+};
+
 function graphqlRequest(client, query, variables = {}) {
   return client
     .query({
       query,
       variables,
     })
+    .catch(error => {
+      console.log('GraphQL: ', error.message);
+      return error;
+    })
     .then(result => result.data);
 }
 
 const getDataForHost = async ({ apollo, hostSlug, currency }) => {
-  // let data = getDump(hostSlug ?? 'ALL');
+  //let data = getDump(hostSlug ?? 'ALL');
   //let nodes = [];
   // if (!data) {
-  if (!hostSlug) {
-    return { collectives: [] };
-  }
+  // if (!hostSlug) {
+  //   return { collectives: [] };
+  // }
   const variables = {
     ...(hostSlug && { host: { slug: hostSlug } }),
     quarterAgo: dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString(),
@@ -309,11 +332,7 @@ const getDataForHost = async ({ apollo, hostSlug, currency }) => {
       location: getLocation(collective),
       tags: collective.tags,
       createdAt: collective.createdAt,
-      stats: {
-        ALL: getTotalStats(collective.ALL_stats),
-        PAST_YEAR: getTotalStats(collective.PAST_YEAR_stats),
-        PAST_QUARTER: getTotalStats(collective.PAST_QUARTER_stats),
-      },
+      stats: getStats(collective),
     };
   });
 

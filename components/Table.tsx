@@ -93,10 +93,10 @@ export default function Collectives({
     () =>
       collectives.map(c => ({
         ...c,
-        contributorsCount: c.stats[currentTimePeriod].contributors,
-        totalRaised: c.stats[currentTimePeriod].totalNetRaised.valueInCents,
-        totalSpent: c.stats[currentTimePeriod].totalSpent.valueInCents,
-        percentDisbursed: c.stats[currentTimePeriod].percentDisbursed,
+        contributorsCount: c.stats?.[currentTimePeriod].contributors ?? 0,
+        totalRaised: c.stats?.[currentTimePeriod].totalNetRaised.valueInCents ?? 0,
+        totalSpent: c.stats?.[currentTimePeriod].totalSpent.valueInCents ?? 0,
+        percentDisbursed: c.stats?.[currentTimePeriod].percentDisbursed ?? null,
       })),
     [currentTag, currentTimePeriod, currentLocationFilter, hostSlug],
   );

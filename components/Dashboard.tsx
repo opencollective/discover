@@ -22,17 +22,7 @@ const getLocationFilter = query => {
   return location && locationType ? { type: locationType, value: location } : null;
 };
 
-export default function Dashboard({
-  host,
-  hosts,
-  categories,
-  collectives,
-  collectivesData,
-  stories,
-  locale,
-  currency,
-  startYear,
-}) {
+export default function Dashboard({ host, hosts, categories, collectives, stories, locale, currency, startYear }) {
   const router = useRouter();
   const currentTag: string = getParam(router.query?.tag) ?? 'ALL';
   const currentTimePeriod: string = getParam(router.query?.time) ?? 'ALL';
@@ -87,7 +77,8 @@ export default function Dashboard({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openCollectiveModal = (slug: string) => {
-    setCollectiveInModal(collectivesData[slug]);
+    const collective = collectives.find(c => c.slug === slug);
+    setCollectiveInModal(collective);
     setIsModalOpen(true);
   };
 

@@ -1,6 +1,9 @@
 export function computeStats(collectives, currency) {
   return collectives.reduce(
     (acc, collective) => {
+      if (!collective.stats) {
+        return acc;
+      }
       return {
         ALL: {
           totalNetRaised: {
@@ -55,6 +58,10 @@ export function computeTimeSeries(categoriesWithFilteredData) {
   const categoriesTimeSeries = categoriesWithFilteredData.map(category => {
     const timeSeries = category.collectives.reduce(
       (acc, node) => {
+        if (!node.stats) {
+          return acc;
+        }
+
         node.stats.ALL.totalNetRaisedTimeSeries.forEach(timeSeries => {
           const key = timeSeries.date;
           if (!acc.ALL[key]) {
