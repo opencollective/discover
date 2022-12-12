@@ -1,116 +1,14 @@
-import fs from 'fs';
-
 import React from 'react';
-import { gql } from '@apollo/client';
-import dayjs from 'dayjs';
 import type { GetStaticProps } from 'next';
 import Head from 'next/head';
 
-import { initializeApollo } from '../lib/apollo-client';
-//import { getDump } from '../lib/getDataDump';
 import getLocation from '../lib/location/getLocation';
 import { getAllPosts, markdownToHtml } from '../lib/markdown';
 
+import { hosts } from '../lib/hosts';
+
 import Dashboard from '../components/Dashboard';
 import Layout from '../components/Layout';
-
-export const accountsQuery = gql`
-  query SearchAccounts(
-    $host: [AccountReferenceInput]
-    $quarterAgo: DateTime
-    $yearAgo: DateTime
-    $currency: Currency
-    $limit: Int
-    $offset: Int
-  ) {
-    accounts(type: [COLLECTIVE, FUND], limit: $limit, offset: $offset, host: $host) {
-      totalCount
-      offset
-      limit
-      nodes {
-        id
-        name
-        slug
-        createdAt
-        description
-        imageUrl(height: 100, format: png)
-        tags
-
-        ALL_stats: stats {
-          contributorsCount(includeChildren: true)
-          contributionsCount(includeChildren: true)
-
-          totalAmountSpent(includeChildren: true, currency: $currency) {
-            valueInCents
-            currency
-          }
-
-          totalNetAmountReceivedTimeSeries(timeUnit: YEAR, includeChildren: true, currency: $currency) {
-            timeUnit
-            nodes {
-              date
-              amount {
-                valueInCents
-                currency
-              }
-            }
-          }
-        }
-
-        PAST_YEAR_stats: stats {
-          contributorsCount(includeChildren: true, dateFrom: $yearAgo)
-          contributionsCount(includeChildren: true, dateFrom: $yearAgo)
-
-          totalAmountSpent(includeChildren: true, dateFrom: $yearAgo, currency: $currency) {
-            valueInCents
-            currency
-          }
-          totalNetAmountReceivedTimeSeries(
-            dateFrom: $yearAgo
-            timeUnit: MONTH
-            includeChildren: true
-            currency: $currency
-          ) {
-            timeUnit
-            nodes {
-              date
-              amount {
-                valueInCents
-                currency
-              }
-            }
-          }
-        }
-
-        PAST_QUARTER_stats: stats {
-          contributorsCount(includeChildren: true, dateFrom: $quarterAgo)
-          contributionsCount(includeChildren: true, dateFrom: $quarterAgo)
-
-          totalAmountSpent(includeChildren: true, dateFrom: $quarterAgo, currency: $currency) {
-            valueInCents
-            currency
-          }
-
-          totalNetAmountReceivedTimeSeries(
-            dateFrom: $quarterAgo
-            timeUnit: WEEK
-            includeChildren: true
-            currency: $currency
-          ) {
-            timeUnit
-            nodes {
-              date
-              amount {
-                valueInCents
-                currency
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
 
 const colors = [
   { tw: 'red', color: '#EF4444' },
@@ -138,206 +36,11 @@ const pickColorForCategory = (startColor: string, i: number, numOfCategories: nu
   return colors[(startColorIndex + i * step) % colors.length];
 };
 
-export const hosts: {
-  name: string;
-  slug: string;
-  currency: string;
-  startYear: number;
-  logoSrc: string;
-  color: string;
-  styles: { text: string; button: string; brandBox: string; box: string };
-  website?: string;
-  categories?: { label: string; tag: string }[];
-}[] = [
-  {
-    name: 'Open Collective',
-    slug: '',
-    currency: 'USD',
-    startYear: 2016,
-    logoSrc: '/oc-logo.svg',
-    color: 'blue',
-    styles: {
-      text: 'text-[#0C2D66]',
-      button: 'bg-[#0C2D66] text-white',
-      brandBox: 'lg:bg-[#F5FAFF] text-[#0C2D66]',
-      box: 'bg-[#F5FAFF] text-[#0C2D66]',
-    },
-  },
-  {
-    name: 'Open Collective Foundation',
-    slug: 'foundation',
-    currency: 'USD',
-    startYear: 2018,
-    logoSrc: '/ocf-logo.svg',
-    color: 'teal',
-    styles: {
-      text: 'text-ocf-brand',
-      button: 'bg-ocf-brand text-white',
-      brandBox: 'lg:bg-[#F7FEFF] text-ocf-brand',
-      box: 'bg-[#F7FEFF] text-ocf-brand',
-    },
-
-    categories: [
-      { label: 'Mutual aid', tag: 'mutual aid' },
-      { label: 'Education', tag: 'education' },
-      { label: 'Civic Tech', tag: 'civic tech' },
-      { label: 'Food', tag: 'food' },
-      { label: 'Arts & Culture', tag: 'arts and culture' },
-      {
-        label: 'Climate',
-        tag: 'climate',
-      },
-    ],
-  },
-  {
-    name: 'Open Source Collective',
-    slug: 'opensource',
-    currency: 'USD',
-    startYear: 2016,
-    logoSrc: '/osc-logo.svg',
-    website: 'https://opencollective.com/opensource',
-    color: 'purple',
-    styles: {
-      text: 'text-[#4B3084]',
-      button: 'bg-[#4B3084] text-white',
-      brandBox: 'lg:bg-[#4B3084] lg:bg-opacity-5 text-[#4B3084]',
-      box: 'bg-[#4B3084] bg-opacity-5 text-[#4B3084]',
-    },
-  },
-  {
-    name: 'Open Collective Europe',
-    slug: 'europe',
-    currency: 'EUR',
-    startYear: 2019,
-    logoSrc: '/oce-logo.svg',
-    website: 'https://opencollective.com/europe',
-    color: 'blue',
-    styles: {
-      text: 'text-[#0C2D66]',
-      button: 'bg-[#0C2D66] text-white',
-      brandBox: 'lg:bg-[#E0EC7B] lg:bg-opacity-20 text-[#0C2D66]',
-      box: 'bg-[#E0EC7B] bg-opacity-20 text-[#0C2D66]',
-    },
-  },
-];
-
-const getTotalStats = stats => {
-  const totalNetAmountReceived = stats.totalNetAmountReceivedTimeSeries.nodes.reduce(
-    (acc, node) => {
-      return {
-        valueInCents: acc.valueInCents + node.amount.valueInCents,
-        currency: node.amount.currency,
-      };
-    },
-    { valueInCents: 0 },
-  );
-  const totalSpent = {
-    valueInCents: Math.abs(stats.totalAmountSpent.valueInCents),
-    currency: stats.totalAmountSpent.currency,
-  };
-  const percentDisbursed = (totalSpent.valueInCents / totalNetAmountReceived.valueInCents) * 100;
+const getDataForHost = async ({ hostSlug }) => {
+  const data = await require(`../_dump/${hostSlug}.json`);
 
   return {
-    contributors: stats.contributorsCount,
-    contributions: stats.contributionsCount,
-    totalSpent,
-    totalNetRaised: totalNetAmountReceived,
-    percentDisbursed,
-    totalNetRaisedTimeSeries: stats.totalNetAmountReceivedTimeSeries.nodes,
-  };
-};
-
-const getStats = collective => {
-  const stats = {
-    ALL: getTotalStats(collective.ALL_stats),
-    PAST_YEAR: getTotalStats(collective.PAST_YEAR_stats),
-    PAST_QUARTER: getTotalStats(collective.PAST_QUARTER_stats),
-  };
-  return stats.ALL.totalNetRaised.valueInCents !== 0 ? stats : null;
-};
-
-function graphqlRequest(client, query, variables = {}) {
-  return client
-    .query({
-      query,
-      variables,
-    })
-    .catch(error => {
-      console.log('GraphQL: ', error.message);
-      return error;
-    })
-    .then(result => result.data);
-}
-
-const getDataForHost = async ({ apollo, hostSlug, currency }) => {
-  return { collectives: [] };
-  //let data = getDump(hostSlug ?? 'ALL');
-  //let nodes = [];
-  // if (!data) {
-  // if (!hostSlug) {
-  //   return { collectives: [] };
-  // }
-  const variables = {
-    ...(hostSlug && { host: { slug: hostSlug } }),
-    quarterAgo: dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString(),
-    yearAgo: dayjs.utc().subtract(12, 'month').startOf('month').toISOString(),
-    currency,
-    offset: 0,
-    limit: 500,
-  };
-
-  // let { data } = await apollo.query({
-  //   query: accountsQuery,
-  //   variables,
-  // });
-
-  let data = await graphqlRequest(apollo, accountsQuery, variables);
-
-  if (data.accounts.totalCount > data.accounts.limit) {
-    let nodes = [...data.accounts.nodes];
-    do {
-      variables.offset += data.accounts.limit;
-      console.log(`Paginating with offset ${variables.offset}`);
-
-      data = await graphqlRequest(apollo, accountsQuery, variables);
-      nodes = [...nodes, ...data.accounts.nodes];
-    } while (data.accounts.totalCount > data.accounts.limit + data.accounts.offset);
-
-    data = {
-      accounts: {
-        ...data.accounts,
-        offset: 0,
-        limit: data.accounts.totalCount,
-        nodes,
-      },
-    };
-  }
-
-  // eslint-disable-next-line no-process-env
-  if (data && process.env.NODE_ENV === 'development') {
-    fs.writeFile(`_dump/${hostSlug ?? 'ALL'}.json`, JSON.stringify(data), error => {
-      if (error) {
-        throw error;
-      }
-    });
-  }
-
-  const collectives = data.accounts.nodes.map(collective => {
-    return {
-      id: collective.id,
-      name: collective.name,
-      slug: collective.slug,
-      description: collective.description,
-      imageUrl: collective.imageUrl.replace('-staging', ''),
-      location: getLocation(collective),
-      tags: collective.tags,
-      createdAt: collective.createdAt,
-      stats: getStats(collective),
-    };
-  });
-
-  return {
-    collectives,
+    collectives: data.collectives,
   };
 };
 
@@ -368,8 +71,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
 
   const { currency, startYear } = host;
-  const apollo = initializeApollo();
-  const { collectives } = await getDataForHost({ apollo, hostSlug, currency });
+  const { collectives } = await getDataForHost({ hostSlug });
 
   const collectivesData = collectives.reduce((acc, collective) => {
     acc[collective.slug] = collective;
@@ -439,13 +141,13 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       hosts,
       collectives,
       categories,
-      //collectivesData,
+      // collectivesData,
       stories: storiesWithContent,
       startYear,
       currency,
       ms,
     },
-    revalidate: 60 * 60 * 24, // Revalidate the static page at most once every 24 hours to not overload the API
+    //revalidate: 60 * 60 * 24, // Revalidate the static page at most once every 24 hours to not overload the API
   };
 };
 
@@ -457,6 +159,7 @@ export async function getStaticPaths() {
 }
 
 export default function Page({ categories, stories, host, hosts, collectives, currency, startYear, ms }) {
+  // eslint-disable-next-line no-console
   console.log(`Props built in ${ms} ms`);
   const locale = 'en';
   return (
