@@ -230,28 +230,28 @@ const getTotalStats = stats => {
 };
 
 const getDataForHost = async ({ apollo, hostSlug, currency }) => {
-  let data = getDump(hostSlug ?? 'ALL');
+  // let data = getDump(hostSlug ?? 'ALL');
 
-  if (!data) {
-    ({ data } = await apollo.query({
-      query: accountsQuery,
-      variables: {
-        ...(hostSlug && { host: { slug: hostSlug } }),
-        quarterAgo: dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString(),
-        yearAgo: dayjs.utc().subtract(12, 'month').startOf('month').toISOString(),
-        currency,
-      },
-    }));
+  // if (!data) {
+  const { data } = await apollo.query({
+    query: accountsQuery,
+    variables: {
+      ...(hostSlug && { host: { slug: hostSlug } }),
+      quarterAgo: dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString(),
+      yearAgo: dayjs.utc().subtract(12, 'month').startOf('month').toISOString(),
+      currency,
+    },
+  });
 
-    // eslint-disable-next-line no-process-env
-    if (data && process.env.NODE_ENV === 'development') {
-      fs.writeFile(`_dump/${hostSlug ?? 'ALL'}.json`, JSON.stringify(data), error => {
-        if (error) {
-          throw error;
-        }
-      });
-    }
-  }
+  // eslint-disable-next-line no-process-env
+  // if (data && process.env.NODE_ENV === 'development') {
+  //   fs.writeFile(`_dump/${hostSlug ?? 'ALL'}.json`, JSON.stringify(data), error => {
+  //     if (error) {
+  //       throw error;
+  //     }
+  //   });
+  // }
+  // }
 
   const collectives = data.accounts.nodes.map(collective => {
     return {
