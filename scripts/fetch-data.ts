@@ -121,27 +121,27 @@ async function getDataForHost(host) {
 
   let data = await graphqlRequest(accountsQuery, variables);
 
-  // if (data.accounts.totalCount > data.accounts.limit) {
-  //   let nodes = [...data.accounts.nodes];
-  //   do {
-  //     variables.offset += data.accounts.limit;
-  //     console.log(`Paginating with offset ${variables.offset}`);
-  //     const startTime = Date.now();
-  //     data = await graphqlRequest(accountsQuery, variables);
-  //     const endTime = Date.now();
-  //     console.log(`Fetched in ${(endTime - startTime) / 1000} s`);
-  //     nodes = [...nodes, ...data.accounts.nodes];
-  //   } while (data.accounts.totalCount > data.accounts.limit + data.accounts.offset);
+  if (data.accounts.totalCount > data.accounts.limit) {
+    let nodes = [...data.accounts.nodes];
+    do {
+      variables.offset += data.accounts.limit;
+      console.log(`Paginating with offset ${variables.offset}`);
+      const startTime = Date.now();
+      data = await graphqlRequest(accountsQuery, variables);
+      const endTime = Date.now();
+      console.log(`Fetched in ${(endTime - startTime) / 1000} s`);
+      nodes = [...nodes, ...data.accounts.nodes];
+    } while (data.accounts.totalCount > data.accounts.limit + data.accounts.offset);
 
-  //   data = {
-  //     accounts: {
-  //       ...data.accounts,
-  //       offset: 0,
-  //       limit: data.accounts.totalCount,
-  //       nodes,
-  //     },
-  //   };
-  // }
+    data = {
+      accounts: {
+        ...data.accounts,
+        offset: 0,
+        limit: data.accounts.totalCount,
+        nodes,
+      },
+    };
+  }
 
   if (data) {
     const collectives = data.accounts.nodes.map(collective => {
