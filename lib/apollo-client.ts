@@ -24,9 +24,13 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
     console.log(`[Network error]: ${networkError}`);
   }
 });
+const httpLink = new HttpLink({
+  uri: `${PublicEnv.OPENCOLLECTIVE_API_URL}/graphql`, // Server URL (must be absolute)
+  // credentials: "same-origin", // Additional fetch() options like `credentials` or `headers`
+});
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function createApolloClient({ context, fetch }: { context?: GetSessionParams; fetch?: any } = {}) {
+function createApolloClient({ context }: { context?: GetSessionParams } = {}) {
   const authLink = setContext(async (_, { headers }) => {
     return {
       headers: {
@@ -38,11 +42,11 @@ function createApolloClient({ context, fetch }: { context?: GetSessionParams; fe
     };
   });
 
-  const httpLink = new HttpLink({
-    uri: `${PublicEnv.OPENCOLLECTIVE_API_URL}/graphql`, // Server URL (must be absolute)
-    // credentials: "same-origin", // Additional fetch() options like `credentials` or `headers`
-    fetch,
-  });
+  // const httpLink = new HttpLink({
+  //   uri: `${PublicEnv.OPENCOLLECTIVE_API_URL}/graphql`, // Server URL (must be absolute)
+  //   // credentials: "same-origin", // Additional fetch() options like `credentials` or `headers`
+  //   fetch,
+  // });
 
   return new ApolloClient({
     ssrMode: typeof window === 'undefined',
@@ -54,9 +58,9 @@ function createApolloClient({ context, fetch }: { context?: GetSessionParams; fe
 export function initializeApollo({
   context,
   initialState = null,
-  fetch = null,
-}: { context?: GetSessionParams; initialState?: Record<string, unknown>; fetch?: any } = {}) {
-  const _apolloClient = apolloClient ?? createApolloClient({ context, fetch });
+}: //fetch = null,
+{ context?: GetSessionParams; initialState?: Record<string, unknown> } = {}) {
+  const _apolloClient = apolloClient ?? createApolloClient({ context });
 
   // If your page has Next.js data fetching methods that use Apollo Client, the initial state
   // gets hydrated here
