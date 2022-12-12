@@ -7,7 +7,7 @@ import type { GetStaticProps } from 'next';
 import Head from 'next/head';
 
 import { initializeApollo } from '../lib/apollo-client';
-import { getDump } from '../lib/getDataDump';
+//import { getDump } from '../lib/getDataDump';
 import getLocation from '../lib/location/getLocation';
 import { getAllPosts, markdownToHtml } from '../lib/markdown';
 
@@ -218,7 +218,6 @@ export const hosts: {
       brandBox: 'lg:bg-[#E0EC7B] lg:bg-opacity-20 text-[#0C2D66]',
       box: 'bg-[#E0EC7B] bg-opacity-20 text-[#0C2D66]',
     },
-    brandColor: '#0C2D66',
   },
 ];
 
@@ -361,6 +360,11 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     }
     return h.slug === hostSlug;
   });
+  if (!host) {
+    return {
+      notFound: true,
+    };
+  }
 
   const { currency, startYear } = host;
   const apollo = initializeApollo();
@@ -434,7 +438,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       hosts,
       collectives,
       categories,
-      collectivesData,
+      //collectivesData,
       stories: storiesWithContent,
       startYear,
       currency,
@@ -446,22 +450,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export async function getStaticPaths() {
   return {
-    paths: hosts.filter(h => h.slug).map(host => ({ params: { slug: host.slug } })),
-    fallback: false,
+    paths: [],
+    fallback: 'blocking',
   };
 }
 
-export default function Page({
-  categories,
-  collectivesData,
-  stories,
-  host,
-  hosts,
-  collectives,
-  currency,
-  startYear,
-  ms,
-}) {
+export default function Page({ categories, stories, host, hosts, collectives, currency, startYear, ms }) {
   console.log(`Props built in ${ms} ms`);
   const locale = 'en';
   return (
@@ -474,7 +468,6 @@ export default function Page({
         collectives={collectives}
         currency={currency}
         startYear={startYear}
-        collectivesData={collectivesData}
         stories={stories}
         locale={locale}
         host={host}
