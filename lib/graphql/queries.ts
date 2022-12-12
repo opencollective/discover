@@ -16,7 +16,7 @@ export const accountsQuery = gql`
       nodes {
         name
         slug
-        # createdAt
+        createdAt
         imageUrl(height: 100, format: png)
         tags
 

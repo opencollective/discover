@@ -25,7 +25,7 @@ import { accountsQuery } from '../lib/graphql/queries';
 dayjs.extend(dayjsPluginUTC);
 dayjs.extend(dayjsPluginIsoWeek);
 
-// const apolloClient = initializeApollo({ fetch: nodeFetch });
+const apolloClient = initializeApollo({ fetch: nodeFetch });
 
 const getTotalStats = stats => {
   const raisedSeries = stats.totalNetAmountReceivedTimeSeries.nodes.map(node => ({
@@ -55,26 +55,26 @@ const getStats = collective => {
   return stats.ALL.raised !== 0 ? stats : null;
 };
 
-async function graphqlRequest(apollo, query, variables: any = {}) {
+async function graphqlRequest(query, variables: any = {}) {
   let data;
   // retry fetch 5 times
 
   for (let i = 0; i <= 5; i++) {
     try {
       if (i === 0) {
-        ({ data } = await apollo.query({
+        ({ data } = await apolloClient.query({
           query,
           variables,
         }));
       } else {
         console.log('Retrying with half limit, attempt', i, 'of 5');
         const halfLimit = Math.floor(variables.limit / 2);
-        const { data: dataFirst } = await apollo.query({
+        const { data: dataFirst } = await apolloClient.query({
           query,
           variables: { ...variables, offset: variables.offset, limit: halfLimit },
         });
         console.log('first half success');
-        const { data: dataSecond } = await apollo.query({
+        const { data: dataSecond } = await apolloClient.query({
           query,
           variables: { ...variables, offset: variables.offset + halfLimit, limit: variables.limit - halfLimit },
         });
@@ -104,9 +104,7 @@ async function graphqlRequest(apollo, query, variables: any = {}) {
   return data;
 }
 
-export async function getDataForHost(host) {
-  const apollo = initializeApollo();
-
+async function getDataForHost(host) {
   const { slug, currency } = host;
   const quarterAgo = dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString();
   const yearAgo = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
@@ -120,7 +118,7 @@ export async function getDataForHost(host) {
     limit: 250,
   };
 
-  let data = await graphqlRequest(apollo, accountsQuery, variables);
+  let data = await graphqlRequest(accountsQuery, variables);
 
   if (data.accounts.totalCount > data.accounts.limit) {
     let nodes = [...data.accounts.nodes];
@@ -128,7 +126,7 @@ export async function getDataForHost(host) {
       variables.offset += data.accounts.limit;
       console.log(`Paginating with offset ${variables.offset}`);
       const startTime = Date.now();
-      data = await graphqlRequest(apollo, accountsQuery, variables);
+      data = await graphqlRequest(accountsQuery, variables);
       const endTime = Date.now();
       console.log(`Fetched in ${(endTime - startTime) / 1000} s`);
       nodes = [...nodes, ...data.accounts.nodes];
@@ -150,36 +148,34 @@ export async function getDataForHost(host) {
       return {
         name: collective.name,
         slug: collective.slug,
-        //: collective.description,
+        description: collective.description,
         imageUrl: collective.imageUrl.replace('-staging', ''),
         location: getLocation(collective),
         tags: collective.tags,
-        //createdAt: collective.createdAt,
+        createdAt: collective.createdAt,
         ...(stats && { stats }),
       };
     });
-    return { collectives };
-    // const directory = path.join(__dirname, '..', '_dump');
-    // if (!fs.existsSync(directory)) {
-    //   fs.mkdirSync(directory);
-    // }
+    const directory = path.join(__dirname, '..', '_dump');
+    if (!fs.existsSync(directory)) {
+      fs.mkdirSync(directory);
+    }
 
-    // const filename = path.join(directory, `${host.slug === '' ? 'ALL' : host.slug}.json`);
-    // console.log('Writing to file', filename);
-    // fs.writeFile(filename, JSON.stringify({ collectives }, null, 2), error => {
-    //   if (error) {
-    //     throw error;
-    //   }
-    // });
+    const filename = path.join(directory, `${host.slug === '' ? 'ALL' : host.slug}.json`);
+    console.log('Writing to file', filename);
+    fs.writeFile(filename, JSON.stringify({ collectives }, null, 2), error => {
+      if (error) {
+        throw error;
+      }
+    });
   }
-  return { collectives: [] };
 }
 
-// async function run() {
-//   for (const host of hosts) {
-//     console.log('Get data for', host);
-//     await getDataForHost(host);
-//   }
-// }
+async function run() {
+  for (const host of hosts) {
+    console.log('Get data for', host);
+    await getDataForHost(host);
+  }
+}
 
-// run();
+run();

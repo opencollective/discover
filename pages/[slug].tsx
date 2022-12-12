@@ -4,7 +4,6 @@ import Head from 'next/head';
 
 import { hosts } from '../lib/hosts';
 import { getAllPosts, markdownToHtml } from '../lib/markdown';
-import { getDataForHost } from '../scripts/fetch-data';
 
 import Dashboard from '../components/Dashboard';
 import Layout from '../components/Layout';
@@ -35,12 +34,13 @@ const pickColorForCategory = (startColor: string, i: number, numOfCategories: nu
   return colors[(startColorIndex + i * step) % colors.length];
 };
 
-// const getDataForHost = async ({ hostSlug }) => {
+const getDataForHost = async ({ hostSlug }) => {
+  const data = await require(`../_dump/${hostSlug}.json`);
 
-//   return {
-//     collectives: data.collectives,
-//   };
-// };
+  return {
+    collectives: data.collectives,
+  };
+};
 
 const associatedTags = {
   climate: ['climate change', 'climate justice'],
@@ -69,8 +69,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
 
   const { currency, startYear } = host;
-
-  const { collectives } = await getDataForHost(host);
+  const { collectives } = await getDataForHost({ hostSlug: hostSlug ?? 'ALL' });
 
   let categories;
   if (!host?.categories) {
@@ -146,7 +145,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export async function getStaticPaths() {
   return {
-    //paths: [{ params: { slug: 'foundation' } }],
     paths: hosts
       .filter(h => h.slug !== '')
       .map(host => {
