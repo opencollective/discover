@@ -69,7 +69,7 @@ async function graphqlRequest(query, variables = {}) {
 
   for (let i = 0; i < 3; i++) {
     try {
-      if (i === 0) console.log('retrying fetch', i, ' of 3');
+      if (i !== 0) console.log('retrying fetch', i, ' of 3');
       ({ data } = await apolloClient.query({
         query,
         variables,
