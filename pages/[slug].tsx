@@ -71,7 +71,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
 
   const { currency, startYear } = host;
-  const { collectives } = await getDataForHost({ hostSlug });
+  const { collectives } = await getDataForHost({ hostSlug: hostSlug ?? 'ALL' });
 
   const collectivesData = collectives.reduce((acc, collective) => {
     acc[collective.slug] = collective;
@@ -153,7 +153,15 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export async function getStaticPaths() {
   return {
-    paths: [],
+    paths: hosts
+      .filter(h => h.slug !== '')
+      .map(host => {
+        return {
+          params: {
+            slug: host.slug,
+          },
+        };
+      }),
     fallback: false,
   };
 }

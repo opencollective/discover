@@ -117,7 +117,7 @@ async function getDataForHost(host) {
   const quarterAgo = dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString();
   const yearAgo = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
 
-  const variables = { ...(slug !== '' && { host: { slug } }), currency, quarterAgo, yearAgo, offset: 0, limit: 250 };
+  const variables = { ...(slug !== '' && { host: { slug } }), currency, quarterAgo, yearAgo, offset: 0, limit: 400 };
 
   let data = await graphqlRequest(accountsQuery, variables);
 
@@ -157,7 +157,7 @@ async function getDataForHost(host) {
         stats: getStats(collective),
       };
     });
-    const filename = path.join(__dirname, '..', '_dump', `${host.slug ?? 'ALL'}.json`);
+    const filename = path.join(__dirname, '..', '_dump', `${host.slug === '' ? 'ALL' : host.slug}.json`);
     console.log('Writing to file', filename);
     fs.writeFile(filename, JSON.stringify({ collectives }, null, 2), error => {
       if (error) {
