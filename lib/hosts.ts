@@ -1,6 +1,7 @@
 export const hosts: {
   name: string;
   slug: string;
+  hostSlugs?: string[];
   currency: string;
   startYear: number;
   logoSrc: string;
@@ -12,6 +13,15 @@ export const hosts: {
   {
     name: 'Open Collective',
     slug: '',
+    hostSlugs: [
+      'foundation',
+      'europe',
+      'opensource',
+      'allforclimate',
+      'the-social-change-nest',
+      'ocnz',
+      'giftcollective',
+    ],
     currency: 'USD',
     startYear: 2016,
     logoSrc: '/oc-logo.svg',

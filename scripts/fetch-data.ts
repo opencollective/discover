@@ -117,7 +117,14 @@ async function getDataForHost(host) {
   const quarterAgo = dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString();
   const yearAgo = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
 
-  const variables = { ...(slug !== '' && { host: { slug } }), currency, quarterAgo, yearAgo, offset: 0, limit: 250 };
+  const variables = {
+    ...(slug !== '' ? { host: { slug } } : { host: host.hostSlugs.map(slug => ({ slug })) }),
+    currency,
+    quarterAgo,
+    yearAgo,
+    offset: 0,
+    limit: 250,
+  };
 
   let data = await graphqlRequest(accountsQuery, variables);
 
