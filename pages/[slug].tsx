@@ -15,9 +15,18 @@ import Dashboard from '../components/Dashboard';
 import Layout from '../components/Layout';
 
 export const accountsQuery = gql`
-  query SearchAccounts($host: [AccountReferenceInput], $quarterAgo: DateTime, $yearAgo: DateTime, $currency: Currency) {
-    accounts(type: [COLLECTIVE, FUND], limit: 20000, host: $host) {
+  query SearchAccounts(
+    $host: [AccountReferenceInput]
+    $quarterAgo: DateTime
+    $yearAgo: DateTime
+    $currency: Currency
+    $limit: Int
+    $offset: Int
+  ) {
+    accounts(type: [COLLECTIVE, FUND], limit: $limit, offset: $offset, host: $host) {
       totalCount
+      offset
+      limit
       nodes {
         id
         name
@@ -229,29 +238,66 @@ const getTotalStats = stats => {
   };
 };
 
+function graphqlRequest(client, query, variables = {}) {
+  return client
+    .query({
+      query,
+      variables,
+    })
+    .then(result => result.data);
+}
+
 const getDataForHost = async ({ apollo, hostSlug, currency }) => {
   // let data = getDump(hostSlug ?? 'ALL');
-
+  //let nodes = [];
   // if (!data) {
-  const { data } = await apollo.query({
-    query: accountsQuery,
-    variables: {
-      ...(hostSlug && { host: { slug: hostSlug } }),
-      quarterAgo: dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString(),
-      yearAgo: dayjs.utc().subtract(12, 'month').startOf('month').toISOString(),
-      currency,
-    },
-  });
+  if (!hostSlug) {
+    return { collectives: [] };
+  }
+  const variables = {
+    ...(hostSlug && { host: { slug: hostSlug } }),
+    quarterAgo: dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString(),
+    yearAgo: dayjs.utc().subtract(12, 'month').startOf('month').toISOString(),
+    currency,
+    offset: 0,
+    limit: 200,
+  };
+
+  // let { data } = await apollo.query({
+  //   query: accountsQuery,
+  //   variables,
+  // });
+
+  let data = await graphqlRequest(apollo, accountsQuery, variables);
+
+  if (data.accounts.totalCount > data.accounts.limit) {
+    let nodes = [...data.accounts.nodes];
+    do {
+      variables.offset += data.accounts.limit;
+      console.log(`Paginating with offset ${variables.offset}`);
+
+      data = await graphqlRequest(apollo, accountsQuery, variables);
+      nodes = [...nodes, ...data.accounts.nodes];
+    } while (data.accounts.totalCount > data.accounts.limit + data.accounts.offset);
+
+    data = {
+      accounts: {
+        ...data.accounts,
+        offset: 0,
+        limit: data.accounts.totalCount,
+        nodes,
+      },
+    };
+  }
 
   // eslint-disable-next-line no-process-env
-  // if (data && process.env.NODE_ENV === 'development') {
-  //   fs.writeFile(`_dump/${hostSlug ?? 'ALL'}.json`, JSON.stringify(data), error => {
-  //     if (error) {
-  //       throw error;
-  //     }
-  //   });
-  // }
-  // }
+  if (data && process.env.NODE_ENV === 'development') {
+    fs.writeFile(`_dump/${hostSlug ?? 'ALL'}.json`, JSON.stringify(data), error => {
+      if (error) {
+        throw error;
+      }
+    });
+  }
 
   const collectives = data.accounts.nodes.map(collective => {
     return {

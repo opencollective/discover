@@ -4,6 +4,7 @@ const nextTranspileModules = require('next-transpile-modules');
 
 const config = {
   eslint: { ignoreDuringBuilds: true },
+  staticPageGenerationTimeout: 1000 * 60 * 15, // 15 minutes
   async headers() {
     return [
       {
