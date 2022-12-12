@@ -63,17 +63,40 @@ const getStats = collective => {
   return stats.ALL.totalNetRaised.valueInCents !== 0 ? stats : null;
 };
 
-async function graphqlRequest(query, variables = {}) {
+async function graphqlRequest(query, variables: any = {}) {
   let data;
-  // retry fetch 3 times
+  // retry fetch 5 times
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i <= 5; i++) {
     try {
-      if (i !== 0) console.log('retrying fetch', i, ' of 3');
-      ({ data } = await apolloClient.query({
-        query,
-        variables,
-      }));
+      if (i === 0) {
+        ({ data } = await apolloClient.query({
+          query,
+          variables,
+        }));
+      } else {
+        console.log('Retrying with half limit, attempt', i, 'of 5');
+        const halfLimit = Math.floor(variables.limit / 2);
+        const { data: dataFirst } = await apolloClient.query({
+          query,
+          variables: { ...variables, offset: variables.offset, limit: halfLimit },
+        });
+        console.log('first half success');
+        const { data: dataSecond } = await apolloClient.query({
+          query,
+          variables: { ...variables, offset: variables.offset + halfLimit, limit: variables.limit - halfLimit },
+        });
+        console.log('second half success');
+        data = {
+          accounts: {
+            nodes: [...dataFirst.accounts.nodes, ...dataSecond.accounts.nodes],
+            totalCount: dataFirst.accounts.totalCount,
+            limit: dataFirst.accounts.limit + dataSecond.accounts.limit,
+            offset: dataFirst.accounts.offset,
+          },
+        };
+      }
+
       if (data) {
         break;
       }
