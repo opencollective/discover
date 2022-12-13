@@ -36,14 +36,14 @@ export const ChartWrapper = styled.div`
     user-select: none;
   }
   .apexcharts-legend-series {
-    padding: 8px;
+    padding: 4px;
     & > span {
       vertical-align: middle;
     }
   }
 
   .apexcharts-legend-marker {
-    margin-right: 8px;
+    margin-right: 4px;
   }
 `;
 
@@ -70,16 +70,16 @@ const getChartOptions = (intl, timeUnit, hostCurrency, isCompactNotation, colors
     enabled: false,
   },
   legend: {
-    show: false,
-    // showForSingleSeries: false,
-    // fontSize: '14px',
-    // position: 'top',
-    // offsetY: 10,
-    // floating: true,
-    // horizontalAlign: 'center',
-    // onItemClick: {
-    //   toggleDataSeries: true,
-    // },
+    show: true,
+    showForSingleSeries: false,
+    fontSize: '12px',
+    position: 'top',
+    offsetY: 10,
+    floating: true,
+    horizontalAlign: 'center',
+    onItemClick: {
+      toggleDataSeries: false,
+    },
   },
   colors,
   xaxis: {
