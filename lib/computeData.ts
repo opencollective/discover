@@ -1,4 +1,4 @@
-export function computeStats(collectives, currency) {
+export function computeStats(collectives) {
   return collectives.reduce(
     (acc, collective) => {
       if (!collective.stats) {
@@ -6,17 +6,20 @@ export function computeStats(collectives, currency) {
       }
       return {
         ALL: {
+          collectivesCount: collectives.length,
           raised: acc.ALL.raised + collective.stats.ALL.raised,
           totalContributions: acc.ALL.totalContributions + collective.stats.ALL.contributions,
           totalContributors: acc.ALL.totalContributors + collective.stats.ALL.contributors,
         },
         PAST_YEAR: {
+          collectivesCount: collectives.length,
           raised: acc.PAST_YEAR.raised + collective.stats.PAST_YEAR.raised,
           totalContributions: acc.PAST_YEAR.totalContributions + collective.stats.PAST_YEAR.contributions,
           totalContributors: acc.PAST_YEAR.totalContributors + collective.stats.PAST_YEAR.contributors,
         },
 
         PAST_QUARTER: {
+          collectivesCount: collectives.length,
           raised: acc.PAST_QUARTER.raised + collective.stats.PAST_QUARTER.raised,
           totalContributions: acc.PAST_QUARTER.totalContributions + collective.stats.PAST_QUARTER.contributions,
           totalContributors: acc.PAST_QUARTER.totalContributors + collective.stats.PAST_QUARTER.contributors,
@@ -25,16 +28,19 @@ export function computeStats(collectives, currency) {
     },
     {
       ALL: {
+        collectivesCount: 0,
         raised: 0,
         totalContributions: 0,
         totalContributors: 0,
       },
       PAST_YEAR: {
+        collectivesCount: 0,
         raised: 0,
         totalContributions: 0,
         totalContributors: 0,
       },
       PAST_QUARTER: {
+        collectivesCount: 0,
         raised: 0,
         totalContributions: 0,
         totalContributors: 0,

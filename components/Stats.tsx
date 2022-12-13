@@ -13,22 +13,23 @@ const Metric = ({ value, label }: { label: string; value: string }) => {
 };
 
 export default function Stats({
-  currentCategory,
-  currentTag,
-  currentLocationFilter,
+  // currentCategory,
+  // currentTag,
+  // currentLocationFilter,
   currentTimePeriod,
   currency,
   locale,
-  hostSlug,
+  // hostSlug,
+  stats,
 }) {
-  const stats = React.useMemo(
-    () => computeStats(currentCategory.collectives, currency),
-    [currentTag, currentLocationFilter, hostSlug],
-  );
-  const { raised, totalContributions, totalContributors } = stats[currentTimePeriod];
+  // const stats = React.useMemo(
+  //   () => computeStats(currentCategory.collectives),
+  //   [currentTag, currentLocationFilter, hostSlug],
+  // );
+  const { raised, totalContributions, totalContributors, collectivesCount } = stats[currentTimePeriod];
   return (
     <div className="-mb-2 grid grid-cols-1 divide-y px-4 lg:grid-cols-4 lg:divide-y-0 lg:divide-x lg:px-8">
-      <Metric value={currentCategory.collectives.length.toLocaleString(locale)} label="Collectives" />
+      <Metric value={collectivesCount?.toLocaleString(locale)} label="Collectives" />
       <Metric
         value={formatCurrency(raised, currency, {
           locale,

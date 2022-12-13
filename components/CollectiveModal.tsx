@@ -16,6 +16,8 @@ export const collectiveQuery = gql`
     account(slug: $slug) {
       id
       slug
+      createdAt
+      description
       updates(limit: 3) {
         totalCount
         nodes {
@@ -41,7 +43,7 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
   const [height, setHeight] = useState<Height>(0);
 
   useEffect(() => {
-    if (data?.account?.updates?.nodes.length > 0) {
+    if (data?.account) {
       setHeight('auto');
     } else {
       setHeight(0);
@@ -88,9 +90,11 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                   >
                     <Xmark size={22} />
                   </button>
-                  <div className="mt-3">
-                    <p className="text-base text-gray-500">{collective?.description}</p>
-                  </div>
+                  <AnimateHeight id="description" duration={500} height={height}>
+                    <div className="mt-3">
+                      <p className="text-base text-gray-500">{data?.account?.description}</p>
+                    </div>
+                  </AnimateHeight>
                   {(collective.tags?.length > 0 || collective.location?.label) && (
                     <div className="mt-4 flex flex-wrap gap-2">
                       {collective.location && (
@@ -128,7 +132,9 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                     <div>{collective.stats.ALL.contributions.toLocaleString(locale)}</div>
                     <div className="text-black">Created</div>
                     <div>
-                      <FormattedDate dateStyle={'medium'} value={collective.createdAt} />
+                      {data?.account?.createdAt && (
+                        <FormattedDate dateStyle={'medium'} value={data.account.createdAt} />
+                      )}
                     </div>
                   </div>
                   <AnimateHeight id="updates" duration={500} height={height}>

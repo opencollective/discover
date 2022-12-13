@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import Link from 'next/link';
 
@@ -21,11 +21,6 @@ const ChevronUpDown = ({ className }) => (
 
 export default function HostSwitcher({ host, hosts }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeHost, setActiveHost] = useState(host);
-
-  useEffect(() => {
-    setActiveHost(host);
-  }, [host]);
 
   function closeModal() {
     setIsOpen(false);
@@ -88,13 +83,7 @@ export default function HostSwitcher({ host, hosts }) {
                       <Link href={`/${host.slug}`} key={host.slug}>
                         <a
                           key={host.slug}
-                          className={`relative flex h-60 flex-col items-center justify-center gap-3 rounded-xl border-3  p-4 text-center focus:outline-none lg:gap-4 lg:p-6  focus:border-${
-                            host.color
-                          }-500 ${host.styles.box} transition-colors ${
-                            activeHost.slug === host.slug
-                              ? `border-${host.color}-500`
-                              : `border-transparent hover:border-${host.color}-500`
-                          }`}
+                          className={`relative flex h-60 flex-col items-center justify-center gap-3 rounded-xl border-3  p-4 text-center focus:outline-none lg:gap-4 lg:p-6  focus:border-${host.color}-500 ${host.styles.box} border-transparent transition-colors hover:border-${host.color}-500`}
                           onClick={() => {
                             closeModal();
                           }}

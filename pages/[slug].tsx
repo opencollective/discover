@@ -34,25 +34,6 @@ const pickColorForCategory = (startColor: string, i: number, numOfCategories: nu
   return colors[(startColorIndex + i * step) % colors.length];
 };
 
-const getDataForHost = async ({ hostSlug }) => {
-  const data = await require(`../_dump/${hostSlug}.json`);
-
-  return {
-    collectives: data.collectives,
-  };
-};
-
-const associatedTags = {
-  climate: ['climate change', 'climate justice'],
-  'open source': ['opensource'],
-};
-
-// function that if I have the extra tag gives me the key
-const getTagKey = tag => {
-  const tagKey = Object.keys(associatedTags).find(key => associatedTags[key].includes(tag));
-  return tagKey || tag;
-};
-
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const startTime = Date.now();
   const hostSlug: string = params ? (Array.isArray(params.slug) ? params.slug[0] : params.slug) : null;
@@ -69,34 +50,56 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
 
   const { currency, startYear } = host;
-  const { collectives } = await getDataForHost({ hostSlug: hostSlug ?? 'ALL' });
+  const { collectives } = await require(`../_dump/${hostSlug ?? 'ALL'}.json`);
 
   let categories;
   if (!host?.categories) {
     // go through collectives and find the top tags
     const tags = collectives.reduce((acc, collective) => {
-      collective.tags
-        ?.filter(t => !['other', 'community', 'association', 'movement', 'USA'].includes(t))
-        .forEach(tag => {
-          const tagToUse = getTagKey(tag);
-          if (!acc[tagToUse]) {
-            acc[tagToUse] = 0;
-          }
-          acc[tagToUse]++;
-        });
+      collective.categoryTags?.forEach(tag => {
+        if (!acc[tag]) {
+          acc[tag] = 0;
+        }
+        acc[tag]++;
+      });
       return acc;
     }, {});
 
     const sortedTags = Object.keys(tags).sort((a, b) => tags[b] - tags[a]);
-    const topTags = sortedTags.slice(0, 4);
-    categories = topTags.map(tag => {
+
+    const topMutuallyExclusiveTags = collectives.reduce((acc, collective) => {
+      if (!collective.categoryTags) {
+        return acc;
+      }
+      // go through 20 top tags
+      for (let i = 0; i < 20; i++) {
+        // cap this number
+        const tag = sortedTags[i];
+        if (collective.categoryTags?.includes(tag)) {
+          if (!acc[tag]) {
+            acc[tag] = 0;
+          }
+          acc[tag]++;
+          break;
+        }
+      }
+      return acc;
+    }, {});
+    const sortedMutualExclusiveTags = Object.keys(topMutuallyExclusiveTags).sort(
+      (a, b) => topMutuallyExclusiveTags[b] - topMutuallyExclusiveTags[a],
+    );
+    const topMutualExclusiveTagsSortedOnActualCount = sortedMutualExclusiveTags
+      .slice(0, 6)
+      .sort((a, b) => tags[b] - tags[a]);
+
+    categories = topMutualExclusiveTagsSortedOnActualCount.map(tag => {
       // capitalize first letter in all words
       const label = tag
         .split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
 
-      return { label, tag, extraTags: associatedTags[tag] ?? null };
+      return { label, tag };
     });
   } else {
     categories = host.categories;
@@ -127,7 +130,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   const endTime = Date.now();
   const ms = endTime - startTime;
-
+  //const computed = compute({ period: 'ALL', tag: null, locationFilter: null }, collectives);
   return {
     props: {
       host,

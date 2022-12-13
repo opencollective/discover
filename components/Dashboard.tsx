@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
-import { computeTimeSeries } from '../lib/computeData';
+import { computeStats, computeTimeSeries } from '../lib/computeData';
 import filterLocation, { LocationFilter } from '../lib/location/filterLocation';
 import getFilterOptions from '../lib/location/getFilterOptions';
 
@@ -93,10 +93,7 @@ export default function Dashboard({ host, hosts, categories, collectives, storie
     () =>
       categories.map(category => {
         const collectivesInCategory = locationFilteredCollectives.filter(
-          collective =>
-            category.tag === 'ALL' ||
-            collective.tags?.includes(category.tag) ||
-            category.extraTags?.filter(tag => collective.tags?.includes(tag)).length > 0,
+          collective => category.tag === 'ALL' || collective.categoryTags?.includes(category.tag),
         );
         return {
           ...category,
@@ -115,7 +112,11 @@ export default function Dashboard({ host, hosts, categories, collectives, storie
     [currentLocationFilter, host.slug],
   );
   const totalCollectiveCount = collectives.length;
-
+  // return null;
+  const stats = React.useMemo(
+    () => computeStats(currentCategory.collectives),
+    [currentTag, currentLocationFilter, host.slug],
+  );
   return (
     <div className="mx-auto mt-2 flex max-w-[1400px] flex-col space-y-6 p-4 lg:space-y-10 lg:p-10">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:gap-10">
@@ -188,15 +189,7 @@ export default function Dashboard({ host, hosts, categories, collectives, storie
         </div>
         <div className="space-y-12 lg:col-span-3">
           <div className="-mx-4 space-y-5 rounded-lg bg-white py-4 lg:mx-0 lg:py-8" ref={collectivesDataContainer}>
-            <Stats
-              currentCategory={currentCategory}
-              currentTag={currentTag}
-              currentLocationFilter={currentLocationFilter}
-              currentTimePeriod={currentTimePeriod}
-              locale={locale}
-              currency={currency}
-              hostSlug={host.slug}
-            />
+            <Stats stats={stats} currentTimePeriod={currentTimePeriod} locale={locale} currency={currency} />
             <div className="lg:px-4">
               <Chart
                 startYear={startYear}

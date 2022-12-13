@@ -16,8 +16,7 @@ export const accountsQuery = gql`
       nodes {
         name
         slug
-        createdAt
-        imageUrl(height: 100, format: png)
+        imageUrl
         tags
 
         ALL_stats: stats {
@@ -52,7 +51,6 @@ export const accountsQuery = gql`
             includeChildren: true
             currency: $currency
           ) {
-            timeUnit
             nodes {
               date
               amount {
@@ -76,7 +74,6 @@ export const accountsQuery = gql`
             includeChildren: true
             currency: $currency
           ) {
-            timeUnit
             nodes {
               date
               amount {

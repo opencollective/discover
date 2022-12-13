@@ -93,10 +93,10 @@ export default function Collectives({
     () =>
       collectives.map(c => ({
         ...c,
-        contributorsCount: c.stats?.[currentTimePeriod].contributors ?? 0,
-        totalRaised: c.stats?.[currentTimePeriod].raised ?? 0,
+        contributors: c.stats?.[currentTimePeriod].contributors ?? 0,
+        raised: c.stats?.[currentTimePeriod].raised ?? 0,
         spent: c.stats?.[currentTimePeriod].spent ?? 0,
-        percentDisbursed: c.stats?.[currentTimePeriod].percent ?? null,
+        percentDisbursed: c.stats?.[currentTimePeriod].percentDisbursed ?? null,
       })),
     [currentTag, currentTimePeriod, currentLocationFilter, hostSlug],
   );
@@ -138,14 +138,14 @@ export default function Collectives({
       // },
       {
         Header: 'Contributors',
-        accessor: 'contributorsCount',
+        accessor: 'contributors',
         sortDescFirst: true,
-        Cell: tableProps => tableProps.row.original.contributorsCount.toLocaleString(locale),
+        Cell: tableProps => tableProps.row.original.contributors.toLocaleString(locale),
         className: 'text-center px-2 py-4',
       },
       {
         Header: 'Disbursed',
-        accessor: 'percentDisbursed',
+        accessor: 'percent',
         sortDescFirst: true,
         Cell: ({ row }) => {
           const percentDisbursed = parseFloat(row.original.percentDisbursed);
@@ -155,10 +155,10 @@ export default function Collectives({
       },
       {
         Header: 'Raised',
-        accessor: 'totalRaised',
+        accessor: 'raised',
         Cell: tableProps => (
           <div className="">
-            {formatCurrency(tableProps.row.original.totalRaised, currency, {
+            {formatCurrency(tableProps.row.original.raised, currency, {
               locale: 'en-US',
               precision: 0,
             })}
@@ -191,7 +191,7 @@ export default function Collectives({
       initialState: {
         sortBy: [
           {
-            id: 'totalRaised',
+            id: 'raised',
             desc: true,
           },
         ],

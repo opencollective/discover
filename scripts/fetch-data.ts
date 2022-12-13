@@ -34,14 +34,14 @@ const getTotalStats = stats => {
   }));
   const raised = raisedSeries.reduce((acc, node) => acc + node.amount, 0);
   const spent = Math.abs(stats.totalAmountSpent.valueInCents);
-  const percent = (spent / raised) * 100;
+  const percentDisbursed = (spent / raised) * 100;
 
   return {
     contributors: stats.contributorsCount,
     contributions: stats.contributionsCount,
     spent,
     raised,
-    percent,
+    percentDisbursed,
     raisedSeries,
   };
 };
@@ -103,6 +103,12 @@ async function graphqlRequest(query, variables: any = {}) {
 
   return data;
 }
+const tagTransforms = {
+  'covid-19': 'covid',
+  'climate change': 'climate',
+  'climate justice': 'climate',
+  opensource: 'open source',
+};
 
 async function getDataForHost(host) {
   const { slug, currency } = host;
@@ -148,11 +154,13 @@ async function getDataForHost(host) {
       return {
         name: collective.name,
         slug: collective.slug,
-        description: collective.description,
         imageUrl: collective.imageUrl.replace('-staging', ''),
         location: getLocation(collective),
         tags: collective.tags,
-        createdAt: collective.createdAt,
+        categoryTags: collective.tags
+          ?.filter(t => !['other', 'online', 'community', 'association', 'movement', 'USA', 'europe'].includes(t))
+          .map(tag => tagTransforms[tag] || tag)
+          .filter((tag, i, arr) => arr.indexOf(tag) === i),
         ...(stats && { stats }),
       };
     });
