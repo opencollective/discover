@@ -23,7 +23,7 @@ export const accountsQuery = gql`
           contributorsCount(includeChildren: true)
           contributionsCount(includeChildren: true)
 
-          totalAmountSpent(net: true, includeChildren: true, currency: $currency) {
+          totalAmountSpent(net: false, includeChildren: true, currency: $currency) {
             valueInCents
           }
 
@@ -42,7 +42,7 @@ export const accountsQuery = gql`
           contributorsCount(includeChildren: true, dateFrom: $yearAgo)
           contributionsCount(includeChildren: true, dateFrom: $yearAgo)
 
-          totalAmountSpent(net: true, includeChildren: true, dateFrom: $yearAgo, currency: $currency) {
+          totalAmountSpent(net: false, includeChildren: true, dateFrom: $yearAgo, currency: $currency) {
             valueInCents
           }
           totalAmountReceivedTimeSeries(
@@ -65,7 +65,7 @@ export const accountsQuery = gql`
           contributorsCount(includeChildren: true, dateFrom: $quarterAgo)
           contributionsCount(includeChildren: true, dateFrom: $quarterAgo)
 
-          totalAmountSpent(net: true, includeChildren: true, dateFrom: $quarterAgo, currency: $currency) {
+          totalAmountSpent(net: false, includeChildren: true, dateFrom: $quarterAgo, currency: $currency) {
             valueInCents
           }
 

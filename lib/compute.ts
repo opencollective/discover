@@ -6,7 +6,7 @@ export function compute({ filter: { tag, location, timePeriod }, categories, all
   const locationFilteredCollectives = filterLocation(allCollectives, location);
   const categoriesWithCollectives = categories.map(category => {
     const collectivesInCategory = locationFilteredCollectives.filter(
-      collective => category.tag === 'ALL' || collective.categoryTags?.includes(category.tag),
+      collective => category.tag === 'ALL' || collective.tags?.includes(category.tag),
     );
     return {
       ...category,
@@ -38,9 +38,9 @@ export function compute({ filter: { tag, location, timePeriod }, categories, all
       return {
         ...rest,
         contributors: stats?.[timePeriod].contributors ?? 0,
+        contributions: stats?.[timePeriod].contributions ?? 0,
         raised: stats?.[timePeriod].raised ?? 0,
         spent: stats?.[timePeriod].spent ?? 0,
-        percentDisbursed: stats?.[timePeriod].percentDisbursed ?? null,
       };
     }),
   };

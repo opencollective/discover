@@ -132,7 +132,6 @@ export default function Dashboard({
     filter.slug === initialFilter.slug && filter.tag ? category.tag === filter.tag : category.tag === 'ALL',
   );
   const totalCollectiveCount = initialCollectives.length;
-
   return (
     <div className="mx-auto mt-2 flex max-w-[1400px] flex-col space-y-6 p-4 lg:space-y-10 lg:p-10">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:gap-10">
@@ -220,6 +219,7 @@ export default function Dashboard({
               locale={locale}
               openCollectiveModal={openCollectiveModal}
               currency={currency}
+              counter={counter}
             />
           </div>
           <Stories stories={stories} filter={filter} openCollectiveModal={openCollectiveModal} />

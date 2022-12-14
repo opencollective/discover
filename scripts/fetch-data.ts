@@ -9,7 +9,7 @@ import nodeFetch from 'node-fetch';
 
 import { hosts } from '../lib/hosts';
 import getLocation from '../lib/location/getLocation';
-
+import { tagTransforms } from '../lib/tag-transforms';
 // Load environment
 // eslint-disable-next-line no-process-env
 for (const env of ['local', process.env.NODE_ENV || 'development']) {
@@ -34,14 +34,12 @@ const getTotalStats = stats => {
   }));
   const raised = raisedSeries.reduce((acc, node) => acc + node.amount, 0);
   const spent = Math.abs(stats.totalAmountSpent.valueInCents);
-  const percentDisbursed = (spent / raised) * 100;
 
   return {
     contributors: stats.contributorsCount,
     contributions: stats.contributionsCount,
     spent,
     raised,
-    percentDisbursed,
     raisedSeries,
   };
 };
@@ -129,12 +127,6 @@ async function graphqlRequest(query, variables: any = {}) {
 
   return data;
 }
-const tagTransforms = {
-  'covid-19': 'covid',
-  'climate change': 'climate',
-  'climate justice': 'climate',
-  opensource: 'open source',
-};
 
 async function getDataForHost(host) {
   const { slug, currency } = host;
@@ -177,17 +169,18 @@ async function getDataForHost(host) {
   if (data) {
     const collectives = data.accounts.nodes.map(collective => {
       const stats = getStats(collective);
+      const location = getLocation(collective);
       return {
         name: collective.name,
         slug: collective.slug,
         imageUrl: collective.imageUrl.replace('-staging', ''),
-        location: getLocation(collective),
-        tags: collective.tags,
-        categoryTags: collective.tags
+        //tags: collective.tags,
+        tags: collective.tags
           ?.filter(t => !['other', 'online', 'community', 'association', 'movement', 'USA', 'europe'].includes(t))
           .map(tag => tagTransforms[tag] || tag)
           .filter((tag, i, arr) => arr.indexOf(tag) === i),
         ...(stats && { stats }),
+        ...(location && { location }),
       };
     });
 
@@ -195,7 +188,7 @@ async function getDataForHost(host) {
     if (!host?.categories) {
       // go through collectives and find the top tags
       const tags = collectives.reduce((acc, collective) => {
-        collective.categoryTags?.forEach(tag => {
+        collective.tags?.forEach(tag => {
           if (!acc[tag]) {
             acc[tag] = 0;
           }
@@ -207,14 +200,14 @@ async function getDataForHost(host) {
       const sortedTags = Object.keys(tags).sort((a, b) => tags[b] - tags[a]);
 
       const topMutuallyExclusiveTags = collectives.reduce((acc, collective) => {
-        if (!collective.categoryTags) {
+        if (!collective.tags) {
           return acc;
         }
         // go through 20 top tags
         for (let i = 0; i < 20; i++) {
           // cap this number
           const tag = sortedTags[i];
-          if (collective.categoryTags?.includes(tag)) {
+          if (collective.tags?.includes(tag)) {
             if (!acc[tag]) {
               acc[tag] = 0;
             }

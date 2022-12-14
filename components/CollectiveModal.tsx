@@ -111,14 +111,14 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                   <div className="mt-4 grid grid-cols-4 gap-1 rounded bg-gray-50 p-4 text-sm text-gray-600">
                     <div className="text-black">Total disbursed</div>
                     <div>
-                      {formatCurrency(collective.stats.ALL.spent, currency, {
+                      {formatCurrency(Math.abs(collective.spent), currency, {
                         locale,
                         precision: 0,
                       })}
                     </div>
                     <div className="text-black">Total raised</div>
                     <div>
-                      {formatCurrency(collective.stats.ALL.raised, currency, {
+                      {formatCurrency(collective.raised, currency, {
                         locale,
                         precision: 0,
                       })}
@@ -127,9 +127,9 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                     <div>{collective.expensesCount.toLocaleString(locale)}</div> */}
                     {/* <div className="text-black">Admins</div> <div>{collective.adminCount.toLocaleString(locale)}</div> */}
                     <div className="text-black">Contributors</div>{' '}
-                    <div>{collective.stats.ALL.contributors.toLocaleString(locale)}</div>
+                    <div>{collective.contributors.toLocaleString(locale)}</div>
                     <div className="text-black">Contributions</div>{' '}
-                    <div>{collective.stats.ALL.contributions.toLocaleString(locale)}</div>
+                    <div>{collective.contributions.toLocaleString(locale)}</div>
                     <div className="text-black">Created</div>
                     <div>
                       {data?.account?.createdAt && (

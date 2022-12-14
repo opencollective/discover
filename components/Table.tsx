@@ -73,6 +73,7 @@ interface Props {
   openCollectiveModal: (slug: string) => void;
   setLocationFilter: (location: LocationFilter) => void;
   currency: string;
+  counter: number;
 }
 
 export default function Table({
@@ -82,8 +83,16 @@ export default function Table({
   setLocationFilter,
   openCollectiveModal,
   currency,
+  counter,
 }: Props) {
-  const data = collectives;
+  const data = React.useMemo(
+    () =>
+      collectives.map(collective => ({
+        ...collective,
+        percentDisbursed: ((collective.spent / collective.raised) * 100).toFixed(1),
+      })),
+    [counter],
+  );
 
   const columns = React.useMemo(
     () => [
@@ -132,8 +141,7 @@ export default function Table({
         accessor: 'percentDisbursed',
         sortDescFirst: true,
         Cell: ({ row }) => {
-          const percent = parseFloat(row.original.percentDisbursed);
-          return isNaN(percent) ? 'n/a' : `${percent.toFixed(1)}%`;
+          return `${isNaN(row.original.percentDisbursed) ? 0 : row.original.percentDisbursed}%`;
         },
         className: 'text-center px-2 py-4',
       },
