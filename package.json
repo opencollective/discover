@@ -34,6 +34,7 @@
   "dependencies": {
     "@apollo/client": "3.6.5",
     "@headlessui/react": "^1.7.4",
+    "@next/bundle-analyzer": "^13.0.6",
     "@opencollective/frontend-components": "0.3.8",
     "@styled-icons/fa-solid": "^10.46.0",
     "@styled-system/prop-types": "^5.1.5",
@@ -62,6 +63,7 @@
     "react-dom": "^17.0.2",
     "react-flip-toolkit": "^7.0.17",
     "react-intl": "^6.2.1",
+    "react-lite-youtube-embed": "^2.3.52",
     "react-table": "^7.8.0",
     "remark": "^14.0.2",
     "remark-html": "^15.0.1",

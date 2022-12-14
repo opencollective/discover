@@ -2,6 +2,8 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Navigation } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import LiteYouTubeEmbed from 'react-lite-youtube-embed';
+import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css';
 
 import CollectiveButton from '../components/CollectiveButton';
 import LocationTag from '../components/LocationTag';
@@ -50,16 +52,13 @@ export const Story = ({ story, openCollectiveModal }) => {
   return (
     <div className={`fadeIn max-w-lg rounded-lg bg-white p-4 lg:max-w-2xl lg:p-4`}>
       <div className="flex flex-col gap-4">
-        {story.video && (
-          <div className=" relative w-full overflow-hidden rounded-lg pb-[56.25%]">
-            <iframe
-              className="absolute top-0 left-0 h-full w-full"
-              src={story.video.src}
-              title={story.video.title}
-              frameBorder="0"
-              allow="accelerometer; autoplay; encrypted-media; gyroscope;"
-              allowFullScreen
-            ></iframe>
+        {story.youtube && (
+          <div className=" overflow-hidden rounded-lg">
+            <LiteYouTubeEmbed
+              // iframeClass="rounded-lg overflow-hidden"
+              id={story.youtube.id}
+              title={story.youtube.title}
+            />
           </div>
         )}
         <div className="px-4">

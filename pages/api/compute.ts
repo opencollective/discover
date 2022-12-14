@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
   // return something when just trying to wake the function
   if (!timePeriod) {
-    return res.status(200);
+    return res.status(200).json({});
   }
   const { collectives: allCollectives, categories } = file; // JSON.parse(fileContents);
   const parseDataTime = Date.now();

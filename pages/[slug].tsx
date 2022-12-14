@@ -27,7 +27,16 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { currency, startYear } = host;
   const { collectives, categories } = await require(`../_dump/${hostSlug ?? 'ALL'}.json`);
 
-  const allStories = getAllPosts(hostSlug, ['title', 'content', 'tags', 'location', 'slug', 'video', 'collectiveSlug']);
+  const allStories = getAllPosts(hostSlug, [
+    'title',
+    'content',
+    'tags',
+    'location',
+    'slug',
+    'youtube',
+    'video',
+    'collectiveSlug',
+  ]);
   // run markdownToHtml on content in stories
   const stories = await Promise.all(
     allStories.map(async story => {

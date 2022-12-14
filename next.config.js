@@ -1,7 +1,9 @@
 /* eslint-disable no-process-env */
 
 const nextTranspileModules = require('next-transpile-modules');
-
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
 const config = {
   eslint: { ignoreDuringBuilds: true },
   staticPageGenerationTimeout: 1000 * 60 * 15, // 15 minutes
@@ -37,22 +39,22 @@ const config = {
               ? `
                 block-all-mixed-content;
                 default-src 'self';
-                img-src 'self' opencollective-production.s3.us-west-1.amazonaws.com opencollective-production.s3-us-west-1.amazonaws.com opencollective.com images.opencollective.com images-staging.opencollective.com blog.opencollective.com;
+                img-src 'self' opencollective-production.s3.us-west-1.amazonaws.com opencollective-production.s3-us-west-1.amazonaws.com opencollective.com images.opencollective.com images-staging.opencollective.com blog.opencollective.com i.ytimg.com;
                 worker-src 'none';
                 style-src 'self' 'unsafe-inline';
                 connect-src 'self' localhost:3060 opencollective.com api.opencollective.com api-staging.opencollective.com;
                 script-src 'self' 'unsafe-eval' 'unsafe-inline';
-                frame-src youtube.com www.youtube.com drive.google.com;
+                frame-src youtube-nocookie.com www.youtube-nocookie.com drive.google.com;
               `
               : `
                 block-all-mixed-content;
                 default-src 'self';
-                img-src 'self' opencollective-production.s3.us-west-1.amazonaws.com opencollective-production.s3-us-west-1.amazonaws.com opencollective.com images.opencollective.com images-staging.opencollective.com blog.opencollective.com;
+                img-src 'self' opencollective-production.s3.us-west-1.amazonaws.com opencollective-production.s3-us-west-1.amazonaws.com opencollective.com images.opencollective.com images-staging.opencollective.com blog.opencollective.com i.ytimg.com;
                 worker-src 'none';
                 style-src 'self' 'unsafe-inline';
                 connect-src 'self' opencollective.com api.opencollective.com api-staging.opencollective.com;
                 script-src 'self';
-                frame-src youtube.com www.youtube.com drive.google.com;
+                frame-src youtube-nocookie.com www.youtube-nocookie.com drive.google.com;
               `
             )
               .replace(/\s{2,}/g, ' ')
@@ -65,4 +67,4 @@ const config = {
 };
 
 const withTm = nextTranspileModules(['@opencollective/frontend-components']);
-module.exports = withTm(config);
+module.exports = withBundleAnalyzer(withTm(config));
