@@ -6,7 +6,7 @@ import { compute } from '../lib/compute';
 import { hosts } from '../lib/hosts';
 import { getAllPosts, markdownToHtml } from '../lib/markdown';
 
-import Dashboard from '../components/Dashboard';
+import Dashboard, { Filter } from '../components/Dashboard';
 import Layout from '../components/Layout';
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
@@ -42,10 +42,16 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   const endTime = Date.now();
   const ms = endTime - startTime;
-  const computed = compute({
+
+  const filter: Filter = {
+    slug: host.slug,
+    tag: 'ALL',
     timePeriod: 'ALL',
-    tag: null,
-    locationFilter: null,
+    location: null,
+  };
+
+  const data = compute({
+    filter,
     allCollectives: collectives,
     categories,
   });
@@ -53,11 +59,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: {
       host,
       hosts,
-      collectives: computed.collectives,
-      series: computed.series,
-      stats: computed.stats,
-      locationOptions: computed.locationOptions,
-      categories: computed.categories,
+      collectives: data.collectives,
+      series: data.series,
+      stats: data.stats,
+      locationOptions: data.locationOptions,
+      categories: data.categories,
+      filter,
       stories: stories,
       startYear,
       currency,
@@ -93,6 +100,7 @@ export default function Page({
   stats,
   currency,
   startYear,
+  filter,
   ms,
 }) {
   // eslint-disable-next-line no-console
@@ -105,6 +113,7 @@ export default function Page({
         <title>Discover {host.name}</title>
       </Head>
       <Dashboard
+        filter={filter}
         categories={categories}
         collectives={collectives}
         series={series}

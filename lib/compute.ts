@@ -2,9 +2,7 @@ import filterLocation from './location/filterLocation';
 import getFilterOptions from './location/getFilterOptions';
 import { computeStats, computeTimeSeries } from './computeData';
 
-export function compute({ tag, categories, location, timePeriod, allCollectives }) {
-  //   const data = await require
-  //   const collectives = data.collectives;
+export function compute({ filter: { tag, location, timePeriod }, categories, allCollectives }) {
   const locationFilteredCollectives = filterLocation(allCollectives, location);
 
   const categoriesWithCollectives = categories.map(category => {
@@ -18,22 +16,12 @@ export function compute({ tag, categories, location, timePeriod, allCollectives 
     };
   });
 
-  //   console.log({ categoriesWithCollectives });
-
   const currentCategory = categoriesWithCollectives.find(category =>
     tag ? category.tag === tag : category.tag === 'ALL',
   );
 
   const timeSeries = computeTimeSeries(categoriesWithCollectives);
 
-  //   console.log({ currentCategory, tag });
-  //   return {
-  //     series: [],
-  //     stats: {},
-  //     locationOptions: [],
-  //     categories: [],
-  //     collectives: [],
-  //   };
   const stats = computeStats(currentCategory?.collectives);
   const locationOptions = getFilterOptions(allCollectives);
 

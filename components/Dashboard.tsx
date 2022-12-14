@@ -27,6 +27,7 @@ export default function Dashboard({
   collectives: initialCollectives,
   series: initialSeries,
   stats: initialStats,
+  filter: initialFilter,
   stories,
   locale,
   currency,
@@ -41,12 +42,6 @@ export default function Dashboard({
   });
   const [counter, setCounter] = useState(0);
 
-  const initialFilter: Filter = {
-    slug: host.slug,
-    tag: 'ALL',
-    timePeriod: 'ALL',
-    location: null,
-  };
   const [filter, setFilter] = useState<Filter>(initialFilter);
   // set filter from query params
   useEffect(() => {
@@ -73,6 +68,7 @@ export default function Dashboard({
         .then(res => res.json())
         .then(({ collectives, series, stats }) => {
           setData({ collectives, series, stats });
+          // setLoading(false);
           setCounter(counter + 1);
         });
     }

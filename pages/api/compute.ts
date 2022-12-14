@@ -9,6 +9,6 @@ export default async function handler(req, res) {
   const fullPath = join(dataDir, `${slug}.json`);
   const fileContents = fs.readFileSync(fullPath, 'utf8');
   const { collectives: allCollectives, categories } = JSON.parse(fileContents);
-  const computed = compute({ tag, location, timePeriod, allCollectives, categories });
+  const computed = compute({ filter: { tag, location, timePeriod }, allCollectives, categories });
   res.status(200).json({ collectives: computed.collectives, stats: computed.stats, series: computed.series });
 }
