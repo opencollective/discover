@@ -163,7 +163,6 @@ const getSeriesDataFromNodes = (nodes, startYear, timePeriod) => {
 };
 
 const getSeriesFromData = (intl, timeSeriesArray, startYear, timePeriod) => {
-  console.log('getSeriesData');
   const series = timeSeriesArray?.map(timeSeries => {
     const totalReceivedNodes = get(timeSeries, 'nodes', []);
     const totalReceivedData = getSeriesDataFromNodes(totalReceivedNodes, startYear, timePeriod);

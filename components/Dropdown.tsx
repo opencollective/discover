@@ -45,7 +45,7 @@ export default function DropdownSelector({
         className={`absolute inset-0 flex w-full  items-center justify-end rounded-lg border-2 bg-opacity-75 text-transparent transition-colors  focus:outline-none  ${
           filterApplied
             ? `bg-${currentCategoryColor}-50 border-transparent hover:bg-opacity-100 hover:border-${currentCategoryColor}-100`
-            : 'border-transparent hover:border-gray-100  hover:bg-gray-50 '
+            : 'border-transparent bg-white hover:border-gray-100  hover:bg-gray-50 '
         }`}
         value={value}
         onChange={e => {

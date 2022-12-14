@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
-import { LocationFilter } from '../lib/location/filterLocation';
 import { getFilterFromQuery } from '../lib/filter-from-query';
+import { LocationFilter } from '../lib/location/filterLocation';
 
 import Chart from './Chart';
 import CollectiveModal from './CollectiveModal';
@@ -45,23 +45,17 @@ export default function Dashboard({
   const [filter, setFilter] = useState<Filter>(initialFilter);
   // set filter from query params
   useEffect(() => {
-    setFilter(getFilterFromQuery(router.query, initialFilter));
-  }, [router.query]);
+    const filter = getFilterFromQuery(router.query, initialFilter);
+    setFilter(filter);
+  }, [router.query, initialFilter]);
 
-  // fetch data
+  // fetch or update data
   useEffect(() => {
     // first render, no need to fetch or reset to initial data
-    if (counter !== 0 && JSON.stringify(filter) === JSON.stringify(initialFilter)) {
+    if (JSON.stringify(filter) === JSON.stringify(initialFilter)) {
+      // set initial data
       setData({ collectives: initialCollectives, series: initialSeries, stats: initialStats });
       setCounter(counter + 1);
-
-      // fetch new data
-    } else if (counter === 0 && JSON.stringify(filter) === JSON.stringify(initialFilter)) {
-      // wake up the API
-      fetch('/api/compute', {
-        method: 'POST',
-        body: JSON.stringify({ slug: host.slug }),
-      }).then(res => res.json());
     } else {
       const startFetchTime = Date.now();
       fetch('/api/compute', {
@@ -134,7 +128,9 @@ export default function Dashboard({
   };
 
   const collectivesDataContainer = useRef(null);
-  const currentCategory = categories.find(category => (filter.tag ? category.tag === filter.tag : !category.tag));
+  const currentCategory = categories.find(category =>
+    filter.slug === initialFilter.slug && filter.tag ? category.tag === filter.tag : category.tag === 'ALL',
+  );
   const totalCollectiveCount = initialCollectives.length;
 
   return (
