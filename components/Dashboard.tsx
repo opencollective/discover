@@ -51,15 +51,17 @@ export default function Dashboard({
   // fetch data
   useEffect(() => {
     // first render, no need to fetch or reset to initial data
-    if (counter === 0 && JSON.stringify(filter) === JSON.stringify(initialFilter)) {
-      return;
-
-      // reset to initial data if filter is the same as initial filter
-    } else if (JSON.stringify(filter) === JSON.stringify(initialFilter)) {
+    if (counter !== 0 && JSON.stringify(filter) === JSON.stringify(initialFilter)) {
       setData({ collectives: initialCollectives, series: initialSeries, stats: initialStats });
       setCounter(counter + 1);
 
       // fetch new data
+    } else if (counter === 0 && JSON.stringify(filter) === JSON.stringify(initialFilter)) {
+      // wake up the API
+      fetch('/api/compute', {
+        method: 'POST',
+        body: JSON.stringify({ slug: host.slug }),
+      }).then(res => res.json());
     } else {
       const startFetchTime = Date.now();
       fetch('/api/compute', {
