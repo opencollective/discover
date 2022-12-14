@@ -19,6 +19,17 @@ const ChevronUpDown = ({ className }) => (
   </svg>
 );
 
+// const options = [
+//   {
+//     name: 'All hosts',
+//     slug: '',
+//     color: 'blue',
+//     logoSrc: '/oc-logo.svg',
+//     styles: { box: 'bg-[#F5FAFF] text-[#0C2D66]' },
+//   },
+//   ...hosts.filter(h => h.slug.length),
+// ]
+
 export default function HostSwitcher({ host, hosts }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -65,34 +76,24 @@ export default function HostSwitcher({ host, hosts }) {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-4 text-left align-middle shadow-xl transition-all lg:p-8">
+                <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-4 text-left align-middle shadow-xl transition-all lg:p-8">
                   <Dialog.Title as="h3" className="mb-4 text-xl font-bold leading-6 text-gray-900">
-                    Switch context
+                    Switch host
                   </Dialog.Title>
-                  <div className="grid grid-cols-2 gap-4 lg:gap-6">
-                    {[
-                      {
-                        name: 'All hosts',
-                        slug: '',
-                        color: 'blue',
-                        logoSrc: '/oc-logo.svg',
-                        styles: { box: 'bg-[#F5FAFF] text-[#0C2D66]' },
-                      },
-                      ...hosts.filter(h => h.slug.length),
-                    ].map(host => (
+                  <div className="grid grid-cols-1 gap-4 lg:gap-6">
+                    {hosts.map(host => (
                       <Link href={`/${host.slug}`} key={host.slug}>
                         <a
                           key={host.slug}
-                          className={`relative flex h-60 flex-col items-center justify-center gap-3 rounded-xl border-3  p-4 text-center focus:outline-none lg:gap-4 lg:p-6  focus:border-${host.color}-500 ${host.styles.box} border-transparent transition-colors hover:border-${host.color}-500`}
+                          className={`flex h-24 items-center justify-start gap-3 rounded-xl border-3 px-4 lg:h-32 lg:gap-4 lg:px-6 bg-${host.color}-500 border-transparent bg-opacity-5 transition-colors hover:border-${host.color}-500`}
                           onClick={() => {
                             closeModal();
                           }}
                         >
-                          <span className={`text-base font-medium lg:text-lg `}>{host.name}</span>
-
                           <div className="flex min-w-[64px] justify-center lg:min-w-[128px]">
                             <img src={host.logoSrc} className="h-5 lg:h-10" alt={host.name} />
                           </div>
+                          <span className={`text-base font-medium lg:text-lg `}>{host.name}</span>
                         </a>
                       </Link>
                     ))}
