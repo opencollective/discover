@@ -61,14 +61,17 @@ export default function Dashboard({
 
       // fetch new data
     } else {
+      const startFetchTime = Date.now();
       fetch('/api/compute', {
         method: 'POST',
         body: JSON.stringify(filter),
       })
         .then(res => res.json())
-        .then(({ collectives, series, stats }) => {
+        .then(({ collectives, series, stats, time }) => {
           setData({ collectives, series, stats });
           // setLoading(false);
+          const endFetchTime = Date.now();
+          console.log({ totalFetch: endFetchTime - startFetchTime, handlerTime: time });
           setCounter(counter + 1);
         });
     }
