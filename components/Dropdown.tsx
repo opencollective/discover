@@ -15,15 +15,15 @@ export default function DropdownSelector({
   options,
   fieldLabel,
   value,
-  id,
   onChange,
   currentCategoryColor,
+  ariaLabel,
 }: {
   options: any;
   fieldLabel: any;
-  id: string;
   value: any;
   currentCategoryColor: string;
+  ariaLabel: string;
   onChange: (any) => void;
   onOpen?: () => void;
 }) {
@@ -34,17 +34,14 @@ export default function DropdownSelector({
 
   return (
     <div className="group relative h-10 w-full">
-      <label
-        htmlFor={id}
-        className="pointer-events-none absolute inset-0 z-10 flex items-center justify-between py-2 px-3 text-gray-800"
-      >
+      <label className="pointer-events-none absolute inset-0 z-10 flex items-center justify-between py-2 px-3 text-gray-800">
         {fieldLabel}
         <div className="flex items-center gap-1 whitespace-nowrap text-sm ">
           <span>{selectedOption?.label}</span> <ChevronDown size="10" />
         </div>
       </label>
       <select
-        id={id}
+        aria-label={ariaLabel}
         className={`absolute inset-0 flex w-full  items-center justify-end rounded-lg border-2 bg-opacity-75 text-transparent transition-colors  focus:outline-none  ${
           filterApplied
             ? `bg-${currentCategoryColor}-50 border-transparent hover:bg-opacity-100 hover:border-${currentCategoryColor}-100`

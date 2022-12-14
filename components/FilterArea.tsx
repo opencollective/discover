@@ -93,12 +93,12 @@ export const Filters = ({
         <div className="mt-1 border-t pb-1 pt-2 lg:mt-4 lg:pt-4">
           <div className="space-y-1 lg:space-y-2">
             <Dropdown
-              id={'date'}
+              ariaLabel="Date range"
               currentCategoryColor={currentCategory.tw}
               fieldLabel={
                 <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium">
                   <DateIcon />
-                  <span className="">Date range</span>
+                  <span>Date range</span>
                 </div>
               }
               options={[
@@ -112,12 +112,12 @@ export const Filters = ({
               }}
             />
             <Dropdown
-              id={'loc'}
+              ariaLabel="Location"
               currentCategoryColor={currentCategory.tw}
               fieldLabel={
                 <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium">
                   <LocationPin />
-                  <span className="">Location</span>
+                  <span>Location</span>
                 </div>
               }
               options={locationOptions.map(option => ({

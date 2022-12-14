@@ -267,9 +267,10 @@ export default function Table({
       </div>
       <div className="flex items-center gap-4 px-10 text-sm text-gray-700">
         <span>
-          Page{' '}
+          <label htmlFor="page-number">Page</label>{' '}
           <input
             type="number"
+            id="page-number"
             className="inline-block w-10 rounded border text-center"
             value={pageIndex + 1}
             onChange={e => {
@@ -282,6 +283,7 @@ export default function Table({
 
         <div>
           <button
+            aria-label="Previous page"
             onClick={() => previousPage()}
             disabled={!canPreviousPage}
             className="h-10 w-10 rounded-full p-2 hover:bg-gray-100 hover:text-black"
@@ -289,6 +291,7 @@ export default function Table({
             <ChevronLeft size="12" />
           </button>{' '}
           <button
+            aria-label="Next page"
             onClick={() => nextPage()}
             disabled={!canNextPage}
             className="h-10 w-10 rounded-full p-2 hover:bg-gray-100 hover:text-black"

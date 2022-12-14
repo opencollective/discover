@@ -425,7 +425,7 @@ export default function Updates({ host, filter, openCollectiveModal }) {
 
   return (
     <div>
-      <h1 className="mb-6  text-xl font-bold text-gray-600 lg:text-4xl">Updates from collectives</h1>
+      <h2 className="mb-6  text-xl font-bold text-gray-600 lg:text-4xl">Updates from collectives</h2>
       <Flipper flipKey={filter.tag}>
         <div className="min-h-[440px] space-y-4 lg:min-h-[560px]">
           {sortedUpdates
@@ -443,9 +443,9 @@ export default function Updates({ host, filter, openCollectiveModal }) {
                       rel="noreferrer"
                     >
                       <div className="flex items-center justify-between gap-6">
-                        <h4 className="flex-shrink overflow-hidden text-ellipsis whitespace-nowrap  text-base font-medium text-gray-900 group-hover:underline lg:text-xl">
+                        <h3 className="flex-shrink overflow-hidden text-ellipsis whitespace-nowrap  text-base font-medium text-gray-900 group-hover:underline lg:text-xl">
                           {update.title}
-                        </h4>
+                        </h3>
                         <p className="hidden  flex-shrink-0 text-gray-600 lg:block">
                           <FormattedDate dateStyle={'medium'} value={update.createdAt} />
                         </p>

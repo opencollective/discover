@@ -84,9 +84,10 @@ export const Story = ({ story, openCollectiveModal }) => {
   );
 };
 
-const SliderButton = ({ onClick, disabled, children }) => {
+const SliderButton = ({ onClick, disabled, children, ariaLabel }) => {
   return (
     <button
+      aria-label={ariaLabel}
       disabled={disabled}
       className={`flex h-8 w-8 items-center justify-center rounded-full border p-2 transition-colors lg:h-10 lg:w-10 ${
         disabled ? 'border-gray-200  text-gray-400' : 'border-blue-500 bg-white text-blue-800'
@@ -112,14 +113,19 @@ export default function Stories({ stories, filter, openCollectiveModal }) {
     <React.Fragment>
       <div>
         <div className="mb-6 flex items-center justify-between">
-          <h2 className=" text-xl font-bold text-gray-600 lg:text-4xl">Featured stories</h2>
+          <h2 className="text-xl font-bold text-gray-600 lg:text-4xl">Featured stories</h2>
           <div className="flex items-center gap-2">
-            <SliderButton onClick={() => swiperRef.current?.slidePrev()} disabled={activeIndex === 0}>
+            <SliderButton
+              onClick={() => swiperRef.current?.slidePrev()}
+              disabled={activeIndex === 0}
+              ariaLabel="Previous story"
+            >
               <LeftArrow />
             </SliderButton>
             <SliderButton
               onClick={() => swiperRef.current?.slideNext()}
               disabled={activeIndex === currentStories.length - 1}
+              ariaLabel="Next story"
             >
               <RightArrow />
             </SliderButton>

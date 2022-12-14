@@ -6,7 +6,11 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 });
 const config = {
   eslint: { ignoreDuringBuilds: true },
-  staticPageGenerationTimeout: 1000 * 60 * 15, // 15 minutes
+  //staticPageGenerationTimeout: 1000 * 60 * 15, // 15 minutes
+  i18n: {
+    locales: ['en'],
+    defaultLocale: 'en',
+  },
   async headers() {
     return [
       {
