@@ -4,7 +4,6 @@ import { computeStats, computeTimeSeries } from './computeData';
 
 export function compute({ filter: { tag, location, timePeriod }, categories, allCollectives }) {
   const locationFilteredCollectives = filterLocation(allCollectives, location);
-
   const categoriesWithCollectives = categories.map(category => {
     const collectivesInCategory = locationFilteredCollectives.filter(
       collective => category.tag === 'ALL' || collective.categoryTags?.includes(category.tag),
@@ -20,7 +19,7 @@ export function compute({ filter: { tag, location, timePeriod }, categories, all
     tag ? category.tag === tag : category.tag === 'ALL',
   );
 
-  const timeSeries = computeTimeSeries(categoriesWithCollectives);
+  const timeSeries = computeTimeSeries(categoriesWithCollectives.filter(c => tag === 'ALL' || c.tag === tag));
 
   const stats = computeStats(currentCategory?.collectives);
   const locationOptions = getFilterOptions(allCollectives);

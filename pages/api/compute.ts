@@ -1,16 +1,17 @@
-import fs from 'fs';
-import { join } from 'path';
-
 import { compute } from '../../lib/compute';
 
 export default async function handler(req, res) {
   const { slug, tag, timePeriod, location } = JSON.parse(req.body);
   const startTime = Date.now();
-  const dataDir = join(process.cwd(), '_dump');
-  const fullPath = join(dataDir, `${slug}.json`);
-  const fileContents = fs.readFileSync(fullPath, 'utf8');
-  const { collectives: allCollectives, categories } = JSON.parse(fileContents);
-  const parsedJsonTime = Date.now();
+
+  const file = require(`../../_dump/${slug}.json`);
+
+  // return something when just trying to wake the function
+  if (!timePeriod) {
+    return res.status(200);
+  }
+  const { collectives: allCollectives, categories } = file; // JSON.parse(fileContents);
+  const parseDataTime = Date.now();
   const computed = compute({ filter: { tag, location, timePeriod }, allCollectives, categories });
   const computedTime = Date.now();
   res.status(200).json({
@@ -19,8 +20,8 @@ export default async function handler(req, res) {
     series: computed.series,
     time: {
       total: computedTime - startTime,
-      compute: computedTime - parsedJsonTime,
-      parseJson: parsedJsonTime - startTime,
+      compute: computedTime - parseDataTime,
+      parseData: parseDataTime - startTime,
     },
   });
 }

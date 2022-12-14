@@ -212,7 +212,7 @@ export default function Dashboard({
               <Chart
                 startYear={startYear}
                 filter={filter}
-                timeSeriesArray={series.filter(category => (filter.tag === 'ALL' ? true : category.tag === filter.tag))}
+                timeSeriesArray={series}
                 currency={currency}
                 counter={counter}
               />
