@@ -99,11 +99,11 @@ const SliderButton = ({ onClick, disabled, children }) => {
   );
 };
 
-export default function Stories({ stories, currentTag, openCollectiveModal }) {
+export default function Stories({ stories, filter, openCollectiveModal }) {
   const swiperRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const currentStories = stories.filter(story => currentTag === 'ALL' || !!story.tags.find(t => t.tag === currentTag));
+  const currentStories = stories.filter(story => filter.tag === 'ALL' || !!story.tags.find(t => t.tag === filter.tag));
 
   if (!currentStories?.length) {
     return null;

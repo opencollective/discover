@@ -31,10 +31,8 @@ const CloseIcon = () => (
 );
 
 export const Filters = ({
-  currentTimePeriod,
-  currentTag,
+  filter,
   categories,
-  currentLocationFilter,
   setLocationFilter,
   setTag,
   setTimePeriod,
@@ -82,7 +80,7 @@ export const Filters = ({
       <AnimateHeight id="categories" duration={300} height={!mobile ? 'auto' : expanded ? 'auto' : 0}>
         <CategoryFilter
           locale={locale}
-          selectedTag={currentTag}
+          selectedTag={filter.tag}
           categories={categories}
           onSelect={category => {
             setTag(category.tag);
@@ -108,7 +106,7 @@ export const Filters = ({
                 { value: 'PAST_YEAR', label: 'Past 12 months' },
                 { value: 'PAST_QUARTER', label: 'Past 3 months' },
               ]}
-              value={currentTimePeriod}
+              value={filter.timePeriod}
               onChange={({ value }) => {
                 setTimePeriod(value);
               }}
@@ -126,7 +124,7 @@ export const Filters = ({
                 ...option,
                 value: option.value ? JSON.stringify({ type: option.type, value: option.value }) : '',
               }))}
-              value={currentLocationFilter ? JSON.stringify(currentLocationFilter) : null}
+              value={filter.location ? JSON.stringify(filter.location) : null}
               onOpen={() => {
                 mobile && setExpanded(false);
               }}

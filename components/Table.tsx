@@ -10,7 +10,7 @@ import { formatCurrency } from '@opencollective/frontend-components/lib/currency
 
 import LocationTag from './LocationTag';
 
-const Table = styled.table`
+const StyledTable = styled.table`
   padding: 0;
   border-collapse: collapse;
   border-spacing: 0;
@@ -68,38 +68,22 @@ export const Avatar = styled.img`
 
 interface Props {
   collectives: [any];
-  currentTimePeriod: string;
-  currentTag: string;
-  currentLocationFilter: LocationFilter;
+  filter: any;
   locale: string;
-  hostSlug: string;
   openCollectiveModal: (slug: string) => void;
   setLocationFilter: (location: LocationFilter) => void;
   currency: string;
 }
 
-export default function Collectives({
+export default function Table({
   collectives,
-  currentTimePeriod,
-  currentTag,
+  filter,
   locale,
-  currentLocationFilter,
   setLocationFilter,
   openCollectiveModal,
   currency,
-  hostSlug,
 }: Props) {
-  const data = React.useMemo(
-    () =>
-      collectives.map(c => ({
-        ...c,
-        contributors: c.stats?.[currentTimePeriod].contributors ?? 0,
-        raised: c.stats?.[currentTimePeriod].raised ?? 0,
-        spent: c.stats?.[currentTimePeriod].spent ?? 0,
-        percentDisbursed: c.stats?.[currentTimePeriod].percentDisbursed ?? null,
-      })),
-    [currentTag, currentTimePeriod, currentLocationFilter, hostSlug],
-  );
+  const data = collectives;
 
   const columns = React.useMemo(
     () => [
@@ -145,11 +129,11 @@ export default function Collectives({
       },
       {
         Header: 'Disbursed',
-        accessor: 'percent',
+        accessor: 'percentDisbursed',
         sortDescFirst: true,
         Cell: ({ row }) => {
-          const percentDisbursed = parseFloat(row.original.percentDisbursed);
-          return isNaN(percentDisbursed) ? 'n/a' : `${percentDisbursed.toFixed(1)}%`;
+          const percent = parseFloat(row.original.percentDisbursed);
+          return isNaN(percent) ? 'n/a' : `${percent.toFixed(1)}%`;
         },
         className: 'text-center px-2 py-4',
       },
@@ -168,7 +152,7 @@ export default function Collectives({
         className: 'text-right pr-4 lg:pr-8 pl-2 py-4',
       },
     ],
-    [currentTag, currentTimePeriod, hostSlug],
+    [filter.slug],
   );
   const {
     getTableProps,
@@ -210,7 +194,7 @@ export default function Collectives({
   return (
     <React.Fragment>
       <div className="overflow-auto">
-        <Table {...getTableProps()} className="">
+        <StyledTable {...getTableProps()} className="">
           <thead>
             {headerGroups.map(headerGroup => {
               const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
@@ -279,7 +263,7 @@ export default function Collectives({
               );
             })}
           </tbody>
-        </Table>
+        </StyledTable>
       </div>
       <div className="flex items-center gap-4 px-10 text-sm text-gray-700">
         <span>

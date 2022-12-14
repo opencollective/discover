@@ -415,7 +415,7 @@ const updates = [
   },
 ];
 
-export default function Updates({ host, currentTag, openCollectiveModal }) {
+export default function Updates({ host, filter, openCollectiveModal }) {
   const sortedUpdates = React.useMemo(() => {
     return updates.sort((a, b) => new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf());
   }, []);
@@ -426,10 +426,11 @@ export default function Updates({ host, currentTag, openCollectiveModal }) {
   return (
     <div>
       <h1 className="mb-6  text-xl font-bold text-gray-600 lg:text-4xl">Updates from collectives</h1>
-      <Flipper flipKey={currentTag}>
+      <Flipper flipKey={filter.tag}>
         <div className="min-h-[440px] space-y-4 lg:min-h-[560px]">
           {sortedUpdates
-            .filter(update => currentTag === 'ALL' || update.account.tags.includes(currentTag))
+            // TODO: fix these account tags to be "transformed"
+            .filter(update => filter.tag === 'ALL' || update.account.tags.includes(filter.tag))
             .slice(0, 3)
             .map(update => {
               return (

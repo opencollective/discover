@@ -1,9 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
-import { computeStats, computeTimeSeries } from '../lib/computeData';
-import filterLocation, { LocationFilter } from '../lib/location/filterLocation';
-import getFilterOptions from '../lib/location/getFilterOptions';
+import { LocationFilter } from '../lib/location/filterLocation';
+import { getFilterFromQuery } from '../lib/filter-from-query';
 
 import Chart from './Chart';
 import CollectiveModal from './CollectiveModal';
@@ -14,19 +13,70 @@ import Stories from './Stories';
 import Table from './Table';
 import Updates from './Updates';
 
-const getParam = param => (Array.isArray(param) ? param[0] : param);
-
-const getLocationFilter = query => {
-  const location = getParam(query?.location);
-  const locationType = getParam(query?.locationType);
-  return location && locationType ? { type: locationType, value: location } : null;
+export type Filter = {
+  slug: string;
+  tag: string;
+  timePeriod: string;
+  location: LocationFilter;
 };
 
-export default function Dashboard({ host, hosts, categories, collectives, stories, locale, currency, startYear }) {
+export default function Dashboard({
+  host,
+  hosts,
+  categories,
+  collectives: initialCollectives,
+  series: initialSeries,
+  stats: initialStats,
+  stories,
+  locale,
+  currency,
+  locationOptions,
+  startYear,
+}) {
   const router = useRouter();
-  const currentTag: string = getParam(router.query?.tag) ?? 'ALL';
-  const currentTimePeriod: string = getParam(router.query?.time) ?? 'ALL';
-  const currentLocationFilter: LocationFilter = getLocationFilter(router.query);
+  const [{ collectives, series, stats }, setData] = useState({
+    collectives: initialCollectives,
+    series: initialSeries,
+    stats: initialStats,
+  });
+  const [counter, setCounter] = useState(0);
+
+  const initialFilter: Filter = {
+    slug: host.slug,
+    tag: 'ALL',
+    timePeriod: 'ALL',
+    location: null,
+  };
+  const [filter, setFilter] = useState<Filter>(initialFilter);
+  // set filter from query params
+  useEffect(() => {
+    setFilter(getFilterFromQuery(router.query, initialFilter));
+  }, [router.query]);
+
+  // fetch data
+  useEffect(() => {
+    // first render, no need to fetch or reset to initial data
+    if (counter === 0 && JSON.stringify(filter) === JSON.stringify(initialFilter)) {
+      return;
+
+      // reset to initial data if filter is the same as initial filter
+    } else if (JSON.stringify(filter) === JSON.stringify(initialFilter)) {
+      setData({ collectives: initialCollectives, series: initialSeries, stats: initialStats });
+      setCounter(counter + 1);
+
+      // fetch new data
+    } else {
+      fetch('/api/compute', {
+        method: 'POST',
+        body: JSON.stringify(filter),
+      })
+        .then(res => res.json())
+        .then(({ collectives, series, stats }) => {
+          setData({ collectives, series, stats });
+          setCounter(counter + 1);
+        });
+    }
+  }, [JSON.stringify(filter)]);
 
   const setTag = (value: string) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -77,46 +127,15 @@ export default function Dashboard({ host, hosts, categories, collectives, storie
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openCollectiveModal = (slug: string) => {
-    const collective = collectives.find(c => c.slug === slug);
+    const collective = initialCollectives.find(c => c.slug === slug);
     setCollectiveInModal(collective);
     setIsModalOpen(true);
   };
 
   const collectivesDataContainer = useRef(null);
+  const currentCategory = categories.find(category => (filter.tag ? category.tag === filter.tag : !category.tag));
+  const totalCollectiveCount = initialCollectives.length;
 
-  const locationFilteredCollectives = React.useMemo(
-    () => filterLocation(collectives, currentLocationFilter),
-    [currentLocationFilter, host.slug],
-  );
-
-  const categoriesWithCollectives = React.useMemo(
-    () =>
-      categories.map(category => {
-        const collectivesInCategory = locationFilteredCollectives.filter(
-          collective => category.tag === 'ALL' || collective.categoryTags?.includes(category.tag),
-        );
-        return {
-          ...category,
-          collectives: collectivesInCategory,
-        };
-      }),
-    [currentLocationFilter, host.slug],
-  );
-
-  const currentCategory = categoriesWithCollectives.find(category =>
-    currentTag ? category.tag === currentTag : !category.tag,
-  );
-  const locationOptions = React.useMemo(() => getFilterOptions(collectives), [collectives]);
-  const timeSeries = React.useMemo(
-    () => computeTimeSeries(categoriesWithCollectives),
-    [currentLocationFilter, host.slug],
-  );
-  const totalCollectiveCount = collectives.length;
-  // return null;
-  const stats = React.useMemo(
-    () => computeStats(currentCategory.collectives),
-    [currentTag, currentLocationFilter, host.slug],
-  );
   return (
     <div className="mx-auto mt-2 flex max-w-[1400px] flex-col space-y-6 p-4 lg:space-y-10 lg:p-10">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:gap-10">
@@ -132,7 +151,7 @@ export default function Dashboard({ host, hosts, categories, collectives, storie
                     <span className="whitespace-nowrap">
                       <button
                         className={`inline-block whitespace-nowrap underline underline-offset-4 transition-colors ${
-                          currentTag !== 'ALL' && currentTag !== cat.tag
+                          filter.tag !== 'ALL' && filter.tag !== cat.tag
                             ? `decoration-transparent hover:decoration-${cat.tw}-500`
                             : `decoration-${cat.tw}-500`
                         }`}
@@ -174,10 +193,8 @@ export default function Dashboard({ host, hosts, categories, collectives, storie
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-4 lg:gap-10">
         <div className="sticky top-0 z-20 lg:top-10">
           <FilterArea
-            currentTimePeriod={currentTimePeriod}
-            currentTag={currentTag}
-            categories={categoriesWithCollectives}
-            currentLocationFilter={currentLocationFilter}
+            filter={filter}
+            categories={categories}
             setLocationFilter={setLocationFilter}
             setTimePeriod={setTimePeriod}
             setTag={setTag}
@@ -189,34 +206,27 @@ export default function Dashboard({ host, hosts, categories, collectives, storie
         </div>
         <div className="space-y-12 lg:col-span-3">
           <div className="-mx-4 space-y-5 rounded-lg bg-white py-4 lg:mx-0 lg:py-8" ref={collectivesDataContainer}>
-            <Stats stats={stats} currentTimePeriod={currentTimePeriod} locale={locale} currency={currency} />
+            <Stats stats={stats} locale={locale} currency={currency} />
             <div className="lg:px-4">
               <Chart
                 startYear={startYear}
-                currentTag={currentTag}
-                currentTimePeriod={currentTimePeriod}
-                currentLocationFilter={currentLocationFilter}
-                timeSeriesArray={timeSeries[currentTimePeriod].filter(category =>
-                  currentTag === 'ALL' ? true : category.tag === currentTag,
-                )}
-                hostSlug={host.slug}
+                filter={filter}
+                timeSeriesArray={series.filter(category => (filter.tag === 'ALL' ? true : category.tag === filter.tag))}
                 currency={currency}
+                counter={counter}
               />
             </div>
             <Table
-              collectives={currentCategory.collectives}
-              currentTimePeriod={currentTimePeriod}
-              currentTag={currentTag}
-              currentLocationFilter={currentLocationFilter}
+              filter={filter}
+              collectives={collectives}
               setLocationFilter={setLocationFilter}
               locale={locale}
               openCollectiveModal={openCollectiveModal}
-              hostSlug={host.slug}
               currency={currency}
             />
           </div>
-          <Stories stories={stories} currentTag={currentTag} openCollectiveModal={openCollectiveModal} />
-          <Updates host={host} currentTag={currentTag} openCollectiveModal={openCollectiveModal} />
+          <Stories stories={stories} filter={filter} openCollectiveModal={openCollectiveModal} />
+          <Updates host={host} filter={filter} openCollectiveModal={openCollectiveModal} />
         </div>
       </div>
       {host.cta && (

@@ -23,11 +23,11 @@ export const accountsQuery = gql`
           contributorsCount(includeChildren: true)
           contributionsCount(includeChildren: true)
 
-          totalAmountSpent(includeChildren: true, currency: $currency) {
+          totalAmountSpent(net: true, includeChildren: true, currency: $currency) {
             valueInCents
           }
 
-          totalNetAmountReceivedTimeSeries(timeUnit: YEAR, includeChildren: true, currency: $currency) {
+          totalAmountReceivedTimeSeries(net: true, timeUnit: YEAR, includeChildren: true, currency: $currency) {
             timeUnit
             nodes {
               date
@@ -42,10 +42,11 @@ export const accountsQuery = gql`
           contributorsCount(includeChildren: true, dateFrom: $yearAgo)
           contributionsCount(includeChildren: true, dateFrom: $yearAgo)
 
-          totalAmountSpent(includeChildren: true, dateFrom: $yearAgo, currency: $currency) {
+          totalAmountSpent(net: true, includeChildren: true, dateFrom: $yearAgo, currency: $currency) {
             valueInCents
           }
-          totalNetAmountReceivedTimeSeries(
+          totalAmountReceivedTimeSeries(
+            net: true
             dateFrom: $yearAgo
             timeUnit: MONTH
             includeChildren: true
@@ -64,11 +65,12 @@ export const accountsQuery = gql`
           contributorsCount(includeChildren: true, dateFrom: $quarterAgo)
           contributionsCount(includeChildren: true, dateFrom: $quarterAgo)
 
-          totalAmountSpent(includeChildren: true, dateFrom: $quarterAgo, currency: $currency) {
+          totalAmountSpent(net: true, includeChildren: true, dateFrom: $quarterAgo, currency: $currency) {
             valueInCents
           }
 
-          totalNetAmountReceivedTimeSeries(
+          totalAmountReceivedTimeSeries(
+            net: true
             dateFrom: $quarterAgo
             timeUnit: WEEK
             includeChildren: true

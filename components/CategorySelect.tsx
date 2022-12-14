@@ -26,7 +26,7 @@ const CategorySelect = ({ categories, selectedTag, onSelect, locale }) => {
           }}
         >
           <span className="font-medium text-gray-800">{category.label}</span>{' '}
-          <span className="text-sm">{category.collectives.length.toLocaleString(locale)}</span>
+          <span className="text-sm">{category.count.toLocaleString(locale)}</span>
         </button>
       ))}
     </div>
