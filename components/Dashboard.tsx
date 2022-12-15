@@ -53,7 +53,7 @@ export default function Dashboard({
   };
   const locationFilteredCollectives = React.useMemo(
     () => filterLocation(allCollectives, filter.location),
-    [filter.location],
+    [JSON.stringify(filter)],
   );
   const categoriesWithFilteredCollectives = React.useMemo(
     () =>
@@ -65,7 +65,7 @@ export default function Dashboard({
           ),
         };
       }),
-    [filter.location],
+    [JSON.stringify(filter)],
   );
 
   const series = React.useMemo(() => computeTimeSeries(categoriesWithFilteredCollectives), [JSON.stringify(filter)]);

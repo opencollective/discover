@@ -35,7 +35,7 @@ export const collectiveQuery = gql`
     }
   }
 `;
-export default function CollectiveModal({ isOpen, onClose, collective, locale = 'en', setLocationFilter, currency }) {
+export default function CollectiveModal({ isOpen, onClose, collective, locale = 'en', setFilter, currency }) {
   const { data } = useQuery(collectiveQuery, {
     variables: { slug: collective?.slug },
     skip: !collective,
@@ -98,7 +98,10 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                   {(collective.tags?.length > 0 || collective.location?.label) && (
                     <div className="mt-4 flex flex-wrap gap-2">
                       {collective.location && (
-                        <LocationTag setLocationFilter={setLocationFilter} location={collective.location} />
+                        <LocationTag
+                          setLocationFilter={filter => setFilter({ location: filter })}
+                          location={collective.location}
+                        />
                       )}
                       {collective?.tags?.map(tag => (
                         <span key={tag} className="rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-700">
