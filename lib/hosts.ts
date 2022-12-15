@@ -11,29 +11,29 @@ export const hosts: {
   categories?: { label: string; tag: string }[];
   cta?: { text: string; href: string; buttonLabel: string };
 }[] = [
-  // {
-  //   name: 'Open Collective',
-  //   slug: '',
-  //   hostSlugs: [
-  //     'foundation',
-  //     'europe',
-  //     'opensource',
-  //     'allforclimate',
-  //     'the-social-change-nest',
-  //     'ocnz',
-  //     'giftcollective',
-  //   ],
-  //   currency: 'USD',
-  //   startYear: 2016,
-  //   logoSrc: '/oc-logo.svg',
-  //   color: 'blue',
-  //   styles: {
-  //     text: 'text-[#0C2D66]',
-  //     button: 'bg-[#0C2D66] text-white',
-  //     brandBox: 'lg:bg-[#F5FAFF] text-[#0C2D66]',
-  //     box: 'bg-[#F5FAFF] text-[#0C2D66]',
-  //   },
-  // },
+  {
+    name: 'Open Collective',
+    slug: '',
+    hostSlugs: [
+      'foundation',
+      'europe',
+      'opensource',
+      'allforclimate',
+      'the-social-change-nest',
+      'ocnz',
+      'giftcollective',
+    ],
+    currency: 'USD',
+    startYear: 2016,
+    logoSrc: '/oc-logo.svg',
+    color: 'blue',
+    styles: {
+      text: 'text-[#0C2D66]',
+      button: 'bg-[#0C2D66] text-white',
+      brandBox: 'lg:bg-[#F5FAFF] text-[#0C2D66]',
+      box: 'bg-[#F5FAFF] text-[#0C2D66]',
+    },
+  },
   {
     name: 'Open Collective Foundation',
     slug: 'foundation',
