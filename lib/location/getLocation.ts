@@ -85,7 +85,7 @@ export default function getLocationWithLabel(collective): Location {
   const location = { ...getLocation(tags), ...(isGlobal && { isGlobal }), ...(isOnline && { isOnline }) };
 
   const label = getLabel(location);
-  if (!label) return null;
+  if (!label) {return null;}
   return {
     ...location,
     label,

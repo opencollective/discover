@@ -1,13 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
-// import { compute } from '../lib/compute';
-import { computeStats, computeTimeSeries } from '../lib/compute-data-wo-time';
-// import { computeTimeSeries } from '../lib/compute-data-wo-time';
-// import { computeStatsTimeSeriesAndLocationFiltered } from '../lib/compute-new';
-// import { getFilterFromQuery } from '../lib/filter-from-query';
+import { computeStats, computeTimeSeries } from '../lib/compute-data';
 import filterLocation, { LocationFilter } from '../lib/location/filterLocation';
 import getFilterOptions from '../lib/location/getFilterOptions';
+import { pushFilterToRouter } from '../lib/set-filter';
 
 import Chart from './Chart';
 import CollectiveModal from './CollectiveModal';
@@ -17,9 +14,6 @@ import Stats from './Stats';
 import Stories from './Stories';
 import Table from './Table';
 import Updates from './Updates';
-import { getSlugAndTimePeriodFromParams, getStaticParamsArray } from '../lib/get-static-params';
-
-import { pushFilterToRouter } from '../lib/set-filter';
 
 export type Filter = {
   slug?: string;
@@ -57,7 +51,6 @@ export default function Dashboard({
     tag: getParam(router.query?.tag) ?? 'ALL',
     location: getLocationFilterParams(router.query) ?? null,
   };
-  console.log({ filter });
   const locationFilteredCollectives = React.useMemo(
     () => filterLocation(allCollectives, filter.location),
     [filter.location],
@@ -76,7 +69,7 @@ export default function Dashboard({
   );
 
   const series = React.useMemo(() => computeTimeSeries(categoriesWithFilteredCollectives), [JSON.stringify(filter)]);
-  console.log({ series });
+
   const currentCatWithCollectives = categoriesWithFilteredCollectives.find(category =>
     filter.tag ? category.tag === filter.tag : category.tag === 'ALL',
   );

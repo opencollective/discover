@@ -5,11 +5,10 @@ import { SortDown } from '@styled-icons/fa-solid/SortDown';
 import { usePagination, useSortBy, useTable } from 'react-table';
 import styled from 'styled-components';
 
-import { LocationFilter } from '../lib/location/filterLocation';
 import { formatCurrency } from '@opencollective/frontend-components/lib/currency-utils';
 
-import LocationTag from './LocationTag';
 import { Filter } from './Dashboard';
+import LocationTag from './LocationTag';
 
 const StyledTable = styled.table`
   padding: 0;
