@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState, cache } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
+import { compute } from '../lib/compute';
 import { getFilterFromQuery } from '../lib/filter-from-query';
 import { LocationFilter } from '../lib/location/filterLocation';
 
@@ -12,7 +13,6 @@ import Stats from './Stats';
 import Stories from './Stories';
 import Table from './Table';
 import Updates from './Updates';
-import { compute } from '../lib/compute';
 
 export type Filter = {
   slug: string;
