@@ -12,9 +12,9 @@ const getLocationFilterParams = query => {
 
 export const getFilterFromQuery = (query: NextRouter['query'], initial: Filter): Filter => {
   return {
-    slug: getParam(query?.slug) ?? initial.slug,
+    slug: getParam(query?.params[0]) ?? initial.slug,
     tag: getParam(query?.tag) ?? initial.tag,
-    timePeriod: getParam(query?.time) ?? initial.timePeriod,
+    timePeriod: getParam(query?.params[1]) ?? initial.timePeriod,
     location: getLocationFilterParams(query) ?? initial.location,
   };
 };

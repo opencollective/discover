@@ -1,6 +1,5 @@
 import filterLocation from './location/filterLocation';
-import getFilterOptions from './location/getFilterOptions';
-import { computeStats, computeTimeSeries } from './computeData';
+import { computeStats, computeTimeSeries } from './compute-data-wo-time';
 
 export function compute({ filter: { tag, location, timePeriod }, categories, allCollectives }) {
   const locationFilteredCollectives = filterLocation(allCollectives, location);
@@ -11,36 +10,36 @@ export function compute({ filter: { tag, location, timePeriod }, categories, all
     return {
       ...category,
       collectives: collectivesInCategory,
-      count: collectivesInCategory.length,
     };
   });
 
   const currentCategory = categoriesWithCollectives.find(category =>
     tag ? category.tag === tag : category.tag === 'ALL',
   );
+  const timePeriodToTimeUnit = {
+    PAST_QUARTER: 'WEEK',
+    PAST_YEAR: 'MONTH',
+    ALL: 'YEAR',
+  };
 
-  const timeSeries = computeTimeSeries(categoriesWithCollectives.filter(c => tag === 'ALL' || c.tag === tag));
+  const timeSeries = computeTimeSeries(
+    categoriesWithCollectives.filter(c => tag === 'ALL' || c.tag === tag),
+    timePeriodToTimeUnit[timePeriod],
+  );
 
   const stats = computeStats(currentCategory?.collectives);
-  const locationOptions = getFilterOptions(allCollectives);
 
   return {
-    series: timeSeries[timePeriod],
-    stats: stats?.[timePeriod],
-    locationOptions,
-    categories: categoriesWithCollectives.map(c => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { collectives, ...rest } = c;
-      return rest;
-    }),
+    series: timeSeries,
+    stats: stats,
     collectives: currentCategory.collectives.map(c => {
       const { stats, ...rest } = c;
       return {
         ...rest,
-        contributors: stats?.[timePeriod].contributors ?? 0,
-        contributions: stats?.[timePeriod].contributions ?? 0,
-        raised: stats?.[timePeriod].raised ?? 0,
-        spent: stats?.[timePeriod].spent ?? 0,
+        contributors: stats?.contributors ?? 0,
+        contributions: stats?.contributions ?? 0,
+        raised: stats?.raised ?? 0,
+        spent: stats?.spent ?? 0,
       };
     }),
   };

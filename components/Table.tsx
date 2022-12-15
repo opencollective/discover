@@ -9,6 +9,7 @@ import { LocationFilter } from '../lib/location/filterLocation';
 import { formatCurrency } from '@opencollective/frontend-components/lib/currency-utils';
 
 import LocationTag from './LocationTag';
+import { Filter } from './Dashboard';
 
 const StyledTable = styled.table`
   padding: 0;
@@ -71,27 +72,18 @@ interface Props {
   filter: any;
   locale: string;
   openCollectiveModal: (slug: string) => void;
-  setLocationFilter: (location: LocationFilter) => void;
+  setFilter: (filter: Filter) => void;
   currency: string;
-  counter: number;
 }
 
-export default function Table({
-  collectives,
-  filter,
-  locale,
-  setLocationFilter,
-  openCollectiveModal,
-  currency,
-  counter,
-}: Props) {
+export default function Table({ collectives, filter, locale, setFilter, openCollectiveModal, currency }: Props) {
   const data = React.useMemo(
     () =>
       collectives.map(collective => ({
         ...collective,
         percentDisbursed: ((collective.spent / collective.raised) * 100).toFixed(1),
       })),
-    [counter],
+    [JSON.stringify(filter)],
   );
 
   const columns = React.useMemo(
@@ -114,7 +106,7 @@ export default function Table({
         Cell: ({ row }) =>
           row.original.location?.label ? (
             <div className="flex justify-start">
-              <LocationTag location={row.original.location} setLocationFilter={setLocationFilter} />
+              <LocationTag location={row.original.location} setLocationFilter={location => setFilter({ location })} />
             </div>
           ) : null,
         Header: 'Location',
