@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, cache } from 'react';
 import { useRouter } from 'next/router';
 
 import { getFilterFromQuery } from '../lib/filter-from-query';
@@ -12,6 +12,7 @@ import Stats from './Stats';
 import Stories from './Stories';
 import Table from './Table';
 import Updates from './Updates';
+import { compute } from '../lib/compute';
 
 export type Filter = {
   slug: string;
@@ -23,25 +24,35 @@ export type Filter = {
 export default function Dashboard({
   host,
   hosts,
-  categories,
+  categories: initialCategories,
   collectives: initialCollectives,
-  series: initialSeries,
-  stats: initialStats,
+  // series: initialSeries,
+  // stats: initialStats,
   filter: initialFilter,
   stories,
   locale,
   currency,
-  locationOptions,
+  // locationOptions,
   startYear,
 }) {
   const router = useRouter();
+  const initialData = React.useMemo(
+    () =>
+      compute({
+        filter: initialFilter,
+        allCollectives: initialCollectives,
+        categories: initialCategories,
+      }),
+    [host.slug],
+  );
   const [{ collectives, series, stats }, setData] = useState({
-    collectives: initialCollectives,
-    series: initialSeries,
-    stats: initialStats,
+    collectives: initialData.collectives,
+    series: initialData.series,
+    stats: initialData.stats,
   });
+  // console.log({ initialData });
   const [counter, setCounter] = useState(0);
-
+  const { locationOptions, categories } = initialData;
   const [filter, setFilter] = useState<Filter>(initialFilter);
   // set filter from query params
   useEffect(() => {
@@ -51,26 +62,34 @@ export default function Dashboard({
 
   // fetch or update data
   useEffect(() => {
-    // first render, no need to fetch or reset to initial data
-    if (JSON.stringify(filter) === JSON.stringify(initialFilter)) {
-      // set initial data
-      setData({ collectives: initialCollectives, series: initialSeries, stats: initialStats });
-      setCounter(counter + 1);
-    } else {
-      const startFetchTime = Date.now();
-      fetch('/api/compute', {
-        method: 'POST',
-        body: JSON.stringify(filter),
-      })
-        .then(res => res.json())
-        .then(({ collectives, series, stats, time }) => {
-          setData({ collectives, series, stats });
-          // setLoading(false);
-          const endFetchTime = Date.now();
-          console.log({ totalFetch: endFetchTime - startFetchTime, handlerTime: time });
-          setCounter(counter + 1);
-        });
-    }
+    const data = compute({
+      filter,
+      allCollectives: initialCollectives,
+      categories: initialCategories,
+    });
+    // console.log({ data });
+    setData({ collectives: data.collectives, series: data.series, stats: data.stats });
+    setCounter(counter + 1);
+    // // first render, no need to fetch or reset to initial data
+    // if (JSON.stringify(filter) === JSON.stringify(initialFilter)) {
+    //   // set initial data
+    //   setData({ collectives: initialCollectives, series: initialSeries, stats: initialStats });
+    //   setCounter(counter + 1);
+    // } else {
+    //   const startFetchTime = Date.now();
+    //   fetch('/api/compute', {
+    //     method: 'POST',
+    //     body: JSON.stringify(filter),
+    //   })
+    //     .then(res => res.json())
+    //     .then(({ collectives, series, stats, time }) => {
+    //       setData({ collectives, series, stats });
+    //       // setLoading(false);
+    //       const endFetchTime = Date.now();
+    //       console.log({ totalFetch: endFetchTime - startFetchTime, handlerTime: time });
+    //       setCounter(counter + 1);
+    //     });
+    // }
   }, [JSON.stringify(filter)]);
 
   const setTag = (value: string) => {

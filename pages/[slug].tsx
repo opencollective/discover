@@ -59,20 +59,20 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     location: null,
   };
 
-  const data = compute({
-    filter,
-    allCollectives: collectives,
-    categories,
-  });
+  // const data = compute({
+  //   filter,
+  //   allCollectives: collectives,
+  //   categories,
+  // });
   return {
     props: {
       host,
       hosts,
-      collectives: data.collectives,
-      series: data.series,
-      stats: data.stats,
-      locationOptions: data.locationOptions,
-      categories: data.categories,
+      collectives,
+      //series: data.series,
+      //stats: data.stats,
+      //locationOptions: data.locationOptions,
+      categories: categories,
       filter,
       stories: stories,
       startYear,
@@ -125,9 +125,9 @@ export default function Page({
         filter={filter}
         categories={categories}
         collectives={collectives}
-        series={series}
-        stats={stats}
-        locationOptions={locationOptions}
+        // series={series}
+        // stats={stats}
+        // locationOptions={locationOptions}
         currency={currency}
         startYear={startYear}
         stories={stories}
