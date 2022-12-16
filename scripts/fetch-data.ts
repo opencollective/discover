@@ -75,101 +75,65 @@ async function graphqlRequest(query, variables: any = {}) {
   return data;
 }
 
-async function fetchDataToJsonFile(host, hosts, directory) {
+async function fetchDataForPage(host) {
   const { slug, currency } = host;
-  let data;
-  const rootHost = hosts.find(h => h.root);
-  if (rootHost.hostSlugs.includes(slug) && rootHost.currency === currency) {
-    // Can use already fetched data.
-    const allData = path.join(directory, 'ALL.json');
-    const sharedData = JSON.parse(fs.readFileSync(allData, 'utf8'));
-    const hostedAccounts = sharedData.accounts.nodes.filter(a => a.host.slug === slug);
+  const quarterAgo = dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString();
+  const yearAgo = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
+
+  const variables = {
+    ...(slug !== '' ? { host: { slug } } : { host: host.hostSlugs.map(slug => ({ slug })) }),
+    currency,
+    quarterAgo,
+    yearAgo,
+    offset: 0,
+    limit: 250,
+  };
+
+  let data = await graphqlRequest(accountsQuery, variables);
+
+  if (data.accounts.totalCount > data.accounts.limit) {
+    let nodes = [...data.accounts.nodes];
+    do {
+      variables.offset += data.accounts.limit;
+      console.log(`Paginating with offset ${variables.offset}`);
+      const startTime = Date.now();
+      data = await graphqlRequest(accountsQuery, variables);
+      const endTime = Date.now();
+      console.log(`Fetched in ${(endTime - startTime) / 1000} s`);
+      nodes = [...nodes, ...data.accounts.nodes];
+    } while (data.accounts.totalCount > data.accounts.limit + data.accounts.offset);
+
     data = {
       accounts: {
-        totalCount: hostedAccounts.length,
+        ...data.accounts,
         offset: 0,
-        limit: hostedAccounts.length,
-        nodes: hostedAccounts,
+        limit: data.accounts.totalCount,
+        nodes,
       },
     };
-  } else {
-    const quarterAgo = dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString();
-    const yearAgo = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
-
-    const variables = {
-      ...(slug !== '' ? { host: { slug } } : { host: host.hostSlugs.map(slug => ({ slug })) }),
-      currency,
-      quarterAgo,
-      yearAgo,
-      offset: 0,
-      limit: 250,
-    };
-
-    data = await graphqlRequest(accountsQuery, variables);
-
-    if (data.accounts.totalCount > data.accounts.limit) {
-      let nodes = [...data.accounts.nodes];
-      do {
-        variables.offset += data.accounts.limit;
-        console.log(`Paginating with offset ${variables.offset}`);
-        const startTime = Date.now();
-        data = await graphqlRequest(accountsQuery, variables);
-        const endTime = Date.now();
-        console.log(`Fetched in ${(endTime - startTime) / 1000} s`);
-        nodes = [...nodes, ...data.accounts.nodes];
-      } while (data.accounts.totalCount > data.accounts.limit + data.accounts.offset);
-
-      data = {
-        accounts: {
-          ...data.accounts,
-          offset: 0,
-          limit: data.accounts.totalCount,
-          nodes,
-        },
-      };
-    }
   }
 
   if (data) {
-    // write collective count to shared.json
-    const sharedDataFilename = path.join(directory, 'shared.json');
-    const sharedData = JSON.parse(fs.readFileSync(sharedDataFilename, 'utf8'));
-    const collectiveCounts = sharedData.collectiveCounts;
-    collectiveCounts[slug ?? 'ALL'] = data.accounts.totalCount;
-
-    fs.writeFile(sharedDataFilename, JSON.stringify({ ...sharedData, collectiveCounts }), error => {
-      if (error) {
-        throw error;
-      }
-    });
-
-    // write data to file
-    const filename = path.join(directory, `${slug === '' ? 'ALL' : slug}.json`);
-    console.log('Writing to file', filename);
-    fs.writeFile(filename, JSON.stringify(data, null, 2), error => {
-      if (error) {
-        throw error;
-      }
-    });
+    return data;
   }
 }
 
 async function run() {
-  console.log('getting stuff');
   // Get total number of collectives on platform
   const {
     data: {
       accounts: { totalCount },
     },
-    error,
   } = await apolloClient.query({
     query: totalCountQuery,
   });
-  console.log({ error, totalCount });
+
   const directory = path.join(__dirname, '..', '_data');
+
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory);
   }
+
   fs.writeFile(
     path.join(directory, `shared.json`),
     JSON.stringify({
@@ -184,10 +148,54 @@ async function run() {
     },
   );
 
+  let rootData;
+
+  const rootHost = hosts.find(h => h.root);
   // Get data for each host, including updating the shared.json file with collective counts
   for (const host of hosts) {
     console.log('Get data for', host);
-    await fetchDataToJsonFile(host, hosts, directory);
+    let data;
+
+    if (rootData && rootHost.hostSlugs.includes(host.slug)) {
+      // Can use already fetched data.
+      const hostedAccounts = rootData.accounts.nodes.filter(a => a.host.slug === host.slug);
+      data = {
+        accounts: {
+          totalCount: hostedAccounts.length,
+          offset: 0,
+          limit: hostedAccounts.length,
+          nodes: hostedAccounts,
+        },
+      };
+    } else {
+      data = await fetchDataForPage(host);
+      if (host.root) {
+        rootData = data;
+      }
+    }
+
+    if (data) {
+      // write collective count to shared.json
+      const sharedDataFilename = path.join(directory, 'shared.json');
+      const sharedData = JSON.parse(fs.readFileSync(sharedDataFilename, 'utf8'));
+      const collectiveCounts = sharedData.collectiveCounts;
+      collectiveCounts[host.slug === '' ? 'ALL' : host.slug] = data.accounts.totalCount;
+
+      fs.writeFile(sharedDataFilename, JSON.stringify({ ...sharedData, collectiveCounts }), error => {
+        if (error) {
+          throw error;
+        }
+      });
+
+      // write data to file
+      const filename = path.join(directory, `${host.slug === '' ? 'ALL' : host.slug}.json`);
+      console.log('Writing to file', filename);
+      fs.writeFile(filename, JSON.stringify(data, null, 2), error => {
+        if (error) {
+          throw error;
+        }
+      });
+    }
   }
 }
 
