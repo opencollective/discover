@@ -18,7 +18,14 @@ export const accountsQuery = gql`
         slug
         imageUrl
         tags
-        ... on AccountWithHost {
+        ... on Collective {
+          host {
+            slug
+            name
+            imageUrl
+          }
+        }
+        ... on Fund {
           host {
             slug
             name

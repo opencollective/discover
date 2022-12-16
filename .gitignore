@@ -1,5 +1,4 @@
-_dump
-
+_data
 # Env file
 .env
 .env.local

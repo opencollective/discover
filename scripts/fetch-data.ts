@@ -133,32 +133,21 @@ async function run() {
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory);
   }
-
-  fs.writeFile(
-    path.join(directory, `shared.json`),
-    JSON.stringify({
-      collectiveCounts: {
-        platform: totalCount,
-      },
-    }),
-    error => {
-      if (error) {
-        throw error;
-      }
-    },
-  );
+  const collectiveCounts = {
+    platform: totalCount,
+  };
 
   let rootData;
 
   const rootHost = hosts.find(h => h.root);
   // Get data for each host, including updating the shared.json file with collective counts
   for (const host of hosts) {
-    console.log('Get data for', host);
+    console.log('Get data for', host.name);
     let data;
 
-    if (rootData && rootHost.hostSlugs.includes(host.slug)) {
+    if (rootData && rootHost.hostSlugs.includes(host.slug) && rootHost.currency === host.currency) {
       // Can use already fetched data.
-      const hostedAccounts = rootData.accounts.nodes.filter(a => a.host.slug === host.slug);
+      const hostedAccounts = rootData.accounts.nodes.filter(a => a.host?.slug === host.slug);
       data = {
         accounts: {
           totalCount: hostedAccounts.length,
@@ -175,21 +164,12 @@ async function run() {
     }
 
     if (data) {
-      // write collective count to shared.json
-      const sharedDataFilename = path.join(directory, 'shared.json');
-      const sharedData = JSON.parse(fs.readFileSync(sharedDataFilename, 'utf8'));
-      const collectiveCounts = sharedData.collectiveCounts;
-      collectiveCounts[host.slug === '' ? 'ALL' : host.slug] = data.accounts.totalCount;
-
-      fs.writeFile(sharedDataFilename, JSON.stringify({ ...sharedData, collectiveCounts }), error => {
-        if (error) {
-          throw error;
-        }
-      });
+      collectiveCounts[host.root ? 'ALL' : host.slug] = data.accounts.totalCount;
 
       // write data to file
-      const filename = path.join(directory, `${host.slug === '' ? 'ALL' : host.slug}.json`);
+      const filename = path.join(directory, `${host.root ? 'ALL' : host.slug}.json`);
       console.log('Writing to file', filename);
+
       fs.writeFile(filename, JSON.stringify(data, null, 2), error => {
         if (error) {
           throw error;
@@ -197,6 +177,13 @@ async function run() {
       });
     }
   }
+
+  // write collective count to shared.json
+  fs.writeFile(path.join(directory, 'shared.json'), JSON.stringify({ collectiveCounts }), error => {
+    if (error) {
+      throw error;
+    }
+  });
 }
 
 run();
