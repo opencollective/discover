@@ -6,31 +6,7 @@ import React, { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import Link from 'next/link';
 
-const ChevronUpDown = ({ className }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    className={className}
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-  </svg>
-);
-
-// const options = [
-//   {
-//     name: 'All hosts',
-//     slug: '',
-//     color: 'blue',
-//     logoSrc: '/oc-logo.svg',
-//     styles: { box: 'bg-[#F5FAFF] text-[#0C2D66]' },
-//   },
-//   ...hosts.filter(h => h.slug.length),
-// ]
-
-export default function HostSwitcher({ host, hosts }) {
+export default function HostSwitcher({ children, hosts, platformTotalCollectives, locale }) {
   const [isOpen, setIsOpen] = useState(false);
 
   function closeModal() {
@@ -46,11 +22,11 @@ export default function HostSwitcher({ host, hosts }) {
       <a
         // This is a link since it needs to break with the text, TODO: fix suggestion
         onClick={openModal}
-        className={`cursor-pointer underline underline-offset-4 transition-colors ${host.styles.text}`}
+        className={`group cursor-pointer`}
       >
-        {host.name}
-        <ChevronUpDown className="inline h-6 w-6 flex-shrink-0 text-gray-800 lg:h-12 lg:w-12" />
+        {children}
       </a>
+
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-30" onClose={closeModal}>
           <Transition.Child
@@ -76,24 +52,32 @@ export default function HostSwitcher({ host, hosts }) {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-4 text-left align-middle shadow-xl transition-all lg:p-8">
+                <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-4 text-left align-middle shadow-xl transition-all lg:p-8">
                   <Dialog.Title as="h3" className="mb-4 text-xl font-bold leading-6 text-gray-900">
-                    Switch host
+                    Select host
                   </Dialog.Title>
-                  <div className="grid grid-cols-1 gap-4 lg:gap-6">
+                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
                     {hosts.map(host => (
                       <Link href={`/${host.slug}`} key={host.slug}>
                         <a
                           key={host.slug}
-                          className={`flex h-24 items-center justify-start gap-3 rounded-xl border-3 px-4 lg:h-32 lg:gap-4 lg:px-6 bg-${host.color}-500 border-transparent bg-opacity-5 transition-colors hover:border-${host.color}-500`}
+                          className={`flex flex-col items-center justify-center gap-3 rounded-xl border-3 p-6 text-center lg:h-60 lg:gap-6 ${host.styles.box} border-transparent transition-colors`}
                           onClick={() => {
                             closeModal();
                           }}
                         >
-                          <div className="flex min-w-[64px] justify-center lg:min-w-[128px]">
-                            <img src={host.logoSrc} className="h-5 lg:h-10" alt={host.name} />
+                          <span className={`text-base font-bold lg:text-lg ${host.styles.text}`}>
+                            {host.root ? 'All verified hosts on' : host.name}
+                          </span>
+                          <img src={host.logoSrc} className="h-6 lg:h-10" alt={host.name} />
+                          <div>
+                            <p className="underline">{host.count.toLocaleString(locale)} collectives</p>
+                            {host.root && (
+                              <p className="text-sm">
+                                out of {platformTotalCollectives.toLocaleString(locale)} in total
+                              </p>
+                            )}
                           </div>
-                          <span className={`text-base font-medium lg:text-lg `}>{host.name}</span>
                         </a>
                       </Link>
                     ))}

@@ -90,3 +90,11 @@ export const accountsQuery = gql`
     }
   }
 `;
+
+export const totalCountQuery = gql`
+  query {
+    accounts(type: [COLLECTIVE, FUND], limit: 1) {
+      totalCount
+    }
+  }
+`;

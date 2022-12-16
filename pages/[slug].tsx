@@ -82,6 +82,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
 
   const data = await require(`../_dump/${hostSlug ?? 'ALL'}.json`);
+  const { collectiveCounts } = await require(`../_dump/shared.json`);
 
   const collectives = data.accounts.nodes.map(collective => {
     const stats = getStats(collective);
@@ -195,14 +196,15 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   return {
     props: {
-      host,
-      hosts,
+      host: { ...host, count: collectiveCounts[host.slug !== '' ? host.slug : 'ALL'] },
+      hosts: hosts.map(host => ({ ...host, count: collectiveCounts[host.slug !== '' ? host.slug : 'ALL'] })),
       collectives,
       categories,
       hostSlug: host.slug,
       stories,
       startYear,
       currency,
+      platformTotalCollectives: collectiveCounts.platform,
     },
     // revalidate: 60 * 60 * 24, // Revalidate the static page at most once every 24 hours to not overload the API
   };
@@ -222,7 +224,17 @@ export async function getStaticPaths() {
   };
 }
 
-export default function Page({ categories, stories, host, hosts, collectives, hostSlug, currency, startYear }) {
+export default function Page({
+  categories,
+  stories,
+  host,
+  hosts,
+  collectives,
+  hostSlug,
+  currency,
+  startYear,
+  platformTotalCollectives,
+}) {
   // eslint-disable-next-line no-console
   const locale = 'en';
   return (
@@ -240,6 +252,7 @@ export default function Page({ categories, stories, host, hosts, collectives, ho
         locale={locale}
         host={host}
         hosts={hosts}
+        platformTotalCollectives={platformTotalCollectives}
       />
     </Layout>
   );

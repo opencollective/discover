@@ -3,6 +3,12 @@ module.exports = {
   content: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}', './lib/hosts.ts'],
   theme: {
     extend: {
+      textDecorationThickness: {
+        3: '3px',
+      },
+      textUnderlineOffset: {
+        3: '3px',
+      },
       ringWidth: {
         3: '3px',
       },

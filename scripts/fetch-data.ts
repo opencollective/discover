@@ -19,7 +19,7 @@ for (const env of ['local', process.env.NODE_ENV || 'development']) {
 }
 
 import { initializeApollo } from '../lib/apollo-client';
-import { accountsQuery } from '../lib/graphql/queries';
+import { accountsQuery, totalCountQuery } from '../lib/graphql/queries';
 
 dayjs.extend(dayjsPluginUTC);
 dayjs.extend(dayjsPluginIsoWeek);
@@ -75,7 +75,7 @@ async function graphqlRequest(query, variables: any = {}) {
   return data;
 }
 
-async function getDataForHost(host) {
+async function fetchDataToJsonFile(host, directory) {
   const { slug, currency } = host;
   const quarterAgo = dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString();
   const yearAgo = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
@@ -114,12 +114,20 @@ async function getDataForHost(host) {
   }
 
   if (data) {
-    const directory = path.join(__dirname, '..', '_dump');
-    if (!fs.existsSync(directory)) {
-      fs.mkdirSync(directory);
-    }
+    // write collective count to shared.json
+    const sharedDataFilename = path.join(directory, 'shared.json');
+    const sharedData = JSON.parse(fs.readFileSync(sharedDataFilename, 'utf8'));
+    const collectiveCounts = sharedData.collectiveCounts;
+    collectiveCounts[slug ?? 'ALL'] = data.accounts.totalCount;
 
-    const filename = path.join(directory, `${host.slug === '' ? 'ALL' : host.slug}.json`);
+    fs.writeFile(sharedDataFilename, JSON.stringify({ ...sharedData, collectiveCounts }), error => {
+      if (error) {
+        throw error;
+      }
+    });
+
+    // write data to file
+    const filename = path.join(directory, `${slug === '' ? 'ALL' : slug}.json`);
     console.log('Writing to file', filename);
     fs.writeFile(filename, JSON.stringify(data, null, 2), error => {
       if (error) {
@@ -130,9 +138,37 @@ async function getDataForHost(host) {
 }
 
 async function run() {
+  // Get total number of collectives on platform
+  const {
+    data: {
+      accounts: { totalCount },
+    },
+  } = await apolloClient.query({
+    query: totalCountQuery,
+  });
+
+  const directory = path.join(__dirname, '..', '_data');
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory);
+  }
+  fs.writeFile(
+    path.join(directory, `shared.json`),
+    JSON.stringify({
+      collectiveCounts: {
+        platform: totalCount,
+      },
+    }),
+    error => {
+      if (error) {
+        throw error;
+      }
+    },
+  );
+
+  // Get data for each host, including updating the shared.json file with collective counts
   for (const host of hosts) {
     console.log('Get data for', host);
-    await getDataForHost(host);
+    await fetchDataToJsonFile(host, directory);
   }
 }
 

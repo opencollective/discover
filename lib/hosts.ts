@@ -10,6 +10,7 @@ export const hosts: {
   website?: string;
   categories?: { label: string; tag: string }[];
   cta?: { text: string; href: string; buttonLabel: string };
+  root?: boolean;
 }[] = [
   {
     name: 'Open Collective',
@@ -23,6 +24,7 @@ export const hosts: {
       'ocnz',
       'giftcollective',
     ],
+    root: true,
     currency: 'USD',
     startYear: 2016,
     logoSrc: '/oc-logo.svg',

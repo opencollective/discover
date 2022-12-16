@@ -9,7 +9,7 @@ import { pushFilterToRouter } from '../lib/set-filter';
 import Chart from './Chart';
 import CollectiveModal from './CollectiveModal';
 import FilterArea from './FilterArea';
-import HostSwitcher from './HostSwitcher';
+import Header from './Header';
 import Stats from './Stats';
 import Stories from './Stories';
 import Table from './Table';
@@ -40,6 +40,7 @@ export default function Dashboard({
   locale,
   currency,
   startYear,
+  platformTotalCollectives,
 }) {
   const router = useRouter();
   const filter: Filter = {
@@ -96,42 +97,21 @@ export default function Dashboard({
   const currentCategory = categories.find(category =>
     filter.tag ? category.tag === filter.tag : category.tag === 'ALL',
   );
-  const totalCollectiveCount = allCollectives.length;
 
   const setFilter = (filter: Filter) => pushFilterToRouter(filter, router);
 
   return (
-    <div className="mx-auto mt-2 flex max-w-[1400px] flex-col space-y-6 p-4 lg:space-y-10 lg:p-10">
+    <div className="flex max-w-[1440px] flex-col space-y-6 p-0 lg:space-y-10 lg:p-10">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:gap-10">
-        <div className="w-full rounded-lg p-2 lg:col-span-3 lg:bg-white lg:p-12">
-          <h1 className="text-[24px] font-bold leading-tight text-[#111827] lg:text-[40px]">
-            Discover {totalCollectiveCount.toLocaleString(locale)} collectives {host.slug ? 'hosted by' : 'on'}{' '}
-            <HostSwitcher host={host} hosts={hosts} /> making an impact in{' '}
-            <span className="">
-              {categories
-                .filter(c => c.tag !== 'ALL')
-                .map((cat, i, arr) => (
-                  <React.Fragment key={cat.label}>
-                    <span className="whitespace-nowrap">
-                      <button
-                        className={`inline-block whitespace-nowrap underline underline-offset-4 transition-colors ${
-                          filter.tag !== 'ALL' && filter.tag !== cat.tag
-                            ? `decoration-transparent hover:decoration-${cat.tw}-500`
-                            : `decoration-${cat.tw}-500`
-                        }`}
-                        onClick={() => setFilter({ tag: cat.tag })}
-                      >
-                        {cat.label.toLowerCase()}
-                      </button>
-                      {arr.length - 1 === i ? '' : ','}
-                    </span>
-                    {` `}
-                  </React.Fragment>
-                ))}
-            </span>
-            and more.
-          </h1>
-        </div>
+        <Header
+          hosts={hosts}
+          categories={categories}
+          host={host}
+          locale={locale}
+          platformTotalCollectives={platformTotalCollectives}
+          filter={filter}
+          setFilter={setFilter}
+        />
         <div
           className={`flex-col items-center justify-center px-2 lg:rounded-lg lg:p-10 ${host.styles.brandBox} ${
             !host.cta ? 'hidden lg:flex' : 'flex'
@@ -167,7 +147,7 @@ export default function Dashboard({
           />
         </div>
         <div className="space-y-12 lg:col-span-3">
-          <div className="-mx-4 space-y-5 rounded-lg bg-white py-4 lg:mx-0 lg:py-8" ref={collectivesDataContainer}>
+          <div className=" space-y-5 rounded-lg bg-white py-4 lg:mx-0 lg:py-8" ref={collectivesDataContainer}>
             <Stats stats={stats} locale={locale} currency={currency} />
             <div className="lg:px-4">
               <Chart

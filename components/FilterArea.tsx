@@ -91,25 +91,6 @@ export const Filters = ({
         <div className="mt-1 border-t pb-1 pt-2 lg:mt-4 lg:pt-4">
           <div className="space-y-1 lg:space-y-2">
             <Dropdown
-              ariaLabel="Date range"
-              currentCategoryColor={currentCategory.tw}
-              fieldLabel={
-                <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium">
-                  <DateIcon />
-                  <span>Date range</span>
-                </div>
-              }
-              options={[
-                { value: 'ALL', label: 'All time' },
-                { value: 'PAST_YEAR', label: 'Past 12 months' },
-                { value: 'PAST_QUARTER', label: 'Past 3 months' },
-              ]}
-              value={filter.timePeriod}
-              onChange={({ value }) => {
-                setFilter({ timePeriod: value });
-              }}
-            />
-            <Dropdown
               ariaLabel="Location"
               currentCategoryColor={currentCategory.tw}
               fieldLabel={
@@ -130,6 +111,25 @@ export const Filters = ({
                 setFilter({ location: JSON.parse(option.value) });
               }}
             />
+            <Dropdown
+              ariaLabel="Date range"
+              currentCategoryColor={currentCategory.tw}
+              fieldLabel={
+                <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium">
+                  <DateIcon />
+                  <span>Date range</span>
+                </div>
+              }
+              options={[
+                { value: 'ALL', label: 'All time' },
+                { value: 'PAST_YEAR', label: 'Past 12 months' },
+                { value: 'PAST_QUARTER', label: 'Past 3 months' },
+              ]}
+              value={filter.timePeriod}
+              onChange={({ value }) => {
+                setFilter({ timePeriod: value });
+              }}
+            />
           </div>
         </div>
       </AnimateHeight>
@@ -147,7 +147,7 @@ export default function FilterArea(props) {
       </div>
       <div className="block lg:hidden">
         <div className="relative h-40">
-          <div className="absolute top-0 right-0 left-0 -mx-4 bg-white py-2 px-4 shadow">
+          <div className="absolute top-0 right-0 left-0 bg-white py-2 px-4 shadow">
             <Filters {...props} mobile={true} />
           </div>
         </div>
