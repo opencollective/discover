@@ -47,7 +47,7 @@ export default function Dashboard({
     slug: hostSlug,
     timePeriod: getParam(router.query?.time) ?? 'ALL',
     tag: getParam(router.query?.tag) ?? 'ALL',
-    location: getLocationFilterParams(router.query) ?? null,
+    location: getLocationFilterParams(router.query) ?? { type: null, value: null },
   };
 
   const locationFilteredCollectives = React.useMemo(

@@ -4,7 +4,7 @@ export type LocationFilter = {
 };
 
 export default function filterLocation(collectives, filter: LocationFilter) {
-  if (!filter) {
+  if (!filter.value || !filter.type) {
     return collectives;
   }
   const filtered = collectives.filter(collective => {

@@ -101,9 +101,9 @@ export const Filters = ({
               }
               options={locationOptions.map(option => ({
                 ...option,
-                value: option.value ? JSON.stringify({ type: option.type, value: option.value }) : '',
+                value: JSON.stringify({ type: option.type, value: option.value }),
               }))}
-              value={filter.location ? JSON.stringify(filter.location) : ''}
+              value={JSON.stringify(filter.location)}
               onOpen={() => {
                 mobile && setExpanded(false);
               }}

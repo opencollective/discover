@@ -170,7 +170,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     };
   });
 
-  const allStories = getAllPosts(hostSlug, [
+  const allStories = getAllPosts([
     'title',
     'content',
     'tags',
@@ -182,14 +182,19 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   ]);
   // run markdownToHtml on content in stories
   const stories = await Promise.all(
-    allStories.map(async story => {
-      return {
+    allStories
+      .map(story => ({
         ...story,
-        tags: story.tags.map(tag => ({ color: categories.find(c => c.tag === tag)?.color ?? null, tag: tag })),
-        content: await markdownToHtml(story.content),
         collective: collectives.find(c => c.slug === story.collectiveSlug) ?? null,
-      };
-    }),
+      }))
+      .filter(story => story.collective)
+      .map(async story => {
+        return {
+          ...story,
+          tags: story.tags.map(tag => ({ color: categories.find(c => c.tag === tag)?.color ?? null, tag: tag })),
+          content: await markdownToHtml(story.content),
+        };
+      }),
   );
 
   const { currency, startYear } = host;

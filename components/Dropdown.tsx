@@ -30,7 +30,7 @@ export default function DropdownSelector({
   const selectedOption = findOptionFromValue(options, value);
   const breakIndex = options.findIndex(option => option.break);
   const lastVisibleIndex = breakIndex > 0 ? breakIndex : options.length;
-  const filterApplied = selectedOption?.value !== '' && selectedOption?.value !== 'ALL';
+  const filterApplied = selectedOption.value !== options[0].value;
 
   return (
     <div className="group relative h-10 w-full">
