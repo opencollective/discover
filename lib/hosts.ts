@@ -29,6 +29,7 @@ export const hosts: {
     startYear: 2016,
     logoSrc: '/oc-logo.svg',
     color: 'blue',
+    website: 'https://opencollective.com',
     styles: {
       text: 'text-[#0C2D66]',
       groupHoverText: 'group-hover:text-[#0C2D66]',
@@ -52,7 +53,7 @@ export const hosts: {
       box: 'bg-[#F7FEFF] text-ocf-brand',
     },
     cta: {
-      href: 'https://opencollective.com/solidarity-economy-fund/donat',
+      href: 'https://opencollective.com/solidarity-economy-fund/donate',
       buttonLabel: 'Contribute',
       text: 'Contribute to many collectives at once',
     },

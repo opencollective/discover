@@ -7,7 +7,10 @@ export default function Header({ hosts, platformTotalCollectives, locale, host, 
     <div className={`w-full bg-white p-6 lg:col-span-3 lg:mx-0 lg:rounded-lg lg:p-10 ${host.root && 'lg:pb-6'}`}>
       <h1 className="text-[24px] font-bold leading-tight text-[#111827] lg:text-[40px]">
         <span>Discover {host.count.toLocaleString(locale)}</span>
-        {host.root && <span className={`relative -top-2 -mx-0.5 select-none `}>*</span>} <span>collectives</span>{' '}
+        {host.root && (
+          <span className={`relative -top-2 -mx-0.5 select-none text-gray-400 lg:text-gray-300`}>*</span>
+        )}{' '}
+        <span>collectives</span>{' '}
         <HostSwitcher hosts={hosts} platformTotalCollectives={platformTotalCollectives} locale={locale}>
           <span
             className={`-ml-1 select-none text-[32px] font-medium leading-[0px] text-gray-400 transition-colors lg:text-[50px] lg:text-gray-300 ${host.styles.groupHoverText}`}
