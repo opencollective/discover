@@ -81,9 +81,9 @@ export default function Table({ collectives, filter, locale, setFilter, openColl
       collectives.map(collective => {
         return {
           ...collective,
-          raised: collective.stats?.[filter.timePeriod].raised,
-          spent: collective.stats?.[filter.timePeriod].spent,
-          contributors: collective.stats?.[filter.timePeriod].contributors,
+          raised: collective.stats?.[filter.timePeriod].raised ?? 0,
+          spent: collective.stats?.[filter.timePeriod].spent ?? 0,
+          contributors: collective.stats?.[filter.timePeriod].contributors ?? 0,
           percentDisbursed: (
             (collective.stats?.[filter.timePeriod].spent / collective.stats?.[filter.timePeriod].raised) *
             100
@@ -215,7 +215,7 @@ export default function Table({ collectives, filter, locale, setFilter, openColl
                         }}
                       >
                         {column.render('Header')}{' '}
-                        {column.canSort && column.isSorted && (
+                        {column.canSort && (
                           <span
                             style={{
                               display: 'inline-block',
@@ -224,11 +224,7 @@ export default function Table({ collectives, filter, locale, setFilter, openColl
                               opacity: column.isSorted ? '100%' : '25%',
                             }}
                           >
-                            {column.isSortedDesc ? (
-                              <SortDown size="16" />
-                            ) : (
-                              <SortDown style={{ transform: 'rotate(180deg)' }} size="16" />
-                            )}
+                            {column.isSorted && !column.isSortedDesc ? '▲' : '▼'}
                           </span>
                         )}
                       </th>
