@@ -1,12 +1,11 @@
-// TODO: fix these
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-
 import React, { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import Link from 'next/link';
+import { useRouter } from 'next/router';
 
-export default function HostSwitcher({ children, hosts, platformTotalCollectives, locale }) {
+import { ChevronUpDown, CloseIcon } from './Icons';
+
+export default function HostSwitcher({ host, hosts, platformTotalCollectives, locale }) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
   function closeModal() {
@@ -16,16 +15,31 @@ export default function HostSwitcher({ children, hosts, platformTotalCollectives
   function openModal() {
     setIsOpen(true);
   }
+  const hostNameStyles = `relative underline decoration-3 underline-offset-3 transition-colors lg:decoration-4 lg:underline-offset-4 ${host.styles.text}`;
 
   return (
     <Fragment>
-      <a
-        // This is a link since it needs to break with the text, TODO: fix suggestion
-        onClick={openModal}
-        className={`group cursor-pointer`}
-      >
-        {children}
-      </a>
+      <label htmlFor="host-switcher" className="group cursor-pointer">
+        {/* Split host name so that we can put switcher chevron in a no-wrap span with the last word, keeping it on the same line */}
+        {host.name.split(' ').map((word, i, arr) => {
+          const lastWord = i === arr.length - 1;
+          return (
+            <Fragment key={word}>
+              <span className={`${hostNameStyles} whitespace-nowrap`}>
+                {word}
+                {lastWord && (
+                  <button id="host-switcher" onClick={openModal}>
+                    <ChevronUpDown
+                      className={`-m-0.5 inline h-7 w-7 flex-shrink-0 opacity-75 transition-opacity group-hover:opacity-100 lg:h-12 lg:w-12 lg:opacity-50 ${host.styles.text}`}
+                    />
+                  </button>
+                )}
+              </span>
+              <span className={!lastWord && hostNameStyles}> </span>
+            </Fragment>
+          );
+        })}
+      </label>
 
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-30" onClose={closeModal}>
@@ -53,33 +67,36 @@ export default function HostSwitcher({ children, hosts, platformTotalCollectives
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-4 text-left align-middle shadow-xl transition-all lg:p-8">
-                  <Dialog.Title as="h3" className="mb-4 text-xl font-bold leading-6 text-gray-900">
+                  <Dialog.Title as="h3" className="mb-4 mt-2 text-2xl font-bold leading-6 text-gray-900 lg:mb-8">
                     Select host
                   </Dialog.Title>
+                  <button
+                    className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border text-gray-600 hover:bg-gray-50 lg:right-8 lg:top-6 lg:h-12 lg:w-12"
+                    onClick={closeModal}
+                  >
+                    <CloseIcon className="" />
+                  </button>
                   <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
                     {hosts.map(host => (
-                      <Link href={`/${host.slug}`} key={host.slug}>
-                        <a
-                          key={host.slug}
-                          className={`flex flex-col items-center justify-center gap-3 rounded-xl border-3 p-6 text-center lg:h-60 lg:gap-6 ${host.styles.box} border-transparent transition-colors`}
-                          onClick={() => {
-                            closeModal();
-                          }}
-                        >
-                          <span className={`text-base font-bold lg:text-lg ${host.styles.text}`}>
-                            {host.root ? 'Selected hosts on' : host.name}
-                          </span>
-                          <img src={host.logoSrc} className="h-6 lg:h-10" alt={host.name} />
-                          <div>
-                            <p className="underline">{host.count.toLocaleString(locale)} collectives</p>
-                            {host.root && (
-                              <p className="text-sm">
-                                out of {platformTotalCollectives.toLocaleString(locale)} in total
-                              </p>
-                            )}
-                          </div>
-                        </a>
-                      </Link>
+                      <button
+                        key={host.slug}
+                        className={`flex flex-col items-center justify-center gap-3 rounded-xl border-3 p-6 text-center lg:h-60 lg:gap-6 ${host.styles.box} border-transparent transition-colors`}
+                        onClick={() => {
+                          router.push(`/${host.slug}`);
+                          closeModal();
+                        }}
+                      >
+                        <span className={`text-base font-bold lg:text-xl ${host.styles.text}`}>
+                          {host.root ? 'Selected hosts on' : host.name}
+                        </span>
+                        <img src={host.logoSrc} className="h-6 lg:h-10" alt={host.name} />
+                        <div>
+                          <p className="underline">{host.count.toLocaleString(locale)} collectives</p>
+                          {host.root && (
+                            <p className="text-sm">out of {platformTotalCollectives.toLocaleString(locale)} in total</p>
+                          )}
+                        </div>
+                      </button>
                     ))}
                   </div>
                 </Dialog.Panel>

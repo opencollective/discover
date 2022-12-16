@@ -42,7 +42,7 @@ export default function Updates({ host, filter, openCollectiveModal }) {
   });
 
   return (
-    <div>
+    <div className="px-4 pb-6 lg:px-0">
       <h2 className="mb-6  text-xl font-bold text-gray-600 lg:text-4xl">Updates from collectives</h2>
       <Flipper flipKey={filter.tag}>
         <div className="min-h-[440px] space-y-4 lg:min-h-[560px]">

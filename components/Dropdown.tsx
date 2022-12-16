@@ -42,7 +42,7 @@ export default function DropdownSelector({
       </label>
       <select
         aria-label={ariaLabel}
-        className={`absolute inset-0 flex w-full  items-center justify-end rounded-lg border-2 bg-opacity-75 text-transparent transition-colors  focus:outline-none  ${
+        className={`absolute inset-0 flex w-full  items-center justify-end rounded-lg border-2 bg-opacity-75 text-transparent transition-colors   ${
           filterApplied
             ? `bg-${currentCategoryColor}-50 border-transparent hover:bg-opacity-100 hover:border-${currentCategoryColor}-100`
             : 'border-transparent bg-white hover:border-gray-100  hover:bg-gray-50 '

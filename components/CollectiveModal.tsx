@@ -1,13 +1,13 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Dialog, Transition } from '@headlessui/react';
-import { Xmark } from '@styled-icons/fa-solid/Xmark';
 import AnimateHeight, { Height } from 'react-animate-height';
 import { FormattedDate } from 'react-intl';
 import sanitizeHtml from 'sanitize-html';
 
 import { formatCurrency } from '@opencollective/frontend-components/lib/currency-utils';
 
+import { CloseIcon } from './Icons';
 import LocationTag from './LocationTag';
 import { Avatar } from './Table';
 
@@ -85,10 +85,10 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                     <span>{collective?.name}</span>
                   </Dialog.Title>
                   <button
-                    className="absolute right-2 top-2 h-10 w-10 rounded-full text-gray-600 hover:bg-gray-50"
+                    className="absolute right-6 top-5 flex h-12 w-12 items-center justify-center rounded-full border text-gray-600 hover:bg-gray-50"
                     onClick={onClose}
                   >
-                    <Xmark size={22} />
+                    <CloseIcon className="" />
                   </button>
                   <AnimateHeight id="description" duration={500} height={height}>
                     <div className="mt-3">
