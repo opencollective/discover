@@ -162,20 +162,22 @@ export default function Dashboard({
           <Updates host={host} filter={filter} openCollectiveModal={openCollectiveModal} />
         </div>
       </div>
-      {host.cta.textLonger && (
-        <div className="order my-12 grid grid-cols-1 rounded-lg border-2 border-teal-500 bg-[#F7FEFF] lg:grid-cols-4 lg:gap-12">
+      {host.cta?.textLonger && (
+        <div
+          className={`order my-12 grid grid-cols-1 rounded-lg border-2 lg:grid-cols-4 lg:gap-12 ${host.styles.box} ${host.styles.border}`}
+        >
           <div className="flex flex-col justify-center p-6 pt-0 lg:p-10 lg:pt-10 lg:pr-4 ">
             <a
               href={host.cta.href}
               target="_blank"
               rel="noopener noreferrer"
-              className=" block rounded-full bg-[#044F54] px-3 py-3 text-center text-lg font-medium text-white lg:py-4 lg:text-xl"
+              className={` block rounded-full bg-[#044F54] px-3 py-3 text-center text-lg font-medium text-white lg:py-4 lg:text-xl`}
             >
               {host.cta.buttonLabel}
             </a>
           </div>
           <div className="order-first p-6 lg:order-last lg:col-span-3 lg:p-10 lg:pl-0">
-            <h3 className="text-2xl font-bold text-teal-800 lg:text-3xl">{host.cta.textLonger}</h3>
+            <h3 className={`text-2xl font-bold  lg:text-3xl`}>{host.cta.textLonger}</h3>
           </div>
         </div>
       )}
