@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
-import { compute } from '../lib/compute';
-import { getFilterFromQuery } from '../lib/filter-from-query';
-import { LocationFilter } from '../lib/location/filterLocation';
+import { computeStats, computeTimeSeries } from '../lib/compute-data';
+import filterLocation, { LocationFilter } from '../lib/location/filterLocation';
+import getFilterOptions from '../lib/location/getFilterOptions';
+import { pushFilterToRouter } from '../lib/set-filter';
 
 import Chart from './Chart';
 import CollectiveModal from './CollectiveModal';
@@ -15,142 +16,90 @@ import Table from './Table';
 import Updates from './Updates';
 
 export type Filter = {
-  slug: string;
-  tag: string;
-  timePeriod: string;
-  location: LocationFilter;
+  slug?: string;
+  timePeriod?: string;
+  tag?: string;
+  location?: LocationFilter;
+};
+
+const getParam = param => (Array.isArray(param) ? param[0] : param);
+
+const getLocationFilterParams = query => {
+  const location = getParam(query?.location);
+  const locationType = getParam(query?.locationType);
+  return location && locationType ? { type: locationType, value: location } : null;
 };
 
 export default function Dashboard({
   host,
   hosts,
-  categories: initialCategories,
-  collectives: initialCollectives,
-  // series: initialSeries,
-  // stats: initialStats,
-  filter: initialFilter,
+  categories,
+  collectives: allCollectives,
+  hostSlug,
   stories,
   locale,
   currency,
-  // locationOptions,
   startYear,
 }) {
   const router = useRouter();
-  const initialData = React.useMemo(
-    () =>
-      compute({
-        filter: initialFilter,
-        allCollectives: initialCollectives,
-        categories: initialCategories,
-      }),
-    [host.slug],
+  const filter: Filter = {
+    slug: hostSlug,
+    timePeriod: getParam(router.query?.time) ?? 'ALL',
+    tag: getParam(router.query?.tag) ?? 'ALL',
+    location: getLocationFilterParams(router.query) ?? null,
+  };
+
+  const locationFilteredCollectives = React.useMemo(
+    () => filterLocation(allCollectives, filter.location),
+    [JSON.stringify(filter)],
   );
-  const [{ collectives, series, stats }, setData] = useState({
-    collectives: initialData.collectives,
-    series: initialData.series,
-    stats: initialData.stats,
-  });
-  // console.log({ initialData });
-  const [counter, setCounter] = useState(0);
-  const { locationOptions, categories } = initialData;
-  const [filter, setFilter] = useState<Filter>(initialFilter);
-  // set filter from query params
-  useEffect(() => {
-    const filter = getFilterFromQuery(router.query, initialFilter);
-    setFilter(filter);
-  }, [router.query, initialFilter]);
 
-  // fetch or update data
-  useEffect(() => {
-    const data = compute({
-      filter,
-      allCollectives: initialCollectives,
-      categories: initialCategories,
-    });
-    // console.log({ data });
-    setData({ collectives: data.collectives, series: data.series, stats: data.stats });
-    setCounter(counter + 1);
-    // // first render, no need to fetch or reset to initial data
-    // if (JSON.stringify(filter) === JSON.stringify(initialFilter)) {
-    //   // set initial data
-    //   setData({ collectives: initialCollectives, series: initialSeries, stats: initialStats });
-    //   setCounter(counter + 1);
-    // } else {
-    //   const startFetchTime = Date.now();
-    //   fetch('/api/compute', {
-    //     method: 'POST',
-    //     body: JSON.stringify(filter),
-    //   })
-    //     .then(res => res.json())
-    //     .then(({ collectives, series, stats, time }) => {
-    //       setData({ collectives, series, stats });
-    //       // setLoading(false);
-    //       const endFetchTime = Date.now();
-    //       console.log({ totalFetch: endFetchTime - startFetchTime, handlerTime: time });
-    //       setCounter(counter + 1);
-    //     });
-    // }
-  }, [JSON.stringify(filter)]);
+  const categoriesWithFilteredCollectives = React.useMemo(
+    () =>
+      categories.map(category => {
+        return {
+          ...category,
+          collectives: locationFilteredCollectives.filter(
+            collective => category.tag === 'ALL' || collective.tags?.includes(category.tag),
+          ),
+        };
+      }),
+    [JSON.stringify(filter)],
+  );
 
-  const setTag = (value: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { slug = '', tag, ...rest } = router.query;
-    router.push(
-      { pathname: `/${slug ?? ''}`, query: { ...rest, ...(value !== 'ALL' && tag !== value && { tag: value }) } },
-      null,
-      {
-        shallow: true,
-      },
-    );
-  };
+  const series = React.useMemo(
+    () => computeTimeSeries(categoriesWithFilteredCollectives, filter.timePeriod),
+    [JSON.stringify(filter)],
+  );
 
-  const setTimePeriod = (value: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { slug = '', time, ...rest } = router.query;
-    router.push(
-      {
-        pathname: `/${slug ?? ''}`,
-        query: { ...rest, ...(value !== 'ALL' && { time: value }) },
-      },
-      null,
-      {
-        shallow: true,
-      },
-    );
-  };
+  const currentCatWithCollectives = categoriesWithFilteredCollectives.find(category =>
+    filter.tag ? category.tag === filter.tag : category.tag === 'ALL',
+  );
 
-  const setLocationFilter = (locationFilter: LocationFilter) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { slug = '', location, locationType, ...rest } = router.query;
-    router.push(
-      {
-        pathname: `/${slug ?? ''}`,
-        query: {
-          ...rest,
-          ...(locationFilter && { location: locationFilter.value, locationType: locationFilter.type }),
-        },
-      },
-      null,
-      {
-        shallow: true,
-      },
-    );
-  };
+  const stats = React.useMemo(
+    () => computeStats(currentCatWithCollectives?.collectives, filter.timePeriod),
+    [JSON.stringify(filter)],
+  );
+
+  const locationOptions = React.useMemo(() => getFilterOptions(allCollectives), [host.slug]);
 
   const [collectiveInModal, setCollectiveInModal] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openCollectiveModal = (slug: string) => {
-    const collective = initialCollectives.find(c => c.slug === slug);
+    const collective = allCollectives.find(c => c.slug === slug);
     setCollectiveInModal(collective);
     setIsModalOpen(true);
   };
 
   const collectivesDataContainer = useRef(null);
   const currentCategory = categories.find(category =>
-    filter.slug === initialFilter.slug && filter.tag ? category.tag === filter.tag : category.tag === 'ALL',
+    filter.tag ? category.tag === filter.tag : category.tag === 'ALL',
   );
-  const totalCollectiveCount = initialCollectives.length;
+  const totalCollectiveCount = allCollectives.length;
+
+  const setFilter = (filter: Filter) => pushFilterToRouter(filter, router);
+
   return (
     <div className="mx-auto mt-2 flex max-w-[1400px] flex-col space-y-6 p-4 lg:space-y-10 lg:p-10">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:gap-10">
@@ -170,7 +119,7 @@ export default function Dashboard({
                             ? `decoration-transparent hover:decoration-${cat.tw}-500`
                             : `decoration-${cat.tw}-500`
                         }`}
-                        onClick={() => setTag(cat.tag)}
+                        onClick={() => setFilter({ tag: cat.tag })}
                       >
                         {cat.label.toLowerCase()}
                       </button>
@@ -209,10 +158,8 @@ export default function Dashboard({
         <div className="sticky top-0 z-20 lg:top-10">
           <FilterArea
             filter={filter}
+            setFilter={setFilter}
             categories={categories}
-            setLocationFilter={setLocationFilter}
-            setTimePeriod={setTimePeriod}
-            setTag={setTag}
             collectivesDataContainerRef={collectivesDataContainer}
             currentCategory={currentCategory}
             locationOptions={locationOptions}
@@ -226,19 +173,17 @@ export default function Dashboard({
               <Chart
                 startYear={startYear}
                 filter={filter}
-                timeSeriesArray={series}
+                timeSeriesArray={series.filter(s => filter.tag === 'ALL' || filter.tag === s.tag)}
                 currency={currency}
-                counter={counter}
               />
             </div>
             <Table
               filter={filter}
-              collectives={collectives}
-              setLocationFilter={setLocationFilter}
+              setFilter={setFilter}
+              collectives={currentCatWithCollectives.collectives}
               locale={locale}
               openCollectiveModal={openCollectiveModal}
               currency={currency}
-              counter={counter}
             />
           </div>
           <Stories stories={stories} filter={filter} openCollectiveModal={openCollectiveModal} />
@@ -270,7 +215,7 @@ export default function Dashboard({
         isOpen={isModalOpen}
         collective={collectiveInModal}
         onClose={() => setIsModalOpen(false)}
-        setLocationFilter={setLocationFilter}
+        setFilter={setFilter}
         currency={currency}
       />
     </div>

@@ -19,7 +19,7 @@ export const accountsQuery = gql`
         imageUrl
         tags
 
-        ALL_stats: stats {
+        ALL: stats {
           contributorsCount(includeChildren: true)
           contributionsCount(includeChildren: true)
 
@@ -38,7 +38,7 @@ export const accountsQuery = gql`
           }
         }
 
-        PAST_YEAR_stats: stats {
+        PAST_YEAR: stats {
           contributorsCount(includeChildren: true, dateFrom: $yearAgo)
           contributionsCount(includeChildren: true, dateFrom: $yearAgo)
 
@@ -52,6 +52,7 @@ export const accountsQuery = gql`
             includeChildren: true
             currency: $currency
           ) {
+            timeUnit
             nodes {
               date
               amount {
@@ -61,7 +62,7 @@ export const accountsQuery = gql`
           }
         }
 
-        PAST_QUARTER_stats: stats {
+        PAST_QUARTER: stats {
           contributorsCount(includeChildren: true, dateFrom: $quarterAgo)
           contributionsCount(includeChildren: true, dateFrom: $quarterAgo)
 
@@ -76,6 +77,7 @@ export const accountsQuery = gql`
             includeChildren: true
             currency: $currency
           ) {
+            timeUnit
             nodes {
               date
               amount {

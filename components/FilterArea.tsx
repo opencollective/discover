@@ -33,9 +33,7 @@ const CloseIcon = () => (
 export const Filters = ({
   filter,
   categories,
-  setLocationFilter,
-  setTag,
-  setTimePeriod,
+  setFilter,
   locale,
   locationOptions,
   mobile = false,
@@ -83,7 +81,7 @@ export const Filters = ({
           selectedTag={filter.tag}
           categories={categories}
           onSelect={category => {
-            setTag(category.tag);
+            setFilter({ tag: category.tag });
             mobile && setExpanded(false);
           }}
         />
@@ -108,7 +106,7 @@ export const Filters = ({
               ]}
               value={filter.timePeriod}
               onChange={({ value }) => {
-                setTimePeriod(value);
+                setFilter({ timePeriod: value });
               }}
             />
             <Dropdown
@@ -129,11 +127,7 @@ export const Filters = ({
                 mobile && setExpanded(false);
               }}
               onChange={option => {
-                if (!option.value) {
-                  setLocationFilter(null);
-                } else {
-                  setLocationFilter(JSON.parse(option.value));
-                }
+                setFilter({ location: JSON.parse(option.value) });
               }}
             />
           </div>

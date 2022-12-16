@@ -5,9 +5,9 @@ import { SortDown } from '@styled-icons/fa-solid/SortDown';
 import { usePagination, useSortBy, useTable } from 'react-table';
 import styled from 'styled-components';
 
-import { LocationFilter } from '../lib/location/filterLocation';
 import { formatCurrency } from '@opencollective/frontend-components/lib/currency-utils';
 
+import { Filter } from './Dashboard';
 import LocationTag from './LocationTag';
 
 const StyledTable = styled.table`
@@ -71,27 +71,26 @@ interface Props {
   filter: any;
   locale: string;
   openCollectiveModal: (slug: string) => void;
-  setLocationFilter: (location: LocationFilter) => void;
+  setFilter: (filter: Filter) => void;
   currency: string;
-  counter: number;
 }
 
-export default function Table({
-  collectives,
-  filter,
-  locale,
-  setLocationFilter,
-  openCollectiveModal,
-  currency,
-  counter,
-}: Props) {
+export default function Table({ collectives, filter, locale, setFilter, openCollectiveModal, currency }: Props) {
   const data = React.useMemo(
     () =>
-      collectives.map(collective => ({
-        ...collective,
-        percentDisbursed: ((collective.spent / collective.raised) * 100).toFixed(1),
-      })),
-    [counter],
+      collectives.map(collective => {
+        return {
+          ...collective,
+          raised: collective.stats?.[filter.timePeriod].raised,
+          spent: collective.stats?.[filter.timePeriod].spent,
+          contributors: collective.stats?.[filter.timePeriod].contributors,
+          percentDisbursed: (
+            (collective.stats?.[filter.timePeriod].spent / collective.stats?.[filter.timePeriod].raised) *
+            100
+          ).toFixed(1),
+        };
+      }),
+    [JSON.stringify(filter)],
   );
 
   const columns = React.useMemo(
@@ -114,21 +113,13 @@ export default function Table({
         Cell: ({ row }) =>
           row.original.location?.label ? (
             <div className="flex justify-start">
-              <LocationTag location={row.original.location} setLocationFilter={setLocationFilter} />
+              <LocationTag location={row.original.location} setLocationFilter={location => setFilter({ location })} />
             </div>
           ) : null,
         Header: 'Location',
         disableSortBy: true,
         className: 'max-w-[150px] text-left overflow-hidden px-2 py-4',
       },
-      // {
-      //   Header: 'Created',
-      //   accessor: 'createdAt',
-      //   sortDescFirst: true,
-      //   Cell: ({ row }) => new Date(row.original.createdAt).getUTCFullYear(),
-      //   className: 'center',
-      //
-      // },
       {
         Header: 'Contributors',
         accessor: 'contributors',

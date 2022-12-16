@@ -1,12 +1,13 @@
 import React, { useRef, useState } from 'react';
+import LiteYouTubeEmbed from 'react-lite-youtube-embed';
 import styled from 'styled-components';
 import { Navigation } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import LiteYouTubeEmbed from 'react-lite-youtube-embed';
-import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css';
 
 import CollectiveButton from '../components/CollectiveButton';
 import LocationTag from '../components/LocationTag';
+
+import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css';
 
 const Markdown = styled.div`
   line-height: 1.625;

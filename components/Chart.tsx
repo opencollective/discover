@@ -176,14 +176,17 @@ const getSeriesFromData = (intl, timeSeriesArray, startYear, timePeriod) => {
   return series;
 };
 
-export default function Chart({ timeSeriesArray, startYear, filter, currency, counter }) {
+export default function Chart({ timeSeriesArray, startYear, filter, currency }) {
   const intl = useIntl();
-  const series = useMemo(() => getSeriesFromData(intl, timeSeriesArray, startYear, filter.timePeriod), [counter]);
+  const series = useMemo(
+    () => getSeriesFromData(intl, timeSeriesArray, startYear, filter.timePeriod),
+    [JSON.stringify(filter)],
+  );
   const isCompactNotation = true; // getMinMaxDifference(series[0].data) >= 10000;
   const colors = timeSeriesArray.map(s => s.color);
   const chartOptions = useMemo(
     () => getChartOptions(intl, timeSeriesArray[0].timeUnit, currency, isCompactNotation, colors),
-    [counter],
+    [JSON.stringify(filter)],
   );
 
   return (
