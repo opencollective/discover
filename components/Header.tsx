@@ -17,7 +17,7 @@ export default function Header({ hosts, platformTotalCollectives, locale, host, 
           </span>
           <span>{host.slug ? 'hosted by ' : 'on '}</span>
           <span
-            className={`relative underline decoration-3 underline-offset-3 transition-colors lg:underline-offset-4 ${host.styles.text}`}
+            className={`relative underline decoration-3 underline-offset-3 transition-colors lg:decoration-4 lg:underline-offset-4 ${host.styles.text}`}
           >
             {host.name}
           </span>
@@ -36,7 +36,7 @@ export default function Header({ hosts, platformTotalCollectives, locale, host, 
               <React.Fragment key={cat.label}>
                 <span className="whitespace-nowrap">
                   <button
-                    className={`inline-block whitespace-nowrap underline decoration-3 underline-offset-3 transition-colors lg:underline-offset-4 ${
+                    className={`inline-block whitespace-nowrap underline decoration-3 underline-offset-3 transition-colors lg:decoration-4 lg:underline-offset-4 ${
                       filter.tag !== 'ALL' && filter.tag !== cat.tag
                         ? `decoration-transparent hover:decoration-${cat.tw}-500`
                         : `decoration-${cat.tw}-500`
