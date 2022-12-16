@@ -6,10 +6,10 @@ export const hosts: {
   startYear: number;
   logoSrc: string;
   color: string;
-  styles: { text: string; groupHoverText: string; button: string; brandBox: string; box: string };
+  styles: { text: string; groupHoverText: string; button: string; brandBox: string; box: string; border: string };
   website?: string;
   categories?: { label: string; tag: string }[];
-  cta?: { text: string; href: string; buttonLabel: string };
+  cta?: { text: string; textLonger: string; href: string; buttonLabel: string };
   root?: boolean;
 }[] = [
   {
@@ -36,6 +36,7 @@ export const hosts: {
       button: 'bg-[#0C2D66] text-white',
       brandBox: 'lg:bg-[#F5FAFF] text-[#0C2D66]',
       box: 'bg-[#F5FAFF] text-[#0C2D66]',
+      border: 'border-[#0C2D66]',
     },
   },
   {
@@ -51,11 +52,13 @@ export const hosts: {
       button: 'bg-ocf-brand text-white',
       brandBox: 'lg:bg-[#F7FEFF] text-ocf-brand',
       box: 'bg-[#F7FEFF] text-ocf-brand',
+      border: 'border-ocf-brand',
     },
     cta: {
       href: 'https://opencollective.com/solidarity-economy-fund/donate',
       buttonLabel: 'Contribute',
       text: 'Contribute to many collectives at once',
+      textLonger: 'Contribute to a pooled fund to benefit multiple collectives within Open Collective Foundation',
     },
     categories: [
       { label: 'Mutual aid', tag: 'mutual aid' },
@@ -83,6 +86,7 @@ export const hosts: {
       button: 'bg-[#4B3084] text-white',
       brandBox: 'lg:bg-[#4B3084] lg:bg-opacity-5 text-[#4B3084]',
       box: 'bg-[#4B3084] bg-opacity-5 text-[#4B3084]',
+      border: 'border-[#4B3084]',
     },
   },
   {
@@ -99,6 +103,7 @@ export const hosts: {
       button: 'bg-[#0C2D66] text-white',
       brandBox: 'lg:bg-[#E0EC7B] lg:bg-opacity-20 text-[#0C2D66]',
       box: 'bg-[#E0EC7B] bg-opacity-20 text-[#0C2D66]',
+      border: 'border-[#0C2D66]',
     },
   },
 ];
