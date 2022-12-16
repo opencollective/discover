@@ -101,7 +101,7 @@ export default function Dashboard({
   const setFilter = (filter: Filter) => pushFilterToRouter(filter, router);
 
   return (
-    <div className="flex max-w-[1440px] flex-col space-y-6 p-0 lg:space-y-10 lg:p-10">
+    <div className="flex max-w-[1440px] flex-col space-y-6 p-0 lg:mt-2 lg:space-y-10 lg:p-10">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:gap-10">
         <Header
           hosts={hosts}
@@ -145,6 +145,16 @@ export default function Dashboard({
             locationOptions={locationOptions}
             locale={locale}
           />
+          {host.cta?.href && (
+            <a
+              href={host.cta?.href ?? host.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`mt-10 block w-full rounded-full lg:rounded-full ${host.styles.button} p-3 text-center text-sm font-medium lg:text-lg`}
+            >
+              <span className="hidden lg:inline-block">{host.cta?.buttonLabel}</span>
+            </a>
+          )}
         </div>
         <div className="space-y-12 lg:col-span-3">
           <div className=" space-y-5 rounded-lg bg-white py-4 lg:mx-0 lg:py-8" ref={collectivesDataContainer}>
