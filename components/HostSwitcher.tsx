@@ -67,7 +67,7 @@ export default function HostSwitcher({ children, hosts, platformTotalCollectives
                           }}
                         >
                           <span className={`text-base font-bold lg:text-lg ${host.styles.text}`}>
-                            {host.root ? 'All verified hosts on' : host.name}
+                            {host.root ? 'Selected hosts on' : host.name}
                           </span>
                           <img src={host.logoSrc} className="h-6 lg:h-10" alt={host.name} />
                           <div>

@@ -9,7 +9,9 @@ export default function Header({ hosts, platformTotalCollectives, locale, host, 
         <span>Discover {host.count.toLocaleString(locale)}</span>
         {host.root && <span className={`relative -top-2 -mx-0.5 select-none `}>*</span>} <span>collectives</span>{' '}
         <HostSwitcher hosts={hosts} platformTotalCollectives={platformTotalCollectives} locale={locale}>
-          <span className="-ml-1 select-none text-[32px] font-medium leading-[0px] text-gray-400 transition-colors group-hover:text-gray-800 lg:text-[50px] lg:text-gray-300">
+          <span
+            className={`-ml-1 select-none text-[32px] font-medium leading-[0px] text-gray-400 transition-colors lg:text-[50px] lg:text-gray-300 ${host.styles.groupHoverText}`}
+          >
             [
           </span>
           <span>{host.slug ? 'hosted by ' : 'on '}</span>
@@ -18,10 +20,14 @@ export default function Header({ hosts, platformTotalCollectives, locale, host, 
           >
             {host.name}
           </span>
-          <span className="select-none text-[20px] leading-[0px] text-gray-400 transition-colors group-hover:text-gray-800 lg:text-[30px] lg:text-gray-300">
+          <span
+            className={`select-none text-[20px] leading-[0px] text-gray-400 transition-colors  ${host.styles.groupHoverText} lg:text-[30px] lg:text-gray-300`}
+          >
             ▼
           </span>
-          <span className="-mr-1 select-none text-[32px] font-medium leading-[0px] text-gray-400 transition-colors group-hover:text-gray-800 lg:text-[50px] lg:text-gray-300 ">
+          <span
+            className={`-mr-1 select-none text-[32px] font-medium leading-[0px] text-gray-400 transition-colors lg:text-[50px] lg:text-gray-300  ${host.styles.groupHoverText}`}
+          >
             ]
           </span>
         </HostSwitcher>{' '}

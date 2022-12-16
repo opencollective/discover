@@ -6,7 +6,7 @@ export const hosts: {
   startYear: number;
   logoSrc: string;
   color: string;
-  styles: { text: string; button: string; brandBox: string; box: string };
+  styles: { text: string; groupHoverText: string; button: string; brandBox: string; box: string };
   website?: string;
   categories?: { label: string; tag: string }[];
   cta?: { text: string; href: string; buttonLabel: string };
@@ -31,6 +31,7 @@ export const hosts: {
     color: 'blue',
     styles: {
       text: 'text-[#0C2D66]',
+      groupHoverText: 'group-hover:text-[#0C2D66]',
       button: 'bg-[#0C2D66] text-white',
       brandBox: 'lg:bg-[#F5FAFF] text-[#0C2D66]',
       box: 'bg-[#F5FAFF] text-[#0C2D66]',
@@ -45,6 +46,7 @@ export const hosts: {
     color: 'teal',
     styles: {
       text: 'text-ocf-brand',
+      groupHoverText: 'group-hover:text-ocf-brand',
       button: 'bg-ocf-brand text-white',
       brandBox: 'lg:bg-[#F7FEFF] text-ocf-brand',
       box: 'bg-[#F7FEFF] text-ocf-brand',
@@ -76,6 +78,7 @@ export const hosts: {
     color: 'purple',
     styles: {
       text: 'text-[#4B3084]',
+      groupHoverText: 'group-hover:text-[#4B3084]',
       button: 'bg-[#4B3084] text-white',
       brandBox: 'lg:bg-[#4B3084] lg:bg-opacity-5 text-[#4B3084]',
       box: 'bg-[#4B3084] bg-opacity-5 text-[#4B3084]',
@@ -91,6 +94,7 @@ export const hosts: {
     color: 'blue',
     styles: {
       text: 'text-[#0C2D66]',
+      groupHoverText: 'group-hover:text-[#0C2D66]',
       button: 'bg-[#0C2D66] text-white',
       brandBox: 'lg:bg-[#E0EC7B] lg:bg-opacity-20 text-[#0C2D66]',
       box: 'bg-[#E0EC7B] bg-opacity-20 text-[#0C2D66]',
