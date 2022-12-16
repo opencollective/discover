@@ -4,7 +4,7 @@ import HostSwitcher from './HostSwitcher';
 
 export default function Header({ hosts, platformTotalCollectives, locale, host, categories, filter, setFilter }) {
   return (
-    <div className={`w-full bg-white p-6 lg:col-span-3 lg:mx-0 lg:rounded-lg lg:p-10 ${host.root && 'lg:pb-6'}`}>
+    <div className={`w-full bg-white p-6 lg:col-span-3 lg:mx-0 lg:rounded-lg lg:p-10 ${host.root && 'lg:pb-8'}`}>
       <h1 className="text-[24px] font-bold leading-tight text-[#111827] lg:text-[40px]">
         <span>Discover {host.count.toLocaleString(locale)}</span>
         {host.root && (
@@ -60,7 +60,7 @@ export default function Header({ hosts, platformTotalCollectives, locale, host, 
         <span>and more.</span>
       </h1>
       {host.root && (
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-4 text-sm text-gray-600">
           * out of {platformTotalCollectives.toLocaleString(locale)} collectives on Open Collective. Displaying data
           from selected Fiscal Hosts.
         </p>
