@@ -81,8 +81,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     };
   }
 
-  const data = await require(`../_dump/${hostSlug ?? 'ALL'}.json`);
-  const { collectiveCounts } = await require(`../_dump/shared.json`);
+  const data = await require(`../_data/${hostSlug ?? 'ALL'}.json`);
+  const { collectiveCounts } = await require(`../_data/shared.json`);
 
   const collectives = data.accounts.nodes.map(collective => {
     const stats = getStats(collective);

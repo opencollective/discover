@@ -18,6 +18,13 @@ export const accountsQuery = gql`
         slug
         imageUrl
         tags
+        ... on AccountWithHost {
+          host {
+            slug
+            name
+            imageUrl
+          }
+        }
 
         ALL: stats {
           contributorsCount(includeChildren: true)
