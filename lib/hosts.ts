@@ -47,12 +47,12 @@ export const hosts: {
     logoSrc: '/ocf-logo.svg',
     color: 'teal',
     styles: {
-      text: 'text-ocf-brand',
-      groupHoverText: 'group-hover:text-ocf-brand',
-      button: 'bg-ocf-brand text-white',
-      brandBox: 'lg:bg-[#F7FEFF] text-ocf-brand',
-      box: 'bg-[#F7FEFF] text-ocf-brand',
-      border: 'border-ocf-brand',
+      text: 'text-[#0C5559]',
+      groupHoverText: 'group-hover:text-[#0C5559]',
+      button: 'bg-[#0C5559] text-white',
+      brandBox: 'lg:bg-[#F7FEFF] text-[#0C5559]',
+      box: 'bg-[#F7FEFF] text-[#0C5559]',
+      border: 'border-[#00a0a8]',
     },
     cta: {
       href: 'https://opencollective.com/solidarity-economy-fund/donate',

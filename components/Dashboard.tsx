@@ -132,7 +132,7 @@ export default function Dashboard({
               href={host.cta?.href ?? host.website}
               target="_blank"
               rel="noopener noreferrer"
-              className={`mt-10 block w-full rounded-full lg:rounded-full ${host.styles.button} p-3 text-center text-sm font-medium lg:text-lg`}
+              className={`mt-10 block w-full rounded-full lg:rounded-full ${host.styles.button} p-3 py-4 text-center text-sm font-medium lg:text-lg`}
             >
               <span className="hidden lg:inline-block">{host.cta?.buttonLabel}</span>
             </a>
@@ -171,7 +171,7 @@ export default function Dashboard({
               href={host.cta.href}
               target="_blank"
               rel="noopener noreferrer"
-              className={` block rounded-full bg-[#044F54] px-3 py-3 text-center text-lg font-medium text-white lg:py-4 lg:text-xl`}
+              className={` block rounded-full ${host.styles.button} px-3 py-3 text-center text-lg font-medium text-white lg:py-4 lg:text-xl`}
             >
               {host.cta.buttonLabel}
             </a>
