@@ -71,7 +71,7 @@ export const Filters = ({
           {expanded ? (
             <CloseIcon />
           ) : (
-            <FilterIcon className={`${currentCategory.tag !== 'ALL' && `text-${currentCategory.tw}-600`}`} />
+            <FilterIcon className={`${currentCategory.tag !== 'ALL' && `text-${currentCategory.color.name}-600`}`} />
           )}
         </button>
       )}
@@ -92,7 +92,7 @@ export const Filters = ({
           <div className="space-y-1 lg:space-y-2">
             <Dropdown
               ariaLabel="Location"
-              currentCategoryColor={currentCategory.tw}
+              currentCategoryColor={currentCategory.color.name}
               fieldLabel={
                 <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium">
                   <LocationPin />
@@ -113,7 +113,7 @@ export const Filters = ({
             />
             <Dropdown
               ariaLabel="Date range"
-              currentCategoryColor={currentCategory.tw}
+              currentCategoryColor={currentCategory.color.name}
               fieldLabel={
                 <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium">
                   <DateIcon />

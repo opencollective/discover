@@ -25,8 +25,8 @@ export default function Header({ hosts, platformTotalCollectives, locale, host, 
                   <button
                     className={`inline-block whitespace-nowrap underline decoration-3 underline-offset-3 transition-colors lg:decoration-4 lg:underline-offset-4 ${
                       filter.tag !== 'ALL' && filter.tag !== cat.tag
-                        ? `decoration-transparent hover:decoration-${cat.tw}-500`
-                        : `decoration-${cat.tw}-500`
+                        ? `decoration-transparent hover:decoration-${cat.color.name}-500`
+                        : `decoration-${cat.color.name}-500`
                     }`}
                     onClick={() => setFilter({ tag: cat.tag })}
                   >

@@ -10,13 +10,13 @@ const CategorySelect = ({ categories, selectedTag, onSelect, locale }) => {
           key={category.label}
           className={cva(
             [
-              `flex w-full items-center justify-between rounded-lg border-2 px-4 py-2 transition-colors hover:bg-${category.tw}-50 hover:bg-opacity-50	`,
+              `flex w-full items-center justify-between rounded-lg border-2 px-4 py-2 transition-colors hover:bg-${category.color.name}-50 hover:bg-opacity-50	`,
             ],
             {
               variants: {
                 selected: {
-                  true: `border-${category.tw}-500`,
-                  false: `border-transparent hover:border-${category.tw}-500`,
+                  true: `border-${category.color.name}-500`,
+                  false: `border-transparent hover:border-${category.color.name}-500`,
                 },
               },
             },

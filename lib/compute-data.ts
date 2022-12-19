@@ -47,7 +47,7 @@ export function computeTimeSeries(categoriesWithFilteredData, timePeriod) {
 
     return {
       label: category.label,
-      color: category.color,
+      color: category.color.hex,
       tag: category.tag,
       timeUnit: timeSeries.timeUnit,
       nodes: Object.values(timeSeries.nodes),

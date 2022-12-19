@@ -40,27 +40,27 @@ const getStats = collective => {
 };
 
 const colors = [
-  { tw: 'red', color: '#EF4444' },
-  { tw: 'orange', color: '#F97316' },
-  { tw: 'amber', color: '#F59E0B' },
-  { tw: 'yellow', color: '#EAB308' },
-  { tw: 'lime', color: '#84CC16' },
-  { tw: 'green', color: '#22C55E' },
-  { tw: 'emerald', color: '#10B981' },
-  { tw: 'teal', color: '#14B8A6' },
-  { tw: 'cyan', color: '#06B6D4' },
-  { tw: 'sky', color: '#0EA5E9' },
-  { tw: 'blue', color: '#3B82F6' },
-  { tw: 'indigo', color: '#6366F1' },
-  { tw: 'violet', color: '#8B5CF6' },
-  { tw: 'purple', color: '#A855F7' },
-  { tw: 'fuchsia', color: '#D946EF' },
-  { tw: 'pink', color: '#EC4899' },
-  { tw: 'rose', color: '#F43F5E' },
+  { name: 'red', hex: '#EF4444' },
+  { name: 'orange', hex: '#F97316' },
+  { name: 'amber', hex: '#F59E0B' },
+  { name: 'yellow', hex: '#EAB308' },
+  { name: 'lime', hex: '#84CC16' },
+  { name: 'green', hex: '#22C55E' },
+  { name: 'emerald', hex: '#10B981' },
+  { name: 'teal', hex: '#14B8A6' },
+  { name: 'cyan', hex: '#06B6D4' },
+  { name: 'sky', hex: '#0EA5E9' },
+  { name: 'blue', hex: '#3B82F6' },
+  { name: 'indigo', hex: '#6366F1' },
+  { name: 'violet', hex: '#8B5CF6' },
+  { name: 'purple', hex: '#A855F7' },
+  { name: 'fuchsia', hex: '#D946EF' },
+  { name: 'pink', hex: '#EC4899' },
+  { name: 'rose', hex: '#F43F5E' },
 ];
 
 const pickColorForCategory = (startColor: string, i: number, numOfCategories: number) => {
-  const startColorIndex = colors.findIndex(c => c.tw === startColor);
+  const startColorIndex = colors.findIndex(c => c.name === startColor);
   const step = Math.floor(colors.length / numOfCategories);
   return colors[(startColorIndex + i * step) % colors.length];
 };
@@ -81,10 +81,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     };
   }
 
-  const data = await require(`../_data/${hostSlug ?? 'ALL'}.json`);
+  // eslint-disable-next-line node/no-unpublished-require
+  const { accounts } = await require(`../_data/${hostSlug ?? 'ALL'}.json`);
+  // eslint-disable-next-line node/no-unpublished-require
   const { collectiveCounts } = await require(`../_data/shared.json`);
 
-  const collectives = data.accounts.nodes.map(collective => {
+  const collectives = accounts.nodes.map(collective => {
     const stats = getStats(collective);
     const location = getLocation(collective);
     return {
@@ -103,9 +105,11 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   });
 
   let categories;
+
+  // If no categories defined, generate them from most popular tags
   if (!host?.categories) {
-    // go through collectives and find the top tags
-    const tags = collectives.reduce((acc, collective) => {
+    // Go through collectives and count tags
+    const tagCounts = collectives.reduce((acc, collective) => {
       collective.tags?.forEach(tag => {
         if (!acc[tag]) {
           acc[tag] = 0;
@@ -115,15 +119,17 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       return acc;
     }, {});
 
-    const sortedTags = Object.keys(tags).sort((a, b) => tags[b] - tags[a]);
+    const sortedTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b] - tagCounts[a]);
 
+    /* Find the top tags that are (sort of?) "mutually exclusive", so that we are not displaying many categories 
+       that are essentially the same (Open Source, Javascript, React etc), by adding a single count for each
+       collectives' most popular tag. */
     const topMutuallyExclusiveTags = collectives.reduce((acc, collective) => {
       if (!collective.tags) {
         return acc;
       }
-      // go through 20 top tags
+      // Go through 20 top tags until we find one that is in the collective and add count to it
       for (let i = 0; i < 20; i++) {
-        // cap this number
         const tag = sortedTags[i];
         if (collective.tags?.includes(tag)) {
           if (!acc[tag]) {
@@ -140,10 +146,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     );
     const topMutualExclusiveTagsSortedOnActualCount = sortedMutualExclusiveTags
       .slice(0, 6)
-      .sort((a, b) => tags[b] - tags[a]);
+      .sort((a, b) => tagCounts[b] - tagCounts[a]);
 
     categories = topMutualExclusiveTagsSortedOnActualCount.map(tag => {
-      // capitalize first letter in all words
+      // Capitalize first letter in all words for the label
       const label = tag
         .split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -154,9 +160,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   } else {
     categories = host.categories;
   }
-  // add color to categories
+
+  // Add All category and add colors and counts
   categories = [{ label: 'All Categories', tag: 'ALL' }, ...categories].map((category, i, arr) => {
-    const { color, tw } = pickColorForCategory(host?.color ?? 'blue', i, arr.length);
+    const color = pickColorForCategory(host?.color ?? 'blue', i, arr.length);
 
     const count = collectives.filter(
       collective => category.tag === 'ALL' || collective.tags?.includes(category.tag),
@@ -165,7 +172,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     return {
       ...category,
       color,
-      tw,
       count,
     };
   });
@@ -191,7 +197,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       .map(async story => {
         return {
           ...story,
-          tags: story.tags.map(tag => ({ color: categories.find(c => c.tag === tag)?.color ?? null, tag: tag })),
+          // tags: story.tags.map(tag => ({ color: categories.find(c => c.tag === tag)?.color.hex ?? null, tag: tag })),
           content: await markdownToHtml(story.content),
         };
       }),
