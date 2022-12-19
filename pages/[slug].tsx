@@ -81,9 +81,9 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     };
   }
 
-  // eslint-disable-next-line node/no-unpublished-require
+  // eslint-disable-next-line node/no-missing-require, node/no-unpublished-require
   const { accounts } = await require(`../_data/${hostSlug ?? 'ALL'}.json`);
-  // eslint-disable-next-line node/no-unpublished-require
+  // eslint-disable-next-line node/no-missing-require, node/no-unpublished-require
   const { collectiveCounts } = await require(`../_data/shared.json`);
 
   const collectives = accounts.nodes.map(collective => {
