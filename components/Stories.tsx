@@ -69,7 +69,7 @@ export const Story = ({ story, openCollectiveModal }) => {
                 <CollectiveButton collective={story.collective} openCollectiveModal={openCollectiveModal} />
               </div>
               <LocationTag location={story.collective.location} />
-              {story?.tags?.map(({ tag }) => (
+              {story?.tags?.map(tag => (
                 <span key={tag} className="rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-700">
                   {tag}
                 </span>
