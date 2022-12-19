@@ -3,10 +3,9 @@
 @tailwind utilities;
 
 body {
-  @apply antialiased;
+  @apply antialiased text-gray-800 bg-gray-50;
+  /* TODO: switch to Inter when we are on Next.js 13 that can load custom fonts without layout shift and with better performance */
   font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;;
-  background: #f9fafb;
-  color: #333;
 }
 
 * {

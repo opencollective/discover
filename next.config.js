@@ -1,12 +1,9 @@
 /* eslint-disable no-process-env */
 
 const nextTranspileModules = require('next-transpile-modules');
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-});
+
 const config = {
   eslint: { ignoreDuringBuilds: true },
-  // staticPageGenerationTimeout: 1000 * 60 * 15, // 15 minutes
   i18n: {
     locales: ['en'],
     defaultLocale: 'en',
@@ -71,4 +68,4 @@ const config = {
 };
 
 const withTm = nextTranspileModules(['@opencollective/frontend-components']);
-module.exports = withBundleAnalyzer(withTm(config));
+module.exports = withTm(config);

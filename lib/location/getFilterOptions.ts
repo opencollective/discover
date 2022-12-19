@@ -64,11 +64,6 @@ export default function getFilterOptions(collectives) {
   const states = Object.values(foundLocations.states);
   const cities = Object.values(foundLocations.cities).sort((a, b) => b.count - a.count);
 
-  // .map(c => {
-  //   const city = cityData.find(c2 => c2.code === c.value);
-  //   return { ...c, label: country.code === 'US' ? 'USA' : country.name, region: country.region };
-  // });
-
   const topCities = cities.slice(0, 5);
   const restCities = cities.slice(5);
 
@@ -86,12 +81,6 @@ export default function getFilterOptions(collectives) {
       .sort((a, b) => a.label.localeCompare(b.label))
       .forEach(country => {
         regionsAndCountriesNested.push(country);
-        // cities
-        //   .filter(city => city.countryCode === country.code)
-        //   .sort((a, b) => a.label.localeCompare(b.label))
-        //   .forEach(city => {
-        //     regionsAndCountriesNested.push(city);
-        //   });
       });
   });
 

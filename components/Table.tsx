@@ -1,7 +1,6 @@
 import React from 'react';
 import { ChevronLeft } from '@styled-icons/fa-solid/ChevronLeft';
 import { ChevronRight } from '@styled-icons/fa-solid/ChevronRight';
-import { SortDown } from '@styled-icons/fa-solid/SortDown';
 import { usePagination, useSortBy, useTable } from 'react-table';
 import styled from 'styled-components';
 
