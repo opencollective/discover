@@ -3,7 +3,7 @@ import React from 'react';
 export function InfoBox({ host }) {
   return (
     <div
-      className={`flex-col items-center justify-center px-2 lg:rounded-lg lg:p-10 ${host.styles.brandBox} ${
+      className={`flex-col items-center justify-center px-2 lg:rounded-lg lg:p-12 ${host.styles.brandBox} ${
         !host.cta ? 'hidden lg:flex' : 'flex'
       }`}
     >

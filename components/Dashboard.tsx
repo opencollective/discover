@@ -1,5 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
+import { useInView } from 'react-intersection-observer';
 
 import { computeStats, computeTimeSeries } from '../lib/compute-data';
 import filterLocation, { LocationFilter } from '../lib/location/filterLocation';
@@ -94,7 +95,7 @@ export default function Dashboard({
     setIsModalOpen(true);
   };
 
-  const collectivesDataContainer = useRef(null);
+  const { ref: collectivesRef, inView: collectivesInView } = useInView({ initialInView: true });
   const currentCategory = categories.find(category =>
     filter.tag ? category.tag === filter.tag : category.tag === 'ALL',
   );
@@ -122,24 +123,14 @@ export default function Dashboard({
             filter={filter}
             setFilter={setFilter}
             categories={categories}
-            collectivesDataContainerRef={collectivesDataContainer}
+            collectivesInView={collectivesInView}
             currentCategory={currentCategory}
             locationOptions={locationOptions}
             locale={locale}
           />
-          {host.cta?.href && (
-            <a
-              href={host.cta?.href ?? host.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`mt-10 block w-full rounded-full lg:rounded-full ${host.styles.button} p-3 py-4 text-center text-sm font-medium lg:text-lg`}
-            >
-              <span className="hidden lg:inline-block">{host.cta?.buttonLabel}</span>
-            </a>
-          )}
         </div>
         <div className="space-y-12 lg:col-span-3">
-          <div className=" space-y-5 rounded-lg bg-white py-4 lg:mx-0 lg:py-8" ref={collectivesDataContainer}>
+          <div className="space-y-5 rounded-lg bg-white py-4 lg:mx-0 lg:py-8" ref={collectivesRef}>
             <Stats stats={stats} locale={locale} currency={currency} />
             <div className="lg:px-4">
               <Chart

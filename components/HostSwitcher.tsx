@@ -35,7 +35,7 @@ export default function HostSwitcher({ host, hosts, platformTotalCollectives, lo
                   </button>
                 )}
               </span>
-              <span className={!lastWord && hostNameStyles}> </span>
+              <span className={!lastWord ? hostNameStyles : ''}> </span>
             </Fragment>
           );
         })}

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment } from 'react';
 import AnimateHeight from 'react-animate-height';
 
 import CategoryFilter from './CategorySelect';
@@ -38,25 +38,9 @@ export const Filters = ({
   locationOptions,
   mobile = false,
   currentCategory,
-  collectivesDataContainerRef,
+  collectivesInView,
 }) => {
-  const [hideLocationAndTimeFilters, setHideLocationAndTimeFilters] = useState(false);
   const [expanded, setExpanded] = React.useState(!mobile);
-
-  const handleScroll = () => {
-    const { bottom } = collectivesDataContainerRef.current.getBoundingClientRect();
-    // hide extra filters only related to collectives data
-    if (bottom < (expanded ? 300 : 100)) {
-      setHideLocationAndTimeFilters(true);
-    } else {
-      setHideLocationAndTimeFilters(false);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <div className="relative z-50 translate-x-0 bg-white">
@@ -87,7 +71,7 @@ export const Filters = ({
         />
       </AnimateHeight>
 
-      <AnimateHeight id="date-location-filters" duration={500} height={hideLocationAndTimeFilters ? 0 : 'auto'}>
+      <AnimateHeight id="date-location-filters" duration={500} height={collectivesInView ? 'auto' : 0}>
         <div className="mt-1 border-t pb-1 pt-2 lg:mt-4 lg:pt-4">
           <div className="space-y-1 lg:space-y-2">
             <Dropdown
