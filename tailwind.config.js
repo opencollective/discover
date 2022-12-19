@@ -15,9 +15,6 @@ module.exports = {
       borderWidth: {
         3: '3px',
       },
-      colors: {
-        'ocf-brand': '#0C5559',
-      },
     },
   },
   plugins: [],
