@@ -1,7 +1,7 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Dialog, Transition } from '@headlessui/react';
-import AnimateHeight, { Height } from 'react-animate-height';
+import AnimateHeight from 'react-animate-height';
 import { FormattedDate } from 'react-intl';
 import sanitizeHtml from 'sanitize-html';
 
@@ -20,18 +20,6 @@ export const collectiveQuery = gql`
       description
       admins: members(role: [ADMIN], limit: 0) {
         totalCount
-      }
-      ... on Collective {
-        host {
-          name
-          slug
-        }
-      }
-      ... on Fund {
-        host {
-          name
-          slug
-        }
       }
 
       updates(limit: 3, onlyPublishedUpdates: true) {
@@ -56,15 +44,7 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
     variables: { slug: collective?.slug },
     skip: !collective,
   });
-  const [height, setHeight] = useState<Height>(0);
 
-  useEffect(() => {
-    if (data?.account) {
-      setHeight('auto');
-    } else {
-      setHeight(0);
-    }
-  }, [data]);
   if (!collective) {
     return null;
   }
@@ -127,21 +107,19 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                         ))}
                       </div>
                     )}
-                    <AnimateHeight id="description" duration={500} height={height}>
-                      <div className="space-y-3">
-                        <p className="text-sm text-gray-500">
-                          Fiscal Host:{' '}
-                          <a
-                            className="text-black hover:text-blue-600"
-                            href={`https://opencollective.com/${data?.account?.host?.slug}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {data?.account?.host?.name}
-                          </a>
-                        </p>
-                        <p className="text-base text-gray-500">{data?.account?.description}</p>
-                      </div>
+                    <p className="text-sm text-gray-500">
+                      Fiscal Host:{' '}
+                      <a
+                        className="text-black hover:text-blue-600"
+                        href={`https://opencollective.com/${collective.host.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {collective.host.name}
+                      </a>
+                    </p>
+                    <AnimateHeight id="description" duration={500} height={data?.account ? 'auto' : 0}>
+                      <p className="text-base text-gray-500">{data?.account?.description}</p>
                     </AnimateHeight>
                     <div className="font-regular grid grid-cols-2 gap-2 rounded-lg bg-gray-50 px-5 py-4 text-gray-700">
                       <div className={statsLabelClasses}>Raised</div>
@@ -170,7 +148,7 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                       </div>
                     </div>
 
-                    <AnimateHeight id="updates" duration={500} height={height}>
+                    <AnimateHeight id="updates" duration={500} height={data?.account ? 'auto' : 0}>
                       {data?.account?.updates?.nodes?.length > 0 && (
                         <div>
                           <h4 className="mb-1 text-base text-gray-800">Updates</h4>
