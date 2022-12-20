@@ -143,7 +143,7 @@ export default function CollectiveModal({ isOpen, onClose, collective, locale = 
                         <p className="text-base text-gray-500">{data?.account?.description}</p>
                       </div>
                     </AnimateHeight>
-                    <div className="grid grid-cols-2 gap-2 rounded bg-gray-50 p-4 font-medium text-gray-700">
+                    <div className="font-regular grid grid-cols-2 gap-2 rounded-lg bg-gray-50 px-5 py-4 text-gray-700">
                       <div className={statsLabelClasses}>Raised</div>
                       <div>
                         {formatCurrency(collective.stats?.ALL.raised, currency, {
