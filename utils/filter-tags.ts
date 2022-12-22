@@ -1,7 +1,7 @@
-export const filterTags = (collectives, tag, categoriesToTags) => {
+export const filterTags = (collectives, tag, groupTags) => {
   if (!tag || tag === 'ALL') {
     return collectives;
   }
-  const tags = categoriesToTags[tag] || [tag];
+  const tags = groupTags[tag] || [tag];
   return collectives.filter(collective => tags.some(tag => collective.tags?.includes(tag)));
 };

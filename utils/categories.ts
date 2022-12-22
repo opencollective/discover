@@ -1,6 +1,6 @@
 import { pickColorForCategory } from './colors';
 import { getTagCounts } from './tag-counts';
-import { getCategoryTags } from './tag-transforms';
+import { transformToGroupTags } from './tag-transforms';
 
 export const createCategories = ({
   collectives,
@@ -47,7 +47,7 @@ export const createCategories = ({
 
     // Filter away collectives that are part of the tag just added
     collectivesNotCategorized = collectivesNotCategorized.filter(
-      coll => !getCategoryTags(coll.tags, groupTags)?.includes(tag),
+      coll => !transformToGroupTags(coll.tags, groupTags)?.includes(tag),
     );
   }
 

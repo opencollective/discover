@@ -58,7 +58,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       startYear: host.startYear,
       currency: host.currency,
       platformTotalCollectives: collectiveCounts.platform,
-      categoriesToTags: host.groupTags,
     },
   };
 };
@@ -86,7 +85,6 @@ export default function Page({
   currency,
   startYear,
   platformTotalCollectives,
-  categoriesToTags,
 }) {
   // eslint-disable-next-line no-console
   const locale = 'en';
@@ -105,7 +103,6 @@ export default function Page({
         host={host}
         hosts={hosts}
         platformTotalCollectives={platformTotalCollectives}
-        categoriesToTags={categoriesToTags}
       />
     </Layout>
   );

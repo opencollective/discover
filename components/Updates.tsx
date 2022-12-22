@@ -4,7 +4,7 @@ import { Flipped, Flipper } from 'react-flip-toolkit';
 import { FormattedDate } from 'react-intl';
 import sanitizeHtml from 'sanitize-html';
 
-import { getReversedTags } from '../utils/tag-transforms';
+import { getAllPossibleTagValues } from '../utils/tag-transforms';
 
 import CollectiveButton from './CollectiveButton';
 
@@ -36,7 +36,7 @@ export default function Updates({ host, filter, openCollectiveModal }) {
   const { data } = useQuery(updatesQuery, {
     variables: {
       host: host.hostSlugs ? host.hostSlugs.map(slug => ({ slug })) : { slug: host.slug },
-      ...(filter.tag !== 'ALL' && { tag: getReversedTags(filter.tag, host.tagTransforms) }),
+      ...(filter.tag !== 'ALL' && { tag: getAllPossibleTagValues(filter.tag, host.groupTags) }),
       limit: 3,
     },
   });

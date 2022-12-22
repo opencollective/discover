@@ -18,8 +18,8 @@ export function getPostBySlug(slug: string) {
   const { data, content } = matter(fileContents);
 
   type Post = {
-    // [key: string]: string | string[];
     content?: string;
+    slug?: string;
     video?: object;
     tags?: string[];
     location?: string;
@@ -30,34 +30,19 @@ export function getPostBySlug(slug: string) {
 
   const post: Post = {
     ...data,
+    slug: realSlug,
     published: data.published ?? true,
     content,
   };
 
-  // // Ensure only the minimal needed data is exposed
-  // fields.forEach(field => {
-  //   if (field === 'slug') {
-  //     items[field] = realSlug;
-  //   }
-  //   if (field === 'content') {
-  //     items[field] = content;
-  //   }
-
-  //   if (typeof data[field] !== 'undefined') {
-  //     items[field] = data[field];
-  //   }
-  // });
-  // // If published is defined, use that, otherwise default to true
-  // items.published =
-
   return post;
 }
 
-export function getAllPosts(fields: string[] = []) {
+export function getAllPosts() {
   try {
     const slugs = getPostSlugs();
     const posts = slugs
-      .map(slug => getPostBySlug(slug, fields))
+      .map(slug => getPostBySlug(slug))
       .filter(post => post.published)
       // sort posts by date in descending order
       .sort((post1, post2) => (post1.date > post2.date ? -1 : 1));

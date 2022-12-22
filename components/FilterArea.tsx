@@ -37,7 +37,7 @@ export const Filters = ({
       <AnimateHeight id="categories" duration={300} height={!mobile ? 'auto' : expanded ? 'auto' : 0}>
         <CategoryFilter
           locale={locale}
-          selectedTag={filter.tag}
+          filter={filter}
           categories={categories}
           setTagFilter={tag => {
             setFilter({ tag });

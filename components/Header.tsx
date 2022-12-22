@@ -20,7 +20,7 @@ export default function Header({ hosts, platformTotalCollectives, locale, host, 
           host={host}
         />{' '}
         <span>making an impact in</span>{' '}
-        <span className="">
+        <span>
           {categories
             .filter(c => !c.options && c.tag !== 'ALL')
             .map((cat, i, arr) => (

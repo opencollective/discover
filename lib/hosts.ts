@@ -1,4 +1,5 @@
 // Group tags will not transform the tag itself, but just include more tags when filtering on the key tag
+// Group tags should include the tag itself
 const defaultGroupTags = {
   climate: ['climate', 'climate change', 'climate justice', 'climate crisis', 'climate action', 'climate emergency'],
 };

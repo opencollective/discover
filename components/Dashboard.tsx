@@ -44,7 +44,6 @@ export default function Dashboard({
   currency,
   startYear,
   platformTotalCollectives,
-  categoriesToTags,
 }) {
   const router = useRouter();
   const filter: Filter = {
@@ -60,7 +59,7 @@ export default function Dashboard({
   );
 
   const tagFilteredCollectives = React.useMemo(() => {
-    return filterTags(locationFilteredCollectives, filter.tag, categoriesToTags);
+    return filterTags(locationFilteredCollectives, filter.tag, host.groupTags);
   }, [JSON.stringify(filter)]);
 
   // If current tag is not a standard category, replace the "More..." category that has options field
@@ -86,7 +85,7 @@ export default function Dashboard({
             .filter(c => !c.options)
             .map(category => ({
               ...category,
-              collectives: filterTags(locationFilteredCollectives, category.tag, categoriesToTags),
+              collectives: filterTags(locationFilteredCollectives, category.tag, host.groupTags),
             }))
         : [
             {

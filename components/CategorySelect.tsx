@@ -3,14 +3,14 @@ import { cva } from 'class-variance-authority';
 
 import { TagSearchModal } from './TagSearchModal';
 
-const CategoryButton = ({ label, count, color, active, onClick }) => {
+const CategoryButton = ({ label, tag, count, color, active, onClick }) => {
   return (
     <button
       type="button"
       className={cva(
         [
           `flex w-full items-center justify-between rounded-lg border-2 px-4 py-2 transition-colors hover:bg-${color}-50 hover:bg-opacity-50	${
-            label === 'More...' ? 'text-gray-400' : 'text-gray-800'
+            tag ? 'text-gray-800' : 'text-gray-400'
           }`,
         ],
         {
@@ -24,13 +24,13 @@ const CategoryButton = ({ label, count, color, active, onClick }) => {
       )({ active })}
       onClick={onClick}
     >
-      <span className={`font-medium `}>{label}</span>
-      {label !== 'More...' && <span className="text-sm">{count}</span>}
+      <span className="font-medium">{label}</span>
+      {!!tag && <span className="text-sm">{count}</span>}
     </button>
   );
 };
 
-const CategorySelect = ({ categories, selectedTag, setTagFilter, locale }) => {
+const CategorySelect = ({ categories, filter, setTagFilter, locale }) => {
   const [tagSearchModalOpen, setTagSearchModalOpen] = useState(false);
 
   function closeTagSearch() {
@@ -40,6 +40,7 @@ const CategorySelect = ({ categories, selectedTag, setTagFilter, locale }) => {
   function openTagSearch() {
     setTagSearchModalOpen(true);
   }
+
   const optionsCategory = categories.find(cat => cat.options);
   return (
     <Fragment>
@@ -49,9 +50,10 @@ const CategorySelect = ({ categories, selectedTag, setTagFilter, locale }) => {
             <CategoryButton
               key={category.label}
               label={category.label}
+              tag={category.tag}
               count={category.count?.toLocaleString(locale)}
               color={category.color.name}
-              active={selectedTag === category.tag}
+              active={filter.tag === category.tag}
               onClick={() => (!category.options ? setTagFilter(category.tag) : openTagSearch())}
             />
           );
@@ -60,7 +62,7 @@ const CategorySelect = ({ categories, selectedTag, setTagFilter, locale }) => {
       <TagSearchModal
         open={tagSearchModalOpen}
         handleClose={closeTagSearch}
-        currentCategory={optionsCategory.tag === selectedTag ? optionsCategory : null}
+        currentCategory={optionsCategory.tag === filter.tag ? optionsCategory : null}
         options={optionsCategory.options}
         locale={locale}
         setTagFilter={setTagFilter}

@@ -21,7 +21,7 @@ export default function HostSwitcher({ host, hosts, platformTotalCollectives, lo
     <Fragment>
       <label htmlFor="host-switcher" className="group cursor-pointer">
         {/* Split host name so that we can put switcher chevron in a no-wrap span with the last word, keeping it on the same line */}
-        {host.name.split(' ').map((word, i, arr) => {
+        {host.name.split(' ').map((word: string, i, arr) => {
           const lastWord = i === arr.length - 1;
           return (
             <Fragment key={word}>
@@ -79,7 +79,7 @@ export default function HostSwitcher({ host, hosts, platformTotalCollectives, lo
                   <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
                     {hosts.map(host => (
                       <button
-                        key={host.slug}
+                        key={host.slug ?? 'root'}
                         className={`flex flex-col items-center justify-center gap-3 rounded-xl border-3 p-6 text-center lg:h-60 lg:gap-6 ${host.styles.box} border-transparent transition-colors`}
                         onClick={() => {
                           router.push(`/${host.slug ?? ''}`);

@@ -1,6 +1,8 @@
-// Default tag transforms. These will be applied to all collectives.
-// These should fix various typos and inconsistencies of the same thing
-// For grouping tags under each other, either use defaultGroupTags or groupTags in the host config
+import { uniq } from 'lodash';
+
+// Tag transforms that are applied to all accounts.
+// These are intended to fix various inconsistencies of the same thing
+// For grouping tags under each other, use defaultGroupTags or groupTags in the host config
 const tagTransforms = {
   opensource: 'open source',
   'open-source': 'open source',
@@ -16,77 +18,37 @@ const tagTransforms = {
   Climate: 'climate',
 };
 
-const transformTag = tag => tagTransforms[tag] || tag;
-
-export const transformTags = tags => {
-  return tags?.map(tag => transformTag(tag)).filter((tag, i, arr) => arr.indexOf(tag) === i) ?? null;
-};
-
-export const getCategoryTags = (tags, groupTags) => {
-  const tagsToCategoryTag = getTagsToCategory(groupTags);
-  return tags?.map(tag => tagsToCategoryTag[tag] || tag).filter((tag, i, arr) => arr.indexOf(tag) === i) ?? null;
-};
-
-const getTagsToCategory = groupTags => {
-  return groupTags
-    ? Object.entries(groupTags).reduce((acc, [key, value]) => {
-        value.forEach(tag => {
-          acc[tag] = key;
-        });
-        return acc;
-      }, {})
-    : null;
-};
-
-export const addTransformedTags = (tag, tagTransforms) => {
-  const result = [tag];
-  const transformedTag = tagTransforms[tag];
-  if (transformedTag) {
-    result.push(transformedTag);
+export const transformTags = (tags: string[]) => {
+  if (!tags) {
+    return null;
   }
-  const transformedTwice = tagTransforms[transformedTag];
-  if (transformedTwice) {
-    result.push(transformedTwice);
-  }
-  return result;
+  return uniq(tags.map(tag => tagTransforms[tag] || tag));
 };
 
-// a function that given a tag will return an array of tags that are equivalent
-export const reverseTagTransformAll = (tag, tagTransforms) => {
-  const transformedTags = Object.entries(tagTransforms).reduce((acc, [key, value]) => {
-    if (value === tag) {
+// Transform tags to grouped tags, i.e. if a tag is in a group, return the group key otherwise return the tag
+export const transformToGroupTags = (tags: string[], groupTags: { [key: string]: string[] }) => {
+  const groupedTagKey = Object.entries(groupTags).reduce((acc, [key, value]) => {
+    value.forEach(tag => {
+      acc[tag] = key;
+    });
+    return acc;
+  }, {});
+  return uniq(tags?.map(tag => groupedTagKey[tag] || tag)) ?? null;
+};
+
+// This is used to reverse the group tags AND the tag transforms when querying the API
+export const getAllPossibleTagValues = (tag: string, groupTags: { [key: string]: string[] }): string[] => {
+  const tags = groupTags[tag] || [tag];
+  const acc = [...tags];
+
+  const reverseTagTransforms = Object.entries(tagTransforms).reduce((acc, [key, value]) => {
+    if (tags.includes(value)) {
       acc.push(key);
     }
     return acc;
   }, []);
 
-  return [...transformedTags, tag];
-};
+  acc.push(...reverseTagTransforms);
 
-export const reverseTagTransform = (tag, tagTransforms) =>
-  Object.entries(tagTransforms).reduce((acc, [key, value]) => {
-    if (value === tag) {
-      acc.push(key);
-    }
-    return acc;
-  }, []);
-
-// a function that given a tag will return an array of tags that are equivalent
-// Supports two levels of reversing.
-export const getReversedTags = (tag, tagTransforms) => {
-  if (!tagTransforms) {
-    return [tag];
-  }
-  const reversedTags = reverseTagTransform(tag, tagTransforms);
-
-  // for (const reversedTag of reversedTags) {
-  //   const reversedTwice = reverseTagTransform(reversedTag, tagTransforms);
-
-  //   console.log({ reversedTwice });
-  //   // if (reversedTwice) {
-  //   //   reversedTags.push(...reversedTwice);
-  //   // }
-  // }
-
-  return [...reversedTags, tag];
+  return acc;
 };
