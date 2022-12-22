@@ -5,7 +5,7 @@ import { formatCurrency } from '@opencollective/frontend-components/lib/currency
 const Metric = ({ value, label }: { label: string; value: string }) => {
   return (
     <div className="text-center">
-      <p className="mb-0.5 text-lg font-bold lg:text-3xl lg:font-medium">{value}</p>
+      <p className="mb-0.5 text-lg font-semibold lg:text-3xl">{value}</p>
       <span className="text-sm text-gray-700 lg:text-lg">{label}</span>
     </div>
   );
