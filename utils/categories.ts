@@ -78,6 +78,6 @@ export const createCategories = ({
 
   return categories.map((category, i, arr) => ({
     ...category,
-    color: pickColorForCategory('blue', i, arr.length),
+    color: pickColorForCategory(host.color.closestPaletteColor, i, arr.length),
   }));
 };
