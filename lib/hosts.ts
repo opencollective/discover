@@ -27,8 +27,15 @@ export const hosts: {
   currency: string;
   startYear: number;
   logoSrc: string;
-  color: string;
-  styles: { text: string; groupHoverText: string; button: string; brandBox: string; box: string; border: string };
+  color: { closestPaletteColor: string; brand: string };
+  styles: {
+    text: string;
+    groupHoverText: string;
+    button: string;
+    brandBox: string;
+    box: string;
+    border: string;
+  };
   website?: string;
   cta?: { text: string; textLonger: string; href: string; buttonLabel: string };
   groupTags: { [key: string]: string[] };
@@ -58,7 +65,7 @@ export const hosts: {
     currency: 'USD',
     startYear: 2016,
     logoSrc: '/oc-logo.svg',
-    color: 'blue',
+    color: { closestPaletteColor: 'blue', brand: '#0C2D66' },
     website: 'https://opencollective.com',
     styles: {
       text: 'text-[#0C2D66]',
@@ -82,7 +89,7 @@ export const hosts: {
     currency: 'USD',
     startYear: 2018,
     logoSrc: '/ocf-logo.svg',
-    color: 'teal',
+    color: { closestPaletteColor: 'teal', brand: '#0C5559' },
     styles: {
       text: 'text-[#0C5559]',
       groupHoverText: 'group-hover:text-[#0C5559]',
@@ -110,7 +117,7 @@ export const hosts: {
     startYear: 2016,
     logoSrc: '/osc-logo.svg',
     website: 'https://opencollective.com/opensource',
-    color: 'purple',
+    color: { closestPaletteColor: 'purple', brand: '#4B3084' },
     styles: {
       text: 'text-[#4B3084]',
       groupHoverText: 'group-hover:text-[#4B3084]',
@@ -132,7 +139,7 @@ export const hosts: {
     startYear: 2019,
     logoSrc: '/oce-logo.svg',
     website: 'https://opencollective.com/europe',
-    color: 'blue',
+    color: { closestPaletteColor: 'blue', brand: '#0C2D66' },
     styles: {
       text: 'text-[#0C2D66]',
       groupHoverText: 'group-hover:text-[#0C2D66]',

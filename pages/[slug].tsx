@@ -1,10 +1,10 @@
 import React from 'react';
 import type { GetStaticProps } from 'next';
-import Head from 'next/head';
 
 import { hosts as _hosts } from '../lib/hosts';
 
 import Dashboard from '../components/Dashboard';
+import Head from '../components/Head';
 import Layout from '../components/Layout';
 
 import { createCategories } from '../utils/categories';
@@ -90,9 +90,7 @@ export default function Page({
   const locale = 'en';
   return (
     <Layout>
-      <Head>
-        <title>Discover {host.name}</title>
-      </Head>
+      <Head host={host} categories={categories} />
       <Dashboard
         categories={categories}
         collectives={collectives}
