@@ -2,7 +2,7 @@ import React from 'react';
 
 import HostSwitcher from './HostSwitcher';
 
-export default function Header({ hosts, platformTotalCollectives, locale, host, categories, filter, setFilter }) {
+export default function Header({ hosts, locale, host, categories, filter, setFilter }) {
   return (
     <div
       className={`flex w-full flex-col justify-center bg-white p-6 lg:mx-0 lg:rounded-lg lg:p-10 ${
@@ -14,8 +14,7 @@ export default function Header({ hosts, platformTotalCollectives, locale, host, 
           Discover {host.count.toLocaleString(locale)} collectives
           {host.root ? ' on ' : ' hosted by '}
         </span>
-        <HostSwitcher hosts={hosts} platformTotalCollectives={platformTotalCollectives} locale={locale} host={host} />{' '}
-        <span>making an impact in</span>{' '}
+        <HostSwitcher hosts={hosts} locale={locale} host={host} /> <span>making an impact in</span>{' '}
         <span>
           {categories
             .filter(c => !c.options && c.tag !== 'ALL')

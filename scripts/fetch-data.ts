@@ -20,6 +20,7 @@ for (const env of ['local', process.env.NODE_ENV || 'development']) {
 
 import { initializeApollo } from '../lib/apollo-client';
 import { accountsQuery, totalCountQuery } from '../lib/graphql/queries';
+
 import { getAllCollectiveStats } from '../utils/stats';
 
 dayjs.extend(dayjsPluginUTC);

@@ -74,16 +74,7 @@ export async function getStaticPaths() {
   };
 }
 
-export default function Page({
-  categories,
-  stories,
-  host,
-  hosts,
-  collectives,
-  currency,
-  startYear,
-  platformTotalCollectives,
-}) {
+export default function Page({ categories, stories, host, hosts, collectives, currency, startYear }) {
   // eslint-disable-next-line no-console
   const locale = 'en';
   return (
@@ -100,7 +91,6 @@ export default function Page({
         locale={locale}
         host={host}
         hosts={hosts}
-        platformTotalCollectives={platformTotalCollectives}
       />
     </Layout>
   );

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 
 import { ChevronUpDown, CloseIcon } from './Icons';
 
-export default function HostSwitcher({ host, hosts, platformTotalCollectives, locale }) {
+export default function HostSwitcher({ host, hosts, locale }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 

@@ -34,17 +34,7 @@ const getLocationFilterParams = query => {
   return location && locationType ? { type: locationType, value: location } : null;
 };
 
-export default function Dashboard({
-  host,
-  hosts,
-  categories,
-  collectives,
-  stories,
-  locale,
-  currency,
-  startYear,
-  platformTotalCollectives,
-}) {
+export default function Dashboard({ host, hosts, categories, collectives, stories, locale, currency, startYear }) {
   const router = useRouter();
   const filter: Filter = {
     slug: host.slug ?? '',
@@ -122,7 +112,6 @@ export default function Dashboard({
           categories={categories}
           host={host}
           locale={locale}
-          platformTotalCollectives={platformTotalCollectives}
           filter={filter}
           setFilter={setFilter}
         />
