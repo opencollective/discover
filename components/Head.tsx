@@ -15,7 +15,7 @@ export default function Head({ host, categories }) {
       />
       <meta
         property="og:image"
-        content={`http://localhost:3000/api/og?${!host.root ? `hostSlug=${host.slug}&` : ``}count=${
+        content={`https://discover.opencollective.com/api/og?${!host.root ? `hostSlug=${host.slug}&` : ``}count=${
           host.count
         }&tags=${categoryLabels.map(label => encodeURIComponent(label)).join(',')}`}
       />
