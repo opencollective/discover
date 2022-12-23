@@ -60,7 +60,7 @@ export default async function OG(req: NextRequest) {
         <div style={{ display: 'flex', flexWrap: 'wrap' }}>
           <span style={spanStyle}>Discover</span> <span style={spanStyle}>{count?.toLocaleString()}</span>{' '}
           <span style={spanStyle}>collectives</span> <span style={spanStyle}>{host.root ? 'on' : 'hosted by'}</span>{' '}
-          {host.name.split(' ').map((word, i) => {
+          {host.name.split(' ').map(word => {
             return (
               <span
                 key={word}
