@@ -9,7 +9,6 @@ import Layout from '../components/Layout';
 
 import { createCategories } from '../utils/categories';
 import { getLocation } from '../utils/location/get-location';
-import { getAllCollectiveStats } from '../utils/stats';
 import { getStories } from '../utils/stories';
 import { transformTags } from '../utils/tag-transforms';
 
@@ -32,15 +31,14 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   }
 
   const collectives = accounts.nodes.map(collective => {
-    const stats = getAllCollectiveStats(collective);
     const location = getLocation(collective);
     return {
       name: collective.name,
       slug: collective.slug,
       imageUrl: collective.imageUrl.replace('-staging', ''),
       host: { name: collective.host.name, slug: collective.host.slug },
-      tags: transformTags(collective.tags),
-      ...(stats && { stats }),
+      tags: transformTags(collective),
+      stats: collective.stats,
       ...(location && { location }),
     };
   });

@@ -10,15 +10,11 @@ export default function Header({ hosts, platformTotalCollectives, locale, host, 
       }`}
     >
       <h1 className="text-[24px] font-bold leading-snug tracking-tight text-[#111827] lg:text-[40px]">
-        <span>Discover {host.count.toLocaleString(locale)}</span>
-        {host.root && <span className={`relative -top-2 -mx-0.5 -mr-1 select-none text-gray-400`}>*</span>}{' '}
-        <span>collectives {host.root ? 'on ' : 'hosted by '}</span>
-        <HostSwitcher
-          hosts={hosts}
-          platformTotalCollectives={platformTotalCollectives}
-          locale={locale}
-          host={host}
-        />{' '}
+        <span>
+          Discover {host.count.toLocaleString(locale)} collectives
+          {host.root ? ' on ' : ' hosted by '}
+        </span>
+        <HostSwitcher hosts={hosts} platformTotalCollectives={platformTotalCollectives} locale={locale} host={host} />{' '}
         <span>making an impact in</span>{' '}
         <span>
           {categories
@@ -44,12 +40,7 @@ export default function Header({ hosts, platformTotalCollectives, locale, host, 
         </span>
         <span>and more.</span>
       </h1>
-      {host.root && (
-        <p className="mt-4 text-sm text-gray-600">
-          * out of {platformTotalCollectives.toLocaleString(locale)} collectives on Open Collective. Displaying data
-          from selected Fiscal Hosts.
-        </p>
-      )}
+      {host.root && <p className="mt-4 text-sm text-gray-600">* Data from selected Fiscal Hosts.</p>}
     </div>
   );
 }
