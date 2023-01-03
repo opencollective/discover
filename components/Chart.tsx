@@ -138,7 +138,7 @@ const getSeriesDataFromNodes = (nodes, startYear, timePeriod) => {
       };
     }
   } else if (timePeriod === 'PAST_YEAR') {
-    for (let month = 12; month >= 0; month--) {
+    for (let month = 12; month > 0; month--) {
       const date = dayjs.utc().subtract(month, 'month').startOf('month').toISOString();
 
       keyedData[date] = {
@@ -147,7 +147,7 @@ const getSeriesDataFromNodes = (nodes, startYear, timePeriod) => {
       };
     }
   } else if (timePeriod === 'PAST_QUARTER') {
-    for (let week = 12; week >= 0; week--) {
+    for (let week = 12; week > 0; week--) {
       const date = dayjs.utc().subtract(week, 'week').startOf('isoWeek').toISOString();
 
       keyedData[date] = {
