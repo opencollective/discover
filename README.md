@@ -32,7 +32,7 @@ The Updates section is using a client side request to the API, as well as some C
 Fork this repository, or clone it directly, and then install dependencies
 
 ```
-git clone https://github.com/opencollective/horizons
+git clone https://github.com/opencollective/horizons.git
 cd horizons
 npm install
 ```
