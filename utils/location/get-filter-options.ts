@@ -74,7 +74,7 @@ export default function getFilterOptions(collectives) {
     ...regions,
     ...countries,
     ...cities,
-    { type: 'other', value: 'online', label: 'Online', count: collectives.filter(c => c.location?.isOnline).length },
-    { type: 'other', value: 'global', label: 'Global', count: collectives.filter(c => c.location?.isGlobal).length },
+    { type: 'other', value: 'online', label: 'Online' },
+    { type: 'other', value: 'global', label: 'Global' },
   ];
 }
