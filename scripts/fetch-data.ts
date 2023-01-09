@@ -79,14 +79,18 @@ async function graphqlRequest(query, variables: any = {}) {
 
 async function fetchDataForPage(host) {
   const { slug, currency, root } = host;
-  const quarterAgo = dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString();
-  const yearAgo = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
+  const quarterFrom = dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString();
+  const quarterTo = dayjs.utc().subtract(1, 'week').endOf('isoWeek').toISOString();
+  const yearFrom = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
+  const yearTo = dayjs.utc().subtract(1, 'month').endOf('month').toISOString();
 
   const variables = {
     ...(root ? { host: host.hostSlugs.map(slug => ({ slug })) } : { host: { slug } }),
     currency,
-    quarterAgo,
-    yearAgo,
+    quarterFrom,
+    quarterTo,
+    yearFrom,
+    yearTo,
     offset: 0,
     limit: 250,
   };
