@@ -2,8 +2,9 @@ import React, { Fragment } from 'react';
 import AnimateHeight from 'react-animate-height';
 
 import CategoryFilter from './CategorySelect';
-import Dropdown from './Dropdown';
-import { CloseIcon, DateIcon, FilterIcon, LocationPin } from './Icons';
+import { CloseIcon, FilterIcon } from './Icons';
+import { LocationFilter } from './LocationFilter';
+import { TimeFilter } from './TimeFilter';
 
 export const Filters = ({
   filter,
@@ -16,7 +17,6 @@ export const Filters = ({
   collectivesInView,
 }) => {
   const [expanded, setExpanded] = React.useState(!mobile);
-
   return (
     <div className="relative z-50 bg-white">
       {mobile && (
@@ -49,43 +49,23 @@ export const Filters = ({
       <AnimateHeight id="date-location-filters" duration={500} height={collectivesInView ? 'auto' : 0}>
         <div className="mt-1 border-t pb-1 pt-2 lg:mt-4 lg:pt-4">
           <div className="space-y-1 lg:space-y-2">
-            <Dropdown
-              ariaLabel="Location"
+            <LocationFilter
+              filter={filter}
               currentCategoryColor={currentCategory.color.name}
-              fieldLabel={
-                <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium">
-                  <LocationPin />
-                  <span>Location</span>
-                </div>
-              }
-              options={locationOptions.map(option => ({
-                ...option,
-                value: JSON.stringify({ type: option.type, value: option.value }),
-              }))}
-              value={JSON.stringify(filter.location)}
-              onOpen={() => {
-                mobile && setExpanded(false);
-              }}
-              onChange={option => {
-                setFilter({ location: JSON.parse(option.value) });
+              locationOptions={locationOptions}
+              setLocationFilter={locationFilter => {
+                setFilter({ location: locationFilter });
               }}
             />
-            <Dropdown
-              ariaLabel="Date range"
+            <TimeFilter
+              filter={filter}
               currentCategoryColor={currentCategory.color.name}
-              fieldLabel={
-                <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium">
-                  <DateIcon />
-                  <span>Date range</span>
-                </div>
-              }
               options={[
                 { value: 'ALL', label: 'All time' },
                 { value: 'PAST_YEAR', label: 'Past 12 months' },
                 { value: 'PAST_QUARTER', label: 'Past 3 months' },
               ]}
-              value={filter.timePeriod}
-              onChange={({ value }) => {
+              setTimeFilter={value => {
                 setFilter({ timePeriod: value });
               }}
             />
