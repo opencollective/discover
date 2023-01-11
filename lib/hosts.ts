@@ -77,8 +77,6 @@ export const hosts: {
     },
     groupTags: {
       ...defaultGroupTags,
-      'mutual aid': ['mutual aid', 'covid'],
-      education: ['education', 'meetup'],
     },
     includeCategoryTags: [],
     excludeCategoryTags: [...defaultExcludeCategoryTags],
@@ -107,7 +105,7 @@ export const hosts: {
     groupTags: {
       ...defaultGroupTags,
     },
-    includeCategoryTags: ['climate', 'food'],
+    includeCategoryTags: [],
     excludeCategoryTags: [...defaultExcludeCategoryTags],
   },
   {
