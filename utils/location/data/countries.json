@@ -678,7 +678,7 @@
   { "name": "Ukraine", "code": "UA", "code3chars": "UKR", "region": "Europe", "subRegion": "Eastern Europe" },
   { "name": "United Arab Emirates", "code": "AE", "code3chars": "ARE", "region": "Asia", "subRegion": "Western Asia" },
   {
-    "name": "United Kingdom of Great Britain and Northern Ireland",
+    "name": "United Kingdom",
     "code": "GB",
     "code3chars": "GBR",
     "region": "Europe",

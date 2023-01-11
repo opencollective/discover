@@ -22,5 +22,6 @@ export function transformTags(collective) {
   if (suggestedTags) {
     tags.push(...suggestedTags);
   }
+
   return uniq(tags);
 }

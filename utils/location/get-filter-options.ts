@@ -5,6 +5,8 @@ type LocationOption = {
   value: string;
   label?: string;
   count: number;
+  country?: string;
+  region?: string;
 };
 
 export default function getFilterOptions(collectives) {
@@ -33,6 +35,7 @@ export default function getFilterOptions(collectives) {
         foundLocations.countries[c.location.countryCode] = {
           type: 'country',
           value: c.location.countryCode,
+          region: c.location.region,
           count: (foundLocations.countries[c.location.countryCode]?.count || 0) + 1,
         };
       }
@@ -49,50 +52,29 @@ export default function getFilterOptions(collectives) {
           value: c.location.city,
           label: c.location.city,
           count: (foundLocations.cities[c.location.city]?.count || 0) + 1,
+          country: c.location.countryCode,
+          region: c.location.region,
         };
       }
     }
   });
 
-  const regions = Object.values(foundLocations.regions).sort((a, b) => a.label.localeCompare(b.label));
+  const regions = Object.values(foundLocations.regions).sort((a, b) => b.count - a.count);
 
-  const countries = Object.values(foundLocations.countries).map(c => {
-    const country = countriesData.find(c2 => c2.code === c.value);
-    return { ...c, label: country.name, region: country.region };
-  });
+  const countries = Object.values(foundLocations.countries)
+    .map(c => {
+      const country = countriesData.find(c2 => c2.code === c.value);
+      return { ...c, label: country.name, region: country.region };
+    })
+    .sort((a, b) => b.count - a.count);
 
-  const states = Object.values(foundLocations.states);
   const cities = Object.values(foundLocations.cities).sort((a, b) => b.count - a.count);
 
-  const topCities = cities.slice(0, 5);
-  const restCities = cities.slice(5);
-
-  // add top cities with hr below
-  const regionsAndCountriesNested = [];
-  // for each region
-  regions.forEach(region => {
-    // add the region to the options
-    regionsAndCountriesNested.push(region);
-    // add the countries in that region to the options
-    countries
-      .filter(country => {
-        return country.region === region.value;
-      })
-      .sort((a, b) => a.label.localeCompare(b.label))
-      .forEach(country => {
-        regionsAndCountriesNested.push(country);
-      });
-  });
-
   return [
-    { type: null, value: null, label: 'All locations', count: collectives.length },
-    ...topCities,
-    { hr: true },
-    ...regionsAndCountriesNested,
-    { break: true },
-    ...restCities,
-    ...states,
-    { type: 'other', value: 'online', label: 'Online', count: collectives.filter(c => c.location?.isOnline).length },
-    { type: 'other', value: 'global', label: 'Global', count: collectives.filter(c => c.location?.isGlobal).length },
+    ...regions,
+    ...countries,
+    ...cities,
+    { type: 'other', value: 'online', label: 'Online' },
+    { type: 'other', value: 'global', label: 'Global' },
   ];
 }

@@ -128,7 +128,7 @@ export const hosts: {
       ...defaultGroupTags,
     },
     includeCategoryTags: [],
-    excludeCategoryTags: [...defaultExcludeCategoryTags, 'open source'],
+    excludeCategoryTags: [...defaultExcludeCategoryTags, 'open source', 'hacktoberfest'],
   },
   {
     name: 'Open Collective Europe',
