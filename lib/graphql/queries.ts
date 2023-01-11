@@ -3,8 +3,10 @@ import { gql } from '@apollo/client';
 export const accountsQuery = gql`
   query SearchAccounts(
     $host: [AccountReferenceInput]
-    $quarterAgo: DateTime
-    $yearAgo: DateTime
+    $quarterFrom: DateTime
+    $quarterTo: DateTime
+    $yearFrom: DateTime
+    $yearTo: DateTime
     $currency: Currency
     $limit: Int
     $offset: Int
@@ -45,13 +47,20 @@ export const accountsQuery = gql`
         }
 
         PAST_YEAR: stats {
-          contributorsCount(includeChildren: true, dateFrom: $yearAgo)
-          totalAmountSpent(net: true, includeChildren: true, dateFrom: $yearAgo, currency: $currency) {
+          contributorsCount(includeChildren: true, dateFrom: $yearFrom, dateTo: $yearTo)
+          totalAmountSpent(
+            net: true
+            includeChildren: true
+            dateFrom: $yearFrom
+            dateTo: $yearTo
+            currency: $currency
+          ) {
             valueInCents
           }
           totalAmountReceivedTimeSeries(
             net: true
-            dateFrom: $yearAgo
+            dateFrom: $yearFrom
+            dateTo: $yearTo
             timeUnit: MONTH
             includeChildren: true
             currency: $currency
@@ -67,13 +76,20 @@ export const accountsQuery = gql`
         }
 
         PAST_QUARTER: stats {
-          contributorsCount(includeChildren: true, dateFrom: $quarterAgo)
-          totalAmountSpent(net: true, includeChildren: true, dateFrom: $quarterAgo, currency: $currency) {
+          contributorsCount(includeChildren: true, dateFrom: $quarterFrom, dateTo: $quarterTo)
+          totalAmountSpent(
+            net: true
+            includeChildren: true
+            dateFrom: $quarterFrom
+            dateTo: $quarterTo
+            currency: $currency
+          ) {
             valueInCents
           }
           totalAmountReceivedTimeSeries(
             net: true
-            dateFrom: $quarterAgo
+            dateFrom: $quarterFrom
+            dateTo: $quarterTo
             timeUnit: WEEK
             includeChildren: true
             currency: $currency
