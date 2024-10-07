@@ -166,15 +166,23 @@ async function run() {
       data = await fetchDataForPage(host);
 
       // add total stats to collectives, and filter away collectives with no stats data
-      data.accounts.nodes = data.accounts.nodes
-        .map(account => {
-          const stats = getAllCollectiveStats(account);
-          return {
-            ...account,
-            stats,
-          };
-        })
-        .filter(account => account.stats);
+      const updatedAccounts = {
+        ...data.accounts,
+        nodes: data.accounts.nodes
+          .map(account => {
+            const stats = getAllCollectiveStats(account);
+            return {
+              ...account,
+              stats,
+            };
+          })
+          .filter(account => account.stats),
+      };
+
+      data = {
+        ...data,
+        accounts: updatedAccounts,
+      };
 
       if (host.root) {
         rootData = data;

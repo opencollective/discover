@@ -46,7 +46,6 @@ export const hosts: {
     root: true,
     name: 'Open Collective',
     hostSlugs: [
-      'foundation',
       'europe',
       'opensource',
       'allforclimate',
@@ -81,33 +80,6 @@ export const hosts: {
       education: ['education', 'meetup'],
     },
     includeCategoryTags: [],
-    excludeCategoryTags: [...defaultExcludeCategoryTags],
-  },
-  {
-    name: 'Open Collective Foundation',
-    slug: 'foundation',
-    currency: 'USD',
-    startYear: 2018,
-    logoSrc: '/ocf-logo.svg',
-    color: { hex: '#0C5559', closestPaletteColor: 'teal' },
-    styles: {
-      text: 'text-[#0C5559]',
-      groupHoverText: 'group-hover:text-[#0C5559]',
-      button: 'bg-[#0C5559] text-white',
-      brandBox: 'lg:bg-[#F7FEFF] text-[#0C5559]',
-      box: 'bg-[#F7FEFF] text-[#0C5559]',
-      border: 'border-[#00a0a8]',
-    },
-    cta: {
-      href: 'https://opencollective.com/solidarity-economy-fund/donate',
-      buttonLabel: 'Contribute',
-      text: 'Contribute to many collectives at once',
-      textLonger: 'Contribute to a pooled fund to benefit multiple collectives within Open Collective Foundation',
-    },
-    groupTags: {
-      ...defaultGroupTags,
-    },
-    includeCategoryTags: ['climate', 'food'],
     excludeCategoryTags: [...defaultExcludeCategoryTags],
   },
   {
