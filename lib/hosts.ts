@@ -46,6 +46,7 @@ export const hosts: {
     root: true,
     name: 'Open Collective',
     hostSlugs: [
+      'foundation',
       'europe',
       'opensource',
       'allforclimate',
