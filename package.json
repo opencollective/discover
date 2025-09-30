@@ -8,8 +8,8 @@
     "url": "https://github.com/opencollective/opencollective/issues"
   },
   "engines": {
-    "node": "16.x",
-    "npm": "8.x"
+    "node": "20.x",
+    "npm": "10.x"
   },
   "scripts": {
     "dev": "next -p 3004",
@@ -34,9 +34,8 @@
   "dependencies": {
     "@apollo/client": "3.6.5",
     "@headlessui/react": "^1.7.4",
-    "@opencollective/frontend-components": "0.3.8",
+    "@opencollective/frontend-components": "0.5.0",
     "@styled-icons/fa-solid": "^10.46.0",
-    "@styled-system/prop-types": "^5.1.5",
     "apexcharts": "^3.36.3",
     "babel-plugin-formatjs": "^10.3.31",
     "babel-plugin-react-remove-properties": "^0.3.0",
@@ -49,17 +48,14 @@
     "gray-matter": "^4.0.3",
     "lodash": "4.17.21",
     "next": "12.3.1",
-    "next-auth": "4.15.0",
+    "next-auth": "4.24.11",
     "next-transpile-modules": "^9.1.0",
     "nextjs-progressbar": "0.0.16",
     "node-fetch": "2.6.7",
-    "nodemailer": "6",
-    "polished": "^4.2.2",
-    "prop-types": "^15.8.1",
-    "react": "^17.0.2",
+    "react": "18.2.0",
     "react-animate-height": "^3.0.5",
     "react-apexcharts": "^1.4.0",
-    "react-dom": "^17.0.2",
+    "react-dom": "18.2.0",
     "react-intersection-observer": "^9.4.1",
     "react-intl": "^6.2.1",
     "react-lite-youtube-embed": "^2.3.52",
@@ -68,7 +64,6 @@
     "remark-html": "^15.0.1",
     "sanitize-html": "^2.7.3",
     "styled-components": "^5.3.6",
-    "styled-system": "^5.1.5",
     "swiper": "^8.4.5"
   },
   "devDependencies": {
