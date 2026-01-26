@@ -80,7 +80,7 @@ export default function Page({ categories, stories, host, hosts, collectives, cu
   return (
     <Layout>
       <Head>
-        <title>Discover {host.name}</title>
+        <title>{`Discover ${host.name}`}</title>
       </Head>
       <Dashboard
         categories={categories}
