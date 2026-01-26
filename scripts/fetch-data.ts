@@ -29,71 +29,42 @@ dayjs.extend(dayjsPluginIsoWeek);
 const apolloClient = initializeApollo({ fetch: nodeFetch });
 
 async function graphqlRequest(query, variables: any = {}) {
-  let data;
-  // retry fetch 5 times
+  const maxRetries = 5;
 
-  for (let i = 0; i <= 5; i++) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      if (i === 0) {
-        ({ data } = await apolloClient.query({
-          query,
-          variables,
-        }));
-      } else {
-        console.log('Retrying with half limit, attempt', i, 'of 5');
-        const halfLimit = Math.floor(variables.limit / 2);
-        const { data: dataFirst } = await apolloClient.query({
-          query,
-          variables: { ...variables, offset: variables.offset, limit: halfLimit },
-        });
-        console.log('first half success');
-        const { data: dataSecond } = await apolloClient.query({
-          query,
-          variables: { ...variables, offset: variables.offset + halfLimit, limit: variables.limit - halfLimit },
-        });
-        console.log('second half success');
-        data = {
-          accounts: {
-            nodes: [...dataFirst.accounts.nodes, ...dataSecond.accounts.nodes],
-            totalCount: dataFirst.accounts.totalCount,
-            limit: dataFirst.accounts.limit + dataSecond.accounts.limit,
-            offset: dataFirst.accounts.offset,
-          },
-        };
-      }
-
-      if (data) {
-        break;
-      }
+      const { data } = await apolloClient.query({ query, variables });
+      return data;
     } catch (error) {
-      console.error('Error while fetching data', error);
+      console.error(`Attempt ${attempt}/${maxRetries} failed:`, error.message);
+      if (attempt < maxRetries) {
+        console.log(`Retrying...`);
+      }
     }
   }
 
-  if (!data) {
-    throw new Error('Failed to fetch data');
-  }
-
-  return data;
+  throw new Error('Failed to fetch data after multiple retries');
 }
 
 async function fetchDataForPage(host) {
-  const { slug, currency, root } = host;
+  const { slug, hostSlugs, currency } = host;
   const quarterFrom = dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString();
   const quarterTo = dayjs.utc().subtract(1, 'week').endOf('isoWeek').toISOString();
   const yearFrom = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
   const yearTo = dayjs.utc().subtract(1, 'month').endOf('month').toISOString();
 
   const variables = {
-    ...(root ? { host: host.hostSlugs.map(slug => ({ slug })) } : { host: { slug } }),
+    host: hostSlugs ? hostSlugs.map(s => ({ slug: s })) : { slug },
     currency,
     quarterFrom,
     quarterTo,
     yearFrom,
     yearTo,
     offset: 0,
-    limit: 250,
+    limit: 100,
   };
+
+  console.log(variables);
 
   let data = await graphqlRequest(accountsQuery, variables);
 
