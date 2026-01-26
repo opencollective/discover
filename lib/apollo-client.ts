@@ -6,7 +6,7 @@ import merge from 'deepmerge';
 import isEqual from 'lodash/isEqual';
 import { GetSessionParams } from 'next-auth/react';
 
-import { PublicEnv } from './env';
+import { PrivateEnv, PublicEnv } from './env';
 
 export const APOLLO_STATE_PROP_NAME = '__APOLLO_STATE__';
 
@@ -33,7 +33,8 @@ function createApolloClient({ context, fetch }: { context?: GetSessionParams; fe
         ...headers,
         // authorization: session?.accessToken ? `Bearer ${session?.accessToken}` : '',
         // eslint-disable-next-line no-process-env
-        ...(process.env.OPENCOLLECTIVE_API_KEY && { 'Api-Key': process.env.OPENCOLLECTIVE_API_KEY }),
+        ...(PrivateEnv.OPENCOLLECTIVE_API_KEY && { 'Api-Key': PrivateEnv.OPENCOLLECTIVE_API_KEY }),
+        ...(PrivateEnv.OPENCOLLECTIVE_PERSONAL_TOKEN && { 'Personal-Token': PrivateEnv.OPENCOLLECTIVE_PERSONAL_TOKEN }),
       },
     };
   });
