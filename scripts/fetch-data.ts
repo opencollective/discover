@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 
-import Bottleneck from 'bottleneck';
 import dayjs from 'dayjs';
 import dayjsPluginIsoWeek from 'dayjs/plugin/isoWeek';
 import dayjsPluginUTC from 'dayjs/plugin/utc';
@@ -23,36 +22,37 @@ for (const env of ['local', process.env.NODE_ENV || 'development']) {
 import { initializeApollo } from '../lib/apollo-client';
 import { accountBySlugQuery, accountsQuery, totalCountQuery } from '../lib/graphql/queries';
 
+import { rateLimiter } from '../utils/rate-limiter';
 import { getAllCollectiveStats } from '../utils/stats';
 
 dayjs.extend(dayjsPluginUTC);
 dayjs.extend(dayjsPluginIsoWeek);
 
-const apolloClient = initializeApollo({ fetch: nodeFetch });
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Wrap fetch to track rate limit headers
+const fetchWithRateLimit = async (url, options) => {
+  const response = await nodeFetch(url, options);
+  rateLimiter.update(response.headers);
+  return response;
+};
+
+const apolloClient = initializeApollo({ fetch: fetchWithRateLimit });
 
 const hasValidStats = account =>
   account.ALL?.totalAmountReceivedTimeSeries &&
   account.PAST_YEAR?.totalAmountReceivedTimeSeries &&
   account.PAST_QUARTER?.totalAmountReceivedTimeSeries;
 
-// Rate limiter: 60 requests per minute
-const limiter = new Bottleneck({
-  reservoir: 60,
-  reservoirRefreshAmount: 60,
-  reservoirRefreshInterval: 60 * 1000, // 1 minute
-  maxConcurrent: 5,
-});
-
-async function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 async function graphqlRequest(query, variables: any = {}): Promise<{ data: any; elapsed: string }> {
-  const requestId = variables.slug || variables.offset || 'unknown';
-  return limiter.schedule(async () => {
-    const maxRetries = 5;
-    const requestStart = Date.now();
+  await rateLimiter.waitIfNeeded();
 
+  const maxRetries = 5;
+  const requestStart = Date.now();
+
+  try {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       const attemptStart = Date.now();
       try {
@@ -61,28 +61,63 @@ async function graphqlRequest(query, variables: any = {}): Promise<{ data: any; 
         return { data, elapsed };
       } catch (error) {
         const elapsed = ((Date.now() - attemptStart) / 1000).toFixed(2);
-        const is429 = error.message?.includes('429');
         const statusCode = error.networkError?.statusCode || error.statusCode;
+        const is429 = statusCode === 429 || error.message?.includes('429');
         const bodyText = error.networkError?.bodyText || error.bodyText;
-        console.error(`[${requestId}] Attempt ${attempt}/${maxRetries} failed after ${elapsed}s:`, error.message);
-        console.error(`[${requestId}] Variables:`, JSON.stringify(variables));
+        const headers = error.networkError?.response?.headers;
+        console.error(`Request failed after ${elapsed}s:`, error.message);
+        console.error(`Variables:`, JSON.stringify(variables));
         if (statusCode) {
-          console.error(`[${requestId}] Status code: ${statusCode}`);
+          console.error(`Status code: ${statusCode}`);
         }
         if (bodyText) {
-          console.error(`[${requestId}] Response body: ${bodyText.substring(0, 500)}`);
+          console.error(`Response body: ${bodyText.substring(0, 500)}`);
         }
-        if (attempt < maxRetries) {
-          // Exponential backoff, longer for rate limit errors
-          const backoff = is429 ? Math.pow(2, attempt) * 1000 : attempt * 500;
-          console.log(`[${requestId}] Retrying in ${backoff}ms...`);
+        if (headers) {
+          console.error('Response headers:', Object.fromEntries(headers.entries?.() || []));
+        }
+
+        // Only retry on 429 rate limit errors, let other errors trigger split
+        if (is429 && attempt < maxRetries) {
+          const backoff = Math.pow(2, attempt) * 1000;
+          console.log(`Rate limited, retrying in ${backoff}ms (attempt ${attempt}/${maxRetries})...`);
           await sleep(backoff);
+        } else {
+          throw error;
         }
       }
     }
 
-    throw new Error(`Failed to fetch data after multiple retries (${requestId})`);
-  });
+    throw new Error(`Failed to fetch data after multiple retries`);
+  } finally {
+    rateLimiter.done();
+  }
+}
+
+async function fetchBatchWithSplit(baseVariables: any, offset: number, limit: number, depth = 0): Promise<any[]> {
+  const indent = '  '.repeat(depth);
+  try {
+    const { data, elapsed } = await graphqlRequest(accountsQuery, { ...baseVariables, offset, limit });
+    console.log(
+      `${indent}Fetched offset ${offset}, limit ${limit}: ${data.accounts.nodes.length} accounts in ${elapsed}s`,
+    );
+    return data.accounts.nodes;
+  } catch (error) {
+    if (limit <= 1) {
+      console.error(`${indent}Failed to fetch single account at offset ${offset}, skipping: ${error.message}`);
+      return [];
+    }
+    // Split the batch in half and retry each half
+    const half = Math.ceil(limit / 2);
+    console.log(
+      `${indent}Splitting batch at offset ${offset} (limit ${limit}) into two halves of ${half} and ${limit - half}`,
+    );
+    const [firstHalf, secondHalf] = await Promise.all([
+      fetchBatchWithSplit(baseVariables, offset, half, depth + 1),
+      fetchBatchWithSplit(baseVariables, offset + half, limit - half, depth + 1),
+    ]);
+    return [...firstHalf, ...secondHalf];
+  }
 }
 
 async function fetchDataForPage(host) {
@@ -92,7 +127,7 @@ async function fetchDataForPage(host) {
   const yearFrom = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
   const yearTo = dayjs.utc().subtract(1, 'month').endOf('month').toISOString();
 
-  const pageSize = 10;
+  const pageSize = 16;
   const baseVariables = {
     host: hostSlugs ? hostSlugs.map(s => ({ slug: s })) : { slug },
     currency,
@@ -102,37 +137,34 @@ async function fetchDataForPage(host) {
     yearTo,
   };
 
-  // First request to get total count
+  // First request to get total count and first batch
   const { data: firstData } = await graphqlRequest(accountsQuery, { ...baseVariables, offset: 0, limit: pageSize });
   const totalCount = firstData.accounts.totalCount;
+
+  console.log(`Total accounts to fetch: ${totalCount} (batch size: ${pageSize})`);
 
   if (totalCount <= pageSize) {
     return firstData;
   }
 
-  // Calculate pages needed (excluding first page already fetched)
-  const remainingPages = Math.ceil((totalCount - pageSize) / pageSize);
-  const offsets = Array.from({ length: remainingPages }, (_, i) => (i + 1) * pageSize);
+  // Calculate remaining batches needed
+  const remainingCount = totalCount - pageSize;
+  const remainingBatches = Math.ceil(remainingCount / pageSize);
+  const batches = Array.from({ length: remainingBatches }, (_, i) => ({
+    offset: (i + 1) * pageSize,
+    limit: Math.min(pageSize, totalCount - (i + 1) * pageSize),
+  }));
 
-  console.log(`Fetching ${totalCount} accounts in ${remainingPages + 1} pages (page size: ${pageSize})`);
+  console.log(`Fetching ${totalCount} accounts in ${remainingBatches + 1} batches`);
 
-  let fetchedPages = 0;
-  const fetchPage = async (offset: number) => {
-    const { data, elapsed } = await graphqlRequest(accountsQuery, { ...baseVariables, offset, limit: pageSize });
-    fetchedPages++;
-    console.log(
-      `Page ${fetchedPages}/${remainingPages}: offset ${offset}, fetched ${data.accounts.nodes.length} in ${elapsed}s`,
-    );
-    return data.accounts.nodes;
-  };
-
-  // Fetch all remaining pages concurrently with rate limiting
+  // Fetch all remaining batches concurrently with rate limiting and split-on-failure
   const startTime = Date.now();
-  const pageResults = await Promise.all(offsets.map(fetchPage));
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+  const batchResults = await Promise.all(
+    batches.map(batch => fetchBatchWithSplit(baseVariables, batch.offset, batch.limit)),
+  );
+  const allNodes = [firstData.accounts.nodes, ...batchResults].flat();
 
-  // Merge all nodes
-  const allNodes = [firstData.accounts.nodes, ...pageResults].flat();
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
   console.log(`Total: fetched ${allNodes.length} accounts in ${elapsed}s`);
 
   return {
