@@ -40,6 +40,7 @@
     "babel-plugin-formatjs": "^10.3.31",
     "babel-plugin-react-remove-properties": "^0.3.0",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
+    "bottleneck": "^2.19.5",
     "class-variance-authority": "^0.3.0",
     "dayjs": "^1.11.6",
     "deepmerge": "4.2.2",

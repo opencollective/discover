@@ -115,3 +115,104 @@ export const totalCountQuery = gql`
     }
   }
 `;
+
+export const accountBySlugQuery = gql`
+  query AccountBySlug(
+    $slug: String!
+    $quarterFrom: DateTime
+    $quarterTo: DateTime
+    $yearFrom: DateTime
+    $yearTo: DateTime
+    $currency: Currency
+  ) {
+    account(slug: $slug, throwIfMissing: false) {
+      name
+      slug
+      imageUrl
+      tags
+      location {
+        country
+      }
+      ... on AccountWithHost {
+        host {
+          slug
+          name
+        }
+      }
+
+      ALL: stats {
+        contributorsCount(includeChildren: true)
+        totalAmountSpent(net: true, includeChildren: true, currency: $currency) {
+          valueInCents
+        }
+        totalAmountReceivedTimeSeries(net: true, timeUnit: YEAR, includeChildren: true, currency: $currency) {
+          timeUnit
+          nodes {
+            date
+            amount {
+              valueInCents
+            }
+          }
+        }
+      }
+
+      PAST_YEAR: stats {
+        contributorsCount(includeChildren: true, dateFrom: $yearFrom, dateTo: $yearTo)
+        totalAmountSpent(
+          net: true
+          includeChildren: true
+          dateFrom: $yearFrom
+          dateTo: $yearTo
+          currency: $currency
+        ) {
+          valueInCents
+        }
+        totalAmountReceivedTimeSeries(
+          net: true
+          dateFrom: $yearFrom
+          dateTo: $yearTo
+          timeUnit: MONTH
+          includeChildren: true
+          currency: $currency
+        ) {
+          timeUnit
+          nodes {
+            date
+            amount {
+              valueInCents
+            }
+          }
+        }
+      }
+
+      PAST_QUARTER: stats {
+        contributorsCount(includeChildren: true, dateFrom: $quarterFrom, dateTo: $quarterTo)
+        totalAmountSpent(
+          net: true
+          includeChildren: true
+          dateFrom: $quarterFrom
+          dateTo: $quarterTo
+          currency: $currency
+        ) {
+          valueInCents
+        }
+        totalAmountReceivedTimeSeries(
+          net: true
+          dateFrom: $quarterFrom
+          dateTo: $quarterTo
+          timeUnit: WEEK
+          includeChildren: true
+          currency: $currency
+        ) {
+          timeUnit
+          nodes {
+            date
+            amount {
+              valueInCents
+            }
+          }
+        }
+      }
+    }
+  }
+`;
