@@ -158,13 +158,7 @@ export const accountBySlugQuery = gql`
 
       PAST_YEAR: stats {
         contributorsCount(includeChildren: true, dateFrom: $yearFrom, dateTo: $yearTo)
-        totalAmountSpent(
-          net: true
-          includeChildren: true
-          dateFrom: $yearFrom
-          dateTo: $yearTo
-          currency: $currency
-        ) {
+        totalAmountSpent(net: true, includeChildren: true, dateFrom: $yearFrom, dateTo: $yearTo, currency: $currency) {
           valueInCents
         }
         totalAmountReceivedTimeSeries(

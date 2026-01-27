@@ -180,14 +180,12 @@ async function fetchAdditionalCollectives(currency: string, existingSlugs: Set<s
   // Progress tracking
   let completed = 0;
   const total = slugsToFetch.length;
-  const startTime = Date.now();
 
   const results = await Promise.all(
     slugsToFetch.map(async slug => {
       const result = await fetchAccount(slug);
       completed++;
       if (completed % 10 === 0 || completed === total) {
-        const elapsed = (Date.now() - startTime) / 1000;
         console.log(`Progress: ${completed}/${total}`);
       }
       return result;
