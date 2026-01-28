@@ -4,13 +4,13 @@ function sleep(ms: number) {
 
 // Simple API-driven rate limiter that spaces requests evenly across the window
 export const rateLimiter = {
-  remaining: 100,
+  remaining: 100, // Local estimate (decremented on start, synced on response)
   limit: 100,
+  minRemaining: 1, // Buffer to avoid hitting exact limit
   resetAt: 0, // Unix timestamp in seconds
   nextAllowedAt: 0, // Next request allowed at (ms timestamp)
   running: 0,
   maxConcurrent: 5,
-  minRemaining: 0, // Wait for reset when remaining drops to this
   acquireLock: Promise.resolve(), // Serialize acquire calls
 
   async waitIfNeeded() {
@@ -47,7 +47,7 @@ export const rateLimiter = {
       }
 
       // Calculate interval for next request
-      if (this.resetAt > 0 && this.remaining > this.minRemaining) {
+      if (this.resetAt > 0 && this.remaining > 0) {
         const msUntilReset = this.resetAt * 1000 - Date.now();
         if (msUntilReset > 0) {
           const interval = msUntilReset / this.remaining;
@@ -55,6 +55,8 @@ export const rateLimiter = {
         }
       }
 
+      // Decrement remaining NOW (API counts on receive, not on response)
+      this.remaining--;
       this.running++;
     } finally {
       releaseLock();

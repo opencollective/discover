@@ -77,10 +77,13 @@ async function graphqlRequest(query, variables: any = {}): Promise<{ data: any; 
           console.error('Response headers:', Object.fromEntries(headers.entries?.() || []));
         }
 
-        // Only retry on 429 rate limit errors, let other errors trigger split
-        if (is429 && attempt < maxRetries) {
-          const backoff = Math.pow(2, attempt) * 1000;
-          console.log(`Rate limited, retrying in ${backoff}ms (attempt ${attempt}/${maxRetries})...`);
+        // Retry on 429 (rate limit) and 503 (server overload)
+        const is503 = statusCode === 503;
+        const shouldRetry = (is429 || is503) && attempt < maxRetries;
+
+        if (shouldRetry) {
+          const backoff = is429 ? Math.pow(2, attempt) * 1000 : attempt * 1000;
+          console.log(`Retrying in ${backoff}ms (attempt ${attempt}/${maxRetries})...`);
           await sleep(backoff);
         } else {
           throw error;
