@@ -69,9 +69,22 @@ export const rateLimiter = {
     const reset = headers.get('x-ratelimit-reset');
 
     if (remaining !== null) {
-      this.remaining = parseInt(remaining);
+      const serverRemaining = parseInt(remaining);
+      const resetAt = parseInt(reset) || 0;
       this.limit = parseInt(limit) || 100;
-      this.resetAt = parseInt(reset) || 0;
+
+      if (resetAt < this.resetAt) {
+        // Late response from a previous window, ignore
+        return;
+      } else if (resetAt > this.resetAt) {
+        // New window: other in-flight requests may not be counted by the server yet
+        this.resetAt = resetAt;
+        this.remaining = serverRemaining - Math.max(this.running - 1, 0);
+      } else {
+        // Same window: responses arrive out of order, so a late response can report a stale (higher) value.
+        // Only ever lower the local estimate.
+        this.remaining = Math.min(this.remaining, serverRemaining);
+      }
 
       // const msUntilReset = this.resetAt * 1000 - Date.now();
       // const interval = msUntilReset > 0 && this.remaining > 0 ? (msUntilReset / this.remaining).toFixed(0) : '?';

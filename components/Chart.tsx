@@ -146,6 +146,16 @@ const getSeriesDataFromNodes = (nodes, startYear, timePeriod) => {
         y: 0,
       };
     }
+  } else if (timePeriod === 'CURRENT_YEAR') {
+    const lastMonth = dayjs.utc().subtract(1, 'month').startOf('month');
+    for (let month = 0; month <= lastMonth.month(); month++) {
+      const date = lastMonth.month(month).toISOString();
+
+      keyedData[date] = {
+        x: date,
+        y: 0,
+      };
+    }
   } else if (timePeriod === 'PAST_QUARTER') {
     for (let week = 12; week > 0; week--) {
       const date = dayjs.utc().subtract(week, 'week').startOf('isoWeek').toISOString();

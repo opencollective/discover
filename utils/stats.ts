@@ -21,6 +21,7 @@ export const getAllCollectiveStats = collective => {
   const stats = {
     ALL: getCollectiveStats(collective.ALL),
     PAST_YEAR: getCollectiveStats(collective.PAST_YEAR),
+    CURRENT_YEAR: getCollectiveStats(collective.CURRENT_YEAR),
     PAST_QUARTER: getCollectiveStats(collective.PAST_QUARTER),
   };
   return stats.ALL.raised !== 0 ? stats : null;

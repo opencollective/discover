@@ -7,6 +7,8 @@ export const accountsQuery = gql`
     $quarterTo: DateTime
     $yearFrom: DateTime
     $yearTo: DateTime
+    $currentYearFrom: DateTime
+    $currentYearTo: DateTime
     $currency: Currency
     $limit: Int
     $offset: Int
@@ -75,6 +77,35 @@ export const accountsQuery = gql`
           }
         }
 
+        CURRENT_YEAR: stats {
+          contributorsCount(includeChildren: true, dateFrom: $currentYearFrom, dateTo: $currentYearTo)
+          totalAmountSpent(
+            net: true
+            includeChildren: true
+            dateFrom: $currentYearFrom
+            dateTo: $currentYearTo
+            currency: $currency
+          ) {
+            valueInCents
+          }
+          totalAmountReceivedTimeSeries(
+            net: true
+            dateFrom: $currentYearFrom
+            dateTo: $currentYearTo
+            timeUnit: MONTH
+            includeChildren: true
+            currency: $currency
+          ) {
+            timeUnit
+            nodes {
+              date
+              amount {
+                valueInCents
+              }
+            }
+          }
+        }
+
         PAST_QUARTER: stats {
           contributorsCount(includeChildren: true, dateFrom: $quarterFrom, dateTo: $quarterTo)
           totalAmountSpent(
@@ -123,6 +154,8 @@ export const accountBySlugQuery = gql`
     $quarterTo: DateTime
     $yearFrom: DateTime
     $yearTo: DateTime
+    $currentYearFrom: DateTime
+    $currentYearTo: DateTime
     $currency: Currency
   ) {
     account(slug: $slug, throwIfMissing: false) {
@@ -165,6 +198,35 @@ export const accountBySlugQuery = gql`
           net: true
           dateFrom: $yearFrom
           dateTo: $yearTo
+          timeUnit: MONTH
+          includeChildren: true
+          currency: $currency
+        ) {
+          timeUnit
+          nodes {
+            date
+            amount {
+              valueInCents
+            }
+          }
+        }
+      }
+
+      CURRENT_YEAR: stats {
+        contributorsCount(includeChildren: true, dateFrom: $currentYearFrom, dateTo: $currentYearTo)
+        totalAmountSpent(
+          net: true
+          includeChildren: true
+          dateFrom: $currentYearFrom
+          dateTo: $currentYearTo
+          currency: $currency
+        ) {
+          valueInCents
+        }
+        totalAmountReceivedTimeSeries(
+          net: true
+          dateFrom: $currentYearFrom
+          dateTo: $currentYearTo
           timeUnit: MONTH
           includeChildren: true
           currency: $currency
