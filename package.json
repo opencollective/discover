@@ -13,7 +13,7 @@
   },
   "scripts": {
     "dev": "next -p 3004",
-    "build": "npm run fetch-data && next build",
+    "build": "next build",
     "graphql:codegen": "graphql-codegen --config scripts/config/graphql-codegen.ts",
     "graphql:update": "npm run graphql:get-schema && npm run graphql:codegen",
     "graphql:get-schema": "ts-node ./scripts/update-gql-schemas.ts http://localhost:3060/graphql/v2 lib/graphql/schemaV2.graphql && prettier lib/graphql/schemaV2.graphql --write",

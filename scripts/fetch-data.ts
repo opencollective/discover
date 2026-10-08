@@ -355,7 +355,7 @@ async function run() {
       const filename = path.join(directory, `${host.root ? 'ALL' : host.slug}.json`);
       console.log('Writing to file', filename);
 
-      fs.writeFile(filename, JSON.stringify(data, null, 2), error => {
+      fs.writeFile(filename, JSON.stringify(data), error => {
         if (error) {
           throw error;
         }

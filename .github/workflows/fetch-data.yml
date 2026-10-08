@@ -1,0 +1,47 @@
+name: Fetch data
+
+on:
+  schedule:
+    - cron: '20 4 * * *' # every day at 04:20
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-data
+  cancel-in-progress: false
+
+jobs:
+  fetch-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.DATA_PUSH_TOKEN || github.token }}
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          CACHE_VERSION: ${{ secrets.CACHE_VERSION }}
+
+      - name: Fetch data
+        run: npm run fetch-data
+        env:
+          NODE_ENV: production
+          OPENCOLLECTIVE_PERSONAL_TOKEN: ${{ secrets.OPENCOLLECTIVE_PERSONAL_TOKEN }}
+
+      - name: Commit and push data
+        run: |
+          git add _data
+          if git diff --cached --quiet; then
+            echo "No data changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update data ($(date -u +%Y-%m-%d))"
+          git push origin HEAD:main
