@@ -92,7 +92,8 @@ const getChartOptions = (intl, timeUnit, hostCurrency, isCompactNotation, colors
       },
       formatter: function (value) {
         if (timeUnit === 'YEAR') {
-          return dayjs(value).utc().year().toString();
+          const year = dayjs(value).utc().year();
+          return year === dayjs.utc().year() ? `${year} (so far)` : year.toString();
         } else if (timeUnit === 'MONTH') {
           if (dayjs(value).utc().month() === 0) {
             return dayjs(value).utc().format('MMM YYYY');
@@ -130,7 +131,8 @@ const getSeriesDataFromNodes = (nodes, startYear, timePeriod) => {
 
   if (timePeriod === 'ALL') {
     const years = dayjs.utc().year() - startYear;
-    for (let year = years; year > 0; year--) {
+    // Include the current (incomplete) year
+    for (let year = years; year >= 0; year--) {
       const date = dayjs.utc().subtract(year, 'year').startOf('year').toISOString();
       keyedData[date] = {
         x: date,
@@ -140,6 +142,16 @@ const getSeriesDataFromNodes = (nodes, startYear, timePeriod) => {
   } else if (timePeriod === 'PAST_YEAR') {
     for (let month = 12; month > 0; month--) {
       const date = dayjs.utc().subtract(month, 'month').startOf('month').toISOString();
+
+      keyedData[date] = {
+        x: date,
+        y: 0,
+      };
+    }
+  } else if (timePeriod === 'CURRENT_YEAR') {
+    const lastMonth = dayjs.utc().subtract(1, 'month').startOf('month');
+    for (let month = 0; month <= lastMonth.month(); month++) {
+      const date = lastMonth.month(month).toISOString();
 
       keyedData[date] = {
         x: date,

@@ -1,9 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 
-import dayjs from 'dayjs';
-import dayjsPluginIsoWeek from 'dayjs/plugin/isoWeek';
-import dayjsPluginUTC from 'dayjs/plugin/utc';
 import dotenv from 'dotenv';
 import nodeFetch from 'node-fetch';
 
@@ -24,9 +21,7 @@ import { accountBySlugQuery, accountsQuery, totalCountQuery } from '../lib/graph
 
 import { rateLimiter } from '../utils/rate-limiter';
 import { getAllCollectiveStats } from '../utils/stats';
-
-dayjs.extend(dayjsPluginUTC);
-dayjs.extend(dayjsPluginIsoWeek);
+import { getDateRanges } from '../utils/time-periods';
 
 function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -44,6 +39,7 @@ const apolloClient = initializeApollo({ fetch: fetchWithRateLimit });
 const hasValidStats = account =>
   account.ALL?.totalAmountReceivedTimeSeries &&
   account.PAST_YEAR?.totalAmountReceivedTimeSeries &&
+  account.CURRENT_YEAR?.totalAmountReceivedTimeSeries &&
   account.PAST_QUARTER?.totalAmountReceivedTimeSeries;
 
 async function graphqlRequest(query, variables: any = {}): Promise<{ data: any; elapsed: string }> {
@@ -126,19 +122,13 @@ async function fetchBatchWithSplit(baseVariables: any, offset: number, limit: nu
 
 async function fetchDataForPage(host) {
   const { slug, hostSlugs, currency } = host;
-  const quarterFrom = dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString();
-  const quarterTo = dayjs.utc().subtract(1, 'week').endOf('isoWeek').toISOString();
-  const yearFrom = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
-  const yearTo = dayjs.utc().subtract(1, 'month').endOf('month').toISOString();
+  const dateRanges = getDateRanges();
 
   const pageSize = 16;
   const baseVariables = {
     host: hostSlugs ? hostSlugs.map(s => ({ slug: s })) : { slug },
     currency,
-    quarterFrom,
-    quarterTo,
-    yearFrom,
-    yearTo,
+    ...dateRanges,
   };
 
   // First request to get total count and first batch
@@ -183,10 +173,7 @@ async function fetchDataForPage(host) {
 }
 
 async function fetchAdditionalCollectives(currency: string, existingSlugs: Set<string>) {
-  const quarterFrom = dayjs.utc().subtract(12, 'week').startOf('isoWeek').toISOString();
-  const quarterTo = dayjs.utc().subtract(1, 'week').endOf('isoWeek').toISOString();
-  const yearFrom = dayjs.utc().subtract(12, 'month').startOf('month').toISOString();
-  const yearTo = dayjs.utc().subtract(1, 'month').endOf('month').toISOString();
+  const dateRanges = getDateRanges();
 
   const slugsToFetch = additionalCollectiveSlugs.filter(slug => !existingSlugs.has(slug));
 
@@ -201,10 +188,7 @@ async function fetchAdditionalCollectives(currency: string, existingSlugs: Set<s
       const { data } = await graphqlRequest(accountBySlugQuery, {
         slug,
         currency,
-        quarterFrom,
-        quarterTo,
-        yearFrom,
-        yearTo,
+        ...dateRanges,
       });
       return data.account;
     } catch (error) {

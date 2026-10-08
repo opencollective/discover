@@ -1,6 +1,8 @@
 import React, { Fragment } from 'react';
 import AnimateHeight from 'react-animate-height';
 
+import { getCurrentYear } from '../utils/time-periods';
+
 import CategoryFilter from './CategorySelect';
 import { CloseIcon, FilterIcon } from './Icons';
 import { LocationFilter } from './LocationFilter';
@@ -62,6 +64,7 @@ export const Filters = ({
               currentCategoryColor={currentCategory.color.name}
               options={[
                 { value: 'ALL', label: 'All time' },
+                { value: 'CURRENT_YEAR', label: `${getCurrentYear()} (so far)` },
                 { value: 'PAST_YEAR', label: 'Past 12 months' },
                 { value: 'PAST_QUARTER', label: 'Past 3 months' },
               ]}
