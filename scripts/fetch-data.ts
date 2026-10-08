@@ -77,9 +77,10 @@ async function graphqlRequest(query, variables: any = {}): Promise<{ data: any; 
           console.error('Response headers:', Object.fromEntries(headers.entries?.() || []));
         }
 
-        // Retry on 429 (rate limit) and 503 (server overload)
-        const is503 = statusCode === 503;
-        const shouldRetry = (is429 || is503) && attempt < maxRetries;
+        // Retry on 429 (rate limit), 5xx (server errors) and network errors (e.g. ECONNRESET)
+        const is5xx = statusCode >= 500;
+        const isNetworkError = error.networkError?.name === 'FetchError';
+        const shouldRetry = (is429 || is5xx || isNetworkError) && attempt < maxRetries;
 
         if (shouldRetry) {
           const backoff = is429 ? Math.pow(2, attempt) * 1000 : attempt * 1000;
