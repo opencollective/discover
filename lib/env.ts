@@ -38,4 +38,7 @@ export const PrivateEnv = {
 
   /* A random string used to encrypt JWTs */
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+
+  OPENCOLLECTIVE_API_KEY: process.env.OPENCOLLECTIVE_API_KEY,
+  OPENCOLLECTIVE_PERSONAL_TOKEN: process.env.OPENCOLLECTIVE_PERSONAL_TOKEN,
 };

@@ -36,7 +36,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       name: collective.name,
       slug: collective.slug,
       imageUrl: collective.imageUrl.replace('-staging', ''),
-      host: { name: collective.host.name, slug: collective.host.slug },
+      host: collective.host ? { name: collective.host.name, slug: collective.host.slug } : null,
       tags: transformTags(collective),
       stats: collective.stats,
       ...(location && { location }),

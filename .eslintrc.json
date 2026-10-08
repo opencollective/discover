@@ -110,7 +110,7 @@
   },
   "overrides": [
     {
-      "files": ["scripts/*.ts"],
+      "files": ["scripts/*.ts", "utils/rate-limiter.ts"],
       "rules": {
         "no-console": "off"
       }
